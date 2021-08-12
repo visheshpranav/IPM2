@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Usage Analysis</title>
+    <link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+    <!-- We use google fonts for many of the examples, but they are not necessary -->
+    <link href='../styles/googleapis_Roboto.css' rel='stylesheet' type='text/css'>
+
+    <!-- Test container style sheets -->
+    <link rel="stylesheet" href="../styles/examples.css">
+
+    <!-- Vizuly specific style sheets -->
+    <link rel="stylesheet" href="../styles/vizuly.css">
+    <link rel="stylesheet" href="../styles/vizuly_weightedtree2.css">
+
+    <!-- Supporting test container files:  Vizuly does NOT rely on these -->
+    <link href="../styles/googleapis_materialicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/cssmenu.css">
+    <script type="text/javascript" src="../JScript/jquery-2.1.1.min.js"></script>
+    <script src="../JScript/cssmenu.js"></script>
+
+    <!-- D3.js ... of course! -->
+    <script src="../JScript/d3.min.js"></script>
+
+    <!-- debug source scripts: end -->
+<style>
+@font-face {
+font-family: 'AccentureRotis';
+src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+}
+html{
+height: 100%;
+width: 100%;
+}
+
+body {
+font-family: AccentureRotis,Arial,sans-serif;
+height: 95%;
+width: 100%;
+}
+
+#header_div
+{
+float: left;
+margin-top: 30px;
+}
+#lstBox1, #lstBox2 {
+	position: absolute;
+	width: 89%;
+	height: 100px;
+	padding: 0;
+	margin: 5px;
+	margin-top: -4px;
+	font-size:12px;
+	font-family: AccentureRotis,Arial,sans-serif;
+}
+#lstBox2{
+	float: left;
+}
+#btnAllRight {
+	width: 30px;
+	height: 30px;
+    margin-left: 20%;
+	margin-top: 5px;
+	transform: rotate(90deg);
+	font-weight: bold;
+	border-radius: 5px;
+	outline: none;
+}
+#btnRight,#btnLeft,#btnAllLeft {
+	width: 30px;
+	height: 30px;
+    margin-left: 5px;
+	margin-top: 5px;
+	transform: rotate(90deg);
+	font-weight: bold;
+	border-radius: 5px;
+	outline: none;
+}
+#CompareTest_lbl1,#CompareTest_lbl{
+	width: 85%;
+	font-weight: bold;
+}
+
+.btn { 
+    background: DodgerBlue;
+    border: 2px solid DodgerBlue;
+    border-radius: 2px;
+    color: white;
+    cursor: pointer;
+    width: 130px;
+    height: 25px;	
+   	line-height: 10px;
+	font-family: AccentureRotis,Arial,sans-serif;
+}
+
+.btn_compare {
+	background-color: DodgerBlue;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:14px;
+	margin-left:16%;
+	margin-top: 2%;
+	padding: 6px 12px;
+	cursor: pointer;
+	border: none;
+	border-radius: 15px;
+	outline: none;
+	font-family: AccentureRotis,Arial,sans-serif;
+}
+
+#Tbl_Compare {
+  border: 1px solid #1C6EA4;
+  width: 75%;
+  text-align: left;
+  border-collapse: collapse;
+  border-radius: 10px;
+}
+#Tbl_Compare td, #Tbl_Compare th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+#Tbl_Compare th {
+  text-align: center;
+}
+#Tbl_Compare tbody td {
+  font-size: 14px;
+}
+#Tbl_Compare tr:nth-child(even) {
+  background: #f2f2f2;
+}
+	.btnn {
+		background-color: DodgerBlue;
+		border: none;
+		color: white;
+		padding: 6px 12px;
+		cursor: pointer;
+		font-size: 14px;
+		border-radius:15px;
+		outline: none;
+		font-family: AccentureRotis,Arial,sans-serif;
+	}
+.list-heading {
+	  width: 85%;
+	  margin-left: 4%; 
+	  font-weight: bold;
+      font-size: 14px;
+      margin: 5px;
+      padding: 5px !important;
+      color: #FFF;
+      background-color: #333;
+	  position: absolute;
+    }
+
+</style>
+
+
+    <script src="../JScript/vizuly_core.min.js"></script>
+	<!--<script src="../JScript/vizuly_weightedtree.min.js"></script>-->
+	<script src="../JScript/TE_vizuly_weightedtree.min.js"></script>
+
+    <script src="../JScript/RCAcom.js"></script>
+
+</head>
+
+<body onload="getloaddetails()" >
+
+
+<div id='cssmenu'>
+    <ul class="main-menu">
+        <li class='active'>
+            <a><span>Display</span><br><span class="setting"></span></a>
+            <!--ul class="options"-->
+                <li id="currentDisplay"></li>
+
+
+        </li>
+
+    </ul>
+</div>
+	<button class="btnn" id="expand_button" onclick="expandall();" style="float:right; width:7.5%; min-width: 75px; margin-left: 10%; margin-top: 12px; position: absolute;"><i class="fa fa-expand" style="padding-right:5px;float:left; "></i> Expand</button>
+    <button class="btnn" id="collapse_button" onclick="collapseall();" style="float:right; width:8%; min-width: 85px; margin-left: 20px; margin-top: 12px;  position: absolute;"><i class="fa fa-compress" style="padding-right:5px;float:left; "></i> Collapse</button>
+	<label style="float:right; width:7.5%; min-width: 75px; margin-left: 20px; margin-top: 44px;  position: absolute; " >Basereport:</label>
+	<label id="labe1" style="float:right; width:7.5%; min-width: 75px; margin-left: 140px; margin-top: 44px;  position: absolute; " >Report1</label>
+	<label style="float:right; width:8%; min-width: 85px; margin-left: 20px; margin-top: 64px;  position: absolute;" >Comparereport:</label>
+	<label id="labe2"  style="float:right; width:8%; min-width: 85px; margin-left: 140px; margin-top: 64px;  position: absolute;" >Report2</label>
+	<button class="btnn" id="Download_Workstream" onclick="clickDownload2();" style="float:right; margin:5px; margin-left: 86%; margin-top: 12px;  position: absolute;"><i class="fa fa-download"></i> Download</button>
+	<div id="viz_container" style="float: left; width: 100%;height: 75%; border: solid; margin: 5px; overflow:scroll; padding-top: 80px;">
+</div>
+
+	<!--<div class="sticky"></div>-->
+
+<script>
+
+	$(function() {
+		$('#btnRight').click(function(e) {
+			var selectedOpts = $('#lstBox1 option:selected');
+			if(selectedOpts.length == 0) {
+				alert("Select atleast one charecteristic from top to move.");
+				e.preventDefault();
+			}
+			$('#lstBox2').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnAllRight').click(function(e) {
+			var selectedOpts = $('#lstBox1 option');
+			if(selectedOpts.length == 0) {
+				alert("Moved already from top to bottom.");
+				e.preventDefault();
+			}
+			$('#lstBox2').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnLeft').click(function(e) {
+			var selectedOpts = $('#lstBox2 option:selected');
+			if(selectedOpts.length == 0) {
+				alert("Select atleast one charecteristic from bottom to move.");
+				e.preventDefault();
+			}
+			$('#lstBox1').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnAllLeft').click(function(e) {
+			var selectedOpts = $('#lstBox2 option');
+			if(selectedOpts.length == 0) {
+				alert("Moved already from bottom to top..");
+				e.preventDefault();
+			}
+			$('#lstBox1').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#save_bf').click(function(e) {
+			var selectedOpts = $('#lstBox2 option');
+			if(selectedOpts.length == 0) {
+				alert("Move charecteristic into charecteristic order to do rearrange");
+				e.preventDefault();
+			}			
+		});
+	});
+	
+	var allText =[];
+    var allTextLines = [];
+    var Lines = [];
+	var tradeconst = ""
+	
+	var CSVToArray = function CSVToArray(data) {
+		var delimiter =
+			arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ",";
+		var omitFirstRow =
+			arguments.length > 2 && arguments[2] !== undefined
+				? arguments[2]
+				: false;
+	 
+		return data
+			.slice(omitFirstRow ? data.indexOf("\n") + 1 : 0)
+			.split("\n")
+			.map(function(v) {
+				return v.split(delimiter);
+			});
+	};
+	
+	var csvArray = []
+	var mastercsvArray = []
+	var response_val = "";		
+	sessionStorage.setItem("TE_isRearrange","false");
+
+	
+	function getTradeValue()
+	{
+			
+		var txtFile = new XMLHttpRequest();
+		var allTextLines = ""
+		var i=0;
+		var header_val = []
+		var tradeval_arr = []
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname");	
+		txtFile.open("GET", "../html/Reports/"+foldername+"/IMP035_usage.csv", true);
+		//txtFile.open("GET", "../html/Reports/murexold.csv", true);
+		txtFile.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200)
+			{
+				allText = this.responseText;
+				response_val = allText;
+				document.getElementById("Trade_lbl").innerHTML = "Master Data";
+				/*if(i == 0)
+				{
+					header_val = (allText.split('\n'))[0].split(',');
+					for(var j=5; j < header_val.length; j++)
+					{
+						var opt = document.createElement("option");
+						opt.text = header_val[j];
+						document.getElementById("lstBox1").options.add(opt);
+					}
+					i = i+1;*/
+					res_txt = allText.split('\n');
+					for(var res_i=1; res_i < res_txt.length; res_i++)
+					{
+						val_arr = res_txt[res_i].split(',');
+						tradeval_arr.push(val_arr[3]);
+					}					
+				//}
+				//console.log(tradevalue);
+				const uniqueTradeValue = Array.from(new Set(tradeval_arr));
+				for (var uni_i = 0; uni_i < uniqueTradeValue.length; uni_i++) {
+					if(uniqueTradeValue[uni_i] != undefined && uniqueTradeValue[uni_i] != "")
+					{
+					var opt = document.createElement("option");
+					opt.text = uniqueTradeValue[uni_i];
+					document.getElementById("slt_trade").options.add(opt);
+					
+					}
+				}
+				$('#slt_trade').append('<option value="All">All</option>');
+				$('#slt_trade').val('All');	
+				csvArray = CSVToArray(allText);
+				bindlist1details();
+			}
+			
+		};
+		txtFile.send();
+	}
+	
+	function bindlist1details()
+	{ 
+		
+		if($("#slt_trade option:selected").text() == "All")
+		{		
+			sessionStorage.setItem("TE_isRearrange","false");
+			masterCsv();
+			$("#rearr").attr("onclick", "javascript:void(0);");
+			document.getElementById("rearr").style.backgroundColor = "grey";
+		}
+		var list_val = document.getElementById("lstBox1")
+		var length = list_val.options.length;
+		for (i = length-1; i >= 0; i--) {
+		  list_val.options[i] = null;
+		}
+		var list2_val = document.getElementById("lstBox2")
+		var length2 = list2_val.options.length;
+		for (j = length2-1; j >= 0; j--) {
+		  list2_val.options[j] = null;
+		}
+		res_txt = response_val.split('\n');
+		var sel_box1 = []
+		var sel_val = document.createElement("slt_trade")
+		for(var res_i=1; res_i < res_txt.length; res_i++)
+		{
+			val_arr = res_txt[res_i].split(',');
+			if(val_arr[3] == $("#slt_trade option:selected").text())
+			{
+				tradeconst = val_arr[0] +","+ val_arr[1] +","+ val_arr[2] +","+ val_arr[3];
+				if(val_arr[4].trim() != "Events")
+				{
+					sel_box1.push(val_arr[4]);
+				}
+			}
+		}	
+		var unique = sel_box1.filter((v, i, a) => a.indexOf(v) === i);
+		for(var j=0; j < unique.length; j++)
+		{
+			var opt = document.createElement("option");
+			opt.text = capitalizeFirstLetter(unique[j]);
+			document.getElementById("lstBox1").options.add(opt);
+		}
+		console.log(unique);
+	}
+		
+	
+	function masterCsv()
+	{	
+		document.getElementById("Trade_lbl").innerHTML = "Master Data";
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname");
+		loadData("../html/Reports/"+foldername+"/IMP035_usage.csv");
+	}
+	
+	function readMasterCSV()
+	{				
+		sessionStorage.setItem("TE_isRearrange","true");
+		var txtFile = new XMLHttpRequest();
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname");
+		txtFile.open("GET", "../html/Reports/"+foldername+"/murex_master.csv", true);
+		txtFile.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200)
+			{
+				csvArray = CSVToArray(this.responseText);
+				createCsv();
+			}
+			
+		};
+		txtFile.send();		
+	}
+	
+	getUniqueTradeCount();
+	var master_unique = [];
+	var master_counts = {};
+	function getUniqueTradeCount()
+	{
+		var txtFile = new XMLHttpRequest();
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname");
+		txtFile.open("GET", "../html/Reports/"+foldername+"/murex_master.csv", true);
+		txtFile.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200)
+			{
+				mastercsvArray = CSVToArray(this.responseText);
+				//unique[mastercsvArray[5]] = 1;
+				var master_trdhdr_value = "";
+				var master_typhdr_value = "";
+				for( let hdr_i = 0; hdr_i < mastercsvArray[0].length; hdr_i++ ){
+					if(mastercsvArray[0][hdr_i].trim().toLowerCase() === "contract id"){ //tradeInternalId
+						master_trdhdr_value = hdr_i;	
+					}
+					else if(mastercsvArray[0][hdr_i].trim() === "typology"){
+						master_typhdr_value = hdr_i;	
+					}
+				}
+				for( let csv_i = 1; csv_i < mastercsvArray.length; csv_i++ ){
+					if(mastercsvArray[csv_i][master_typhdr_value] != "")
+					{
+						if(mastercsvArray[csv_i][master_trdhdr_value] != "" && mastercsvArray[csv_i][master_trdhdr_value] != "undefined")
+						{
+						master_counts[mastercsvArray[csv_i][master_typhdr_value] +"__"+mastercsvArray[csv_i][master_trdhdr_value]] = 1 + (master_counts[mastercsvArray[csv_i][master_typhdr_value] +"__"+mastercsvArray[csv_i][master_trdhdr_value]] || 0);	
+						}						
+					}
+				}
+				for (var key in master_counts){
+				  master_unique[key.split("__")[0]] = 1 + (master_unique[key.split("__")[0]] || 0)
+				} 
+				//console.log(master_counts)
+				//console.log(master_unique)
+			}
+			
+		};
+		txtFile.send();
+	}
+	
+	function createCsv()
+	{
+		var x = document.getElementById("lstBox2");
+		var csv_val = [];
+		var down_csv_val = [];
+		var hdr_value = "";
+		var root_hdr_val = "";
+		var old_distinct_val = "";
+		var old_distinct_val_arr = []
+		var hdr_val_arr = []
+		if(x.length > 0)
+		{		
+			csv_val.push(tradeconst)
+			down_csv_val.push(tradeconst)
+			
+			for (i = 0; i < x.length; i++) { 
+				for( let hdr_i = 0; hdr_i < csvArray[0].length; hdr_i++ ){
+					if( x.options[i].text.trim().toLowerCase() === csvArray[0][hdr_i].trim().toLowerCase()){
+						hdr_value = hdr_i;
+					}
+					if(i>=1)
+					{
+						if( x.options[i-1].text.trim().toLowerCase() === csvArray[0][hdr_i].trim().toLowerCase()){
+							root_hdr_val = hdr_i;
+							hdr_val_arr.push(root_hdr_val);
+						}
+					}
+				}
+				//var unique = [];
+				var unique_new = [];
+				//var counts = {};
+				var counts_new = {};
+				//var distinct = [];
+				var distinct_new = [];
+				//unique[csvArray[5]] = 1;
+				for( let csv_i = 0; csv_i < csvArray.length; csv_i++ ){
+					if(csvArray[csv_i][hdr_value] != "" && csvArray[csv_i][3] === $("#slt_trade option:selected").text())
+					{
+						if(i >= 1){
+							if(csvArray[csv_i][root_hdr_val] != "")
+							{
+								/*counts[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] = 1 + (counts[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] || 0);
+								if( !unique[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]]){
+									distinct.push(csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]);
+									unique[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] = 1;
+								}*/
+								for(let old_dis = 0; old_dis < old_distinct_val_arr.length; old_dis++)
+								{
+									var old_val = "";
+									for(var old_hdr_i=0; old_hdr_i < hdr_val_arr.length; old_hdr_i++)
+									{
+										if(old_val != "")
+										{
+											old_val = old_val + "__" + csvArray[csv_i][hdr_val_arr[old_hdr_i]];
+										}
+										else{
+											old_val = csvArray[csv_i][hdr_val_arr[old_hdr_i]];
+										}
+									}
+									if(old_val == old_distinct_val_arr[old_dis])
+									{
+										counts_new[old_distinct_val_arr[old_dis] +"__"+csvArray[csv_i][hdr_value]] = 1 + (counts_new[old_distinct_val_arr[old_dis] +"__"+csvArray[csv_i][hdr_value]] || 0);
+										if( !unique_new[old_distinct_val_arr[old_dis] +"__"+csvArray[csv_i][hdr_value]]){
+											distinct_new.push(old_distinct_val_arr[old_dis] +"__"+csvArray[csv_i][hdr_value]);
+											unique_new[old_distinct_val_arr[old_dis] +"__"+csvArray[csv_i][hdr_value]] = 1;
+										}
+									}
+								}
+							}
+						}
+						else{
+							//counts[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] = 1 + (counts[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] || 0);
+							counts_new[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] = 1 + (counts_new[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] || 0);
+								if( !unique_new[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]]){
+									//distinct.push(csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]);
+									distinct_new.push(csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]);
+									//unique[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] = 1;
+									unique_new[csvArray[csv_i][root_hdr_val] +"__"+csvArray[csv_i][hdr_value]] = 1;
+							}
+						}
+					}
+				}
+				var trade_rearr=[]
+				var trade_rearr_agg=[]
+				for(var new_dis_i=0; new_dis_i < distinct_new.length; new_dis_i++)
+				{		
+					if(distinct_new[new_dis_i] != undefined)
+					{
+						for(var csv_val_arr=0; csv_val_arr < csv_val.length; csv_val_arr++)
+						{							
+							old_distinct_val = csv_val[csv_val_arr].split(',').pop();							
+							new_distinct_val_arr = csv_val[csv_val_arr].split(',');//.slice(6, csv_val[csv_val_arr].length);
+							new_distinct_val = "";
+							for (var new_i=5;new_i<new_distinct_val_arr.length;new_i=new_i +2){
+								if(new_distinct_val != "")
+								{
+									new_distinct_val = new_distinct_val + "__" + new_distinct_val_arr[new_i];
+								}
+								else
+								{
+									new_distinct_val = new_distinct_val_arr[new_i];
+								}
+							}
+							distinct_new_val = distinct_new[new_dis_i].split("__").slice(0, -1).join('__');
+							if(i == (x.length -1))
+							{	
+								if(new_distinct_val.toString().trim() == distinct_new_val.trim())
+								{
+									new_trade_val = csv_val[csv_val_arr] + "," + x.options[i].text.trim() + "," + distinct_new[new_dis_i].split("__").pop() + "," + counts_new[distinct_new[new_dis_i]];	
+								}
+								else if(i==0 || distinct_new_val.trim() == "undefined")
+								{
+									new_trade_val = csv_val[csv_val_arr] + "," + x.options[i].text.trim() + "," + distinct_new[new_dis_i].split("__").pop() + "," + counts_new[distinct_new[new_dis_i]];	
+								}
+							}
+							else{	
+								if(i==0 || new_distinct_val.toString().trim() == distinct_new_val.trim())
+								{						
+									new_trade_val = csv_val[csv_val_arr] + "," + x.options[i].text.trim() + "," + distinct_new[new_dis_i].split("__").pop();	
+								}
+							}
+							//trade_val_arr = csv_val[csv_val_arr] + "," + x.options[i].text.trim() + "," + distinct_new[new_dis_i].trim() + "," + counts[distinct_new[new_dis_i]];
+							trade_rearr.push(new_trade_val);
+							trade_rearr_agg.push(new_trade_val);
+						}
+					}					
+					if(distinct_new[new_dis_i].split('__')[0] == "undefined")
+					{
+						distinct_new[new_dis_i] = distinct_new[new_dis_i].split('__')[1];
+					}
+				}
+				trade_rearr = trade_rearr.filter( function( item, index, inputArray ) {
+					   return inputArray.indexOf(item) == index;
+				});
+				trade_rearr_agg = trade_rearr_agg.filter( function( item, index, inputArray ) {
+					   return inputArray.indexOf(item) == index;
+				});
+				csv_val = trade_rearr;
+				down_csv_val = trade_rearr_agg;
+				console.log(csv_val);
+				old_distinct_val_arr = distinct_new;
+			}
+			var csv_val_str = "Category,Level1,Level2,Level3,";
+			var down_csv_val_str = "Family,Group,Typology,";
+			var level_count_val = 4;
+			for(var spl_i=0; spl_i < x.length; spl_i++){
+				csv_val_str = csv_val_str + "Level" + (level_count_val) + ","  + "Level" + (level_count_val+1) + ","
+				down_csv_val_str = down_csv_val_str + x.options[spl_i].text + "," +x.options[spl_i].text+" Value" + ","
+				if(spl_i == (x.length-1))
+				{
+					csv_val_str = csv_val_str + "Count";
+					down_csv_val_str = down_csv_val_str + "Count";
+				}
+				level_count_val = level_count_val +2;
+			}
+			//console.log(csv_val_str);
+			//console.log(down_csv_val_str);
+			csv_val.splice(0,0,csv_val_str);
+			down_csv_val.splice(0,0,down_csv_val_str);
+			let csvContent="";
+			csv_val.forEach(function(rowArray) {
+				csvContent += rowArray.valueOf().replace (/"/g,'') + "\n";
+			});
+			let down_csvContent="";
+			down_csv_val.forEach(function(downrowArray) {
+				down_csvContent += downrowArray.valueOf().replace (/"/g,'') + "\n";
+			});
+			//console.log(csvContent.replace (/"/g,''));
+			rearrange(csvContent.replace (/"/g,''), down_csvContent.replace (/"/g,''));
+		}		
+	}
+	
+	var filter_num = 1;	
+	var filter_arr = [];
+	if(sessionStorage.getItem("filter_array") != "")
+	{
+		filter_arr.push(sessionStorage.getItem("filter_array"));
+	}
+	
+	function rearrange(csv_val, download_csv_val)
+	{   
+		tradename = $("#slt_trade option:selected").text()
+		$("#rearr").attr("onclick", "javascript:clickRearrangeDownload();");
+		document.getElementById("rearr").style.backgroundColor = "DodgerBlue";
+		//$('#slt_filter_trade').empty();
+		/*var opt = document.createElement("option");
+		opt.text = "-- Select --";
+		opt.value = "1";
+		document.getElementById("slt_filter_trade").options.add(opt);*/
+		var txtFile = new XMLHttpRequest();	
+		document.getElementById("Trade_lbl").innerHTML = "Filter Data";		
+		var fd = new FormData();
+		fd.append("csv_list", csv_val)
+		fd.append("down_csv_list", download_csv_val);
+		fd.append("user_id",localStorage.getItem("ipm_UserId"));
+		fd.append("report_name",localStorage.getItem("reportname"));	
+		fd.append("tradename",tradename);
+		var today = new Date();
+		var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+		var time = today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
+		var dateTime = date+''+time;		
+		var filename="Trade_Rearrange_Usage_"+dateTime
+		localStorage.setItem("dat",dateTime);
+		localStorage.setItem("IMP035_filename",filename);
+		/*var filter_arr_name = "Filterdata_"+ (filter_arr.length) + "_"+dateTime;
+		filter_arr.push(filter_arr_name);
+		sessionStorage.setItem("filter_array",filter_arr);
+		console.log(filename);
+		if(filter_arr.length > 1)
+		{
+			//$("#slt_filter_trade").show();
+			//document.getElementById("slt_filter_trade").disabled = false;
+			for (var fil_i = 0; fil_i < filter_arr.length; fil_i++) {
+				if(filter_arr[fil_i] != undefined && filter_arr[fil_i] != "")
+				{
+					var opt = document.createElement("option");
+					opt.text = (filter_arr[fil_i].split("_")).slice(0, 2).join("_");
+					opt.value = filter_arr[fil_i];
+					<!-- document.getElementById("slt_filter_trade").options.add(opt); -->				
+				}
+			}
+		}
+		filter_num = filter_num+1;*/
+		fd.append("dateTime",dateTime) 
+		fd.append("filename", filename)
+		txtFile.open("POST", "../cgi-bin/saveCSV.py",true);
+		txtFile.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200)
+			{
+				allText = this.responseText;	
+				var foldername= localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("reportname") +"/"+tradename+"_"+dateTime;	
+				//loadData("../html/Reports/"+foldername+"/"+filename+".csv");
+				loadData("../html/Reports/"+foldername+"/"+filename+".csv");
+			}			
+		};
+		txtFile.send(fd);
+		
+	}
+	
+	function bindFilterdata()
+	{
+		if($("#slt_filter_trade option:selected").val() != "1")
+		{
+			var filter_filename = "Trade_Rearrange_Usage_" + ($("#slt_filter_trade option:selected").val()).split('_').pop();
+			var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")
+			loadData("../html/Reports/"+foldername+"/"+filter_filename+".csv");
+		}
+	}
+	
+	function capitalizeFirstLetter(string) {
+	  return string.charAt(0).toUpperCase() + string.slice(1);
+	}
+
+	function getQueryStrings() {
+		var StrVal  = {};
+		var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+		var queryString = location.search.substring(1);
+		var keyValues = queryString.split('&');
+
+		for(var i in keyValues) {
+		var key = keyValues[i].split('=');
+		if (key.length > 1) {
+		  StrVal[decode(key[0])] = decode(key[1]);
+		}
+		}
+		return StrVal;
+	}
+
+	var qs = getQueryStrings();
+	var qs_size = Object.keys(qs).length;
+	if(qs_size > 1)
+	{
+		localStorage.setItem("testname",qs["testname"]);
+	}
+
+    //Once the document is ready we set javascript and page settings
+    var screenWidth;
+    var screenHeight;
+
+    $(document).ready(function () {
+
+        var rect;
+        if (self==top) {
+            rect = document.body.getBoundingClientRect();
+        }
+        else {
+            rect =  parent.document.body.getBoundingClientRect();
+        }
+
+        //Set display size based on window size.
+        //screenWidth = (rect.width < 910) ? Math.round(rect.width*.95) : Math.round((rect.width - 280) *.95);
+		screenWidth = Math.round((rect.width) *.75);
+		
+        screenHeight=Math.round((window.innerHeight) *.85);
+		console.log(screenHeight);
+
+        d3.select("#currentDisplay")
+                .attr("item_value", (String(screenWidth) + "," + String(screenHeight)))
+                .attr("class", "selected")
+                .html("<a>" + screenWidth + "px - " + screenHeight + "px</a>");
+
+
+        $("#cssmenu").menumaker({
+            title: "Trade Insertion",
+            format: "multitoggle"
+			//text-align: "center";
+        });
+
+        // Set the size of our container element.
+        viz_container = d3.selectAll("#viz_container")
+                .style("width", screenWidth + "px")
+                .style("height", screenHeight + "px");
+
+		localStorage.setItem("IMP035_filename","IMP035_usage");
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")
+        loadData("../html/Reports/"+foldername+"/IMP035_usage.csv");
+
+    });
+
+	function clickDownload(){
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")	
+		var filename = "Reports/"+foldername+"/"+localStorage.getItem("IMP035_filename")+".csv";
+		window.open(filename, '_blank');
+	}
+	
+	function getloaddetails()
+	{
+	var txtFile = new XMLHttpRequest();	
+	var fd = new FormData();
+	fd.append("user_id", localStorage.getItem("ipm_UserId"))
+	fd.append("Txt_reportname", localStorage.getItem("reportname"));
+	txtFile.open("POST", "../cgi-bin/getbasecomp.py",true);
+	txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		var opt= allText.toString().replace(/['',()]/g, '');
+		var res = opt.split(" ");
+		$('#labe1').text(res[0]);
+		$('#labe2').text(res[1]);
+		}			
+	};
+	txtFile.send(fd);
+	}
+	
+	function clickRearrangeDownload(){
+		
+		var dateTime = localStorage.getItem("dat");
+		var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")+"/"+tradename+"_"+dateTime;
+		
+		var filename = "Reports/"+foldername+"/TradeEvents_"+tradename+"_Rearrange.xlsx";
+		window.open(filename, '_blank');
+	}
+	
+	function clickDownload2(){
+    var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")	
+	var filename = "Reports/"+foldername+"/TradeEvents_Master.xlsx";
+	window.open(filename, '_blank');
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LAPAM</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">		
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+    <script src="../JScript/d3.v4.min.js"></script>
+	<script src="../JScript/Lapam.js"></script>
+	<script src="../JScript/jquery.min.js"></script>
+	<script src="../JScript/jquery.min.1.11.0.js"></script>
+    <script src="../JScript/angular.min.js"></script>
+	<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+
+    <style>
+	
+	@font-face {
+	font-family: 'AccentureRotis';
+	src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+	body {
+		font-family: AccentureRotis;
+	 }
+    text{
+      font-family: AccentureRotis;
+    }
+	.container1{
+	float:left;
+	}
+    #chart1{
+      max-width: 250px;
+	  float:left;
+    }
+	.Traffic_lgt{
+	  height: 70px;
+	  float: left;
+	  background-color: #333;
+	  border-radius: 40px;
+	  margin: 10px 80px;
+	  padding: 20px;
+	}
+	
+	
+	.Traffic_lgt_lbl{
+	  display:None; font-size:10px; font-weight:bold; font-family: AccentureRotis; margin-top: 10px; margin-left:30px;
+	}
+	
+	.bulb {
+	  height: 20px;
+	  width: 20px;
+	  background-color: #111;
+	  border-radius: 50%;
+	  margin: 5px -10px;
+	  transition: background 500ms;
+	}
+	
+	.traffic_rect
+	{
+	width:200px;height:200px;border:2px solid #000; background-color: LIGHTGOLDENRODYELLOW; border-color: goldenrod;
+	}
+    </style>
+  </head>
+  <body ng-app="myApp">
+  <label id="StatusMode_lbl" style="float: left; margin-left: 10px; width: 100%; margin-bottom: 0px; margin-top: -50px;"></label>
+  <div id= "cont2" style="margin-left:10px">
+	
+	<!--<h1 style="color:black; font-size:20px; font-weight:bold; font-family: Verdana, sans-serif; margin-left: 340px; margin-bottom: -10px; text-decoration: underline">Memory Analysis</h1>-->
+	<h1 style="color:black; font-size:14px; font-weight:bold; font-family: AccentureRotis; margin-bottom: -20px; margin-top: 70px ">Average Heap Memory Utilization</h1>
+	<div ng-controller="RadialGaugeCtrl" style="margin-bottom: -20px;margin-top: 50px;" id="div_mem">
+		<div width="200" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit"></div>
+	</div>
+	<br/><br/><br/><br/>
+	<label id="logtime" style="color:black; font-size:12px; font-family: AccentureRotis; margin-left: -30px;
+    margin-bottom: 0px; "></label><select id="Drp_logtime" onchange="getMemoryAnalysis();" style="font-family: AccentureRotis; width: 300px; margin-left: 15px;"></select><br/>
+	
+	<div id = "rect_top" style="width:470px;height:470px;border:2px solid #000; margin-top: -335px; margin-left: 300px;" >
+	<h1 style="color:black; font-size:16px; font-weight:bold; font-family: AccentureRotis;     margin-left: 160px;
+    margin-bottom: -10px; text-decoration: underline; color: blue; cursor: pointer; " onclick="timeseries_link()">Heap Memory Analysis</h1> <!--  -->
+	<div id = "rect" class="traffic_rect" style="margin-top: 20px; margin-left: 20px;" >
+	 
+	 <label id="light_label" class="Traffic_lgt_lbl" style="margin-left: 27%">OUT OF MEMORY</label>
+	 <div>
+		<div id="traffic-light" class="Traffic_lgt">
+		<div id="stopLight" class="bulb"></div>
+		<div id="slowLight" class="bulb"></div>
+		<div id="goLight" class="bulb"></div>
+
+		</div></div>
+	<label id="light_labelsub" class="Traffic_lgt_lbl" style=" margin-top: 20px;margin-left:20px;"></label></div>
+	
+	<div id = "rect1" class="traffic_rect" style="margin-top: -205px; margin-left: 250px;">
+	<label id="light_label1" class="Traffic_lgt_lbl" style="margin-left: 30%">GC OVERHEAD</label>
+		<div>
+			<div id="traffic-light1" class="Traffic_lgt">
+			<div id="stopLight1" class="bulb"></div>
+			<div id="slowLight1" class="bulb"></div>
+			<div id="goLight1" class="bulb"></div>
+		</div></div>
+	<label id="light_labelsub1" class="Traffic_lgt_lbl" style=" margin-top: 20px;margin-left:30px;"></label></div>
+	
+	
+	<div id = "rect2" class="traffic_rect" style="margin-top: 10px; margin-left: 20px; ">
+	<label id="light_label2" class="Traffic_lgt_lbl" style="margin-left:70px">LONGEST GC</label>
+	 <div>
+		<div id="traffic-light2" class="Traffic_lgt">
+		<div id="stopLight2" class="bulb"></div>
+		<div id="slowLight2" class="bulb"></div>
+		<div id="goLight2" class="bulb"></div>
+		</div>
+	</div>
+	<label id="light_labelsub2" class="Traffic_lgt_lbl" style="margin-top: 20px; margin-left:20px;"></label>
+	</div>
+	<div id = "rect3" class="traffic_rect" style="margin-top: -205px; margin-left: 250px;">
+	<label id="light_label3" class="Traffic_lgt_lbl">LARGEST ALLOCATION</label>
+	 <div>
+	 <div id="traffic-light3" class="Traffic_lgt">
+  <div id="stopLight3" class="bulb"></div>
+  <div id="slowLight3" class="bulb"></div>
+  <div id="goLight3" class="bulb"></div>
+  <!-- <a href="timeseries_link();" onclick="timeseries_link();" id="light_labelsub3" style="font-size:10px; font-weight:bold; font-family: Verdana, sans-serif; margin-top: 30px; margin-left:-20px;"></a> -->
+	</div></div> <label id="light_labelsub3" class="Traffic_lgt_lbl" style="margin-top: 100px; margin-left:10px;"></label></div>
+	</div>
+	</div>
+    <script>
+	var data_list = [];
+	var data_name = [];
+	var date_list = [];
+	var log_folder = localStorage.getItem("ipm_UserId") +"_"+localStorage.getItem("rep_id");
+	getObservation();
+	readTimeDetails();
+	readTextFile();
+	
+	function getMemoryAnalysis()
+	{  	
+		data_list = [];
+		data_name = [];
+		date_list = [];
+		var lt_drp = document.getElementById("Drp_logtime");
+		localStorage.setItem("Selectedtime", lt_drp.options[lt_drp.selectedIndex].text);
+		parent.document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="IMP004.html" ></object>'; 
+	}
+	
+	function readTextFile()
+	{
+		var filename = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+		if(sessionStorage.getItem("isOnline") =="true")
+		{
+			document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: green;\"></i> ";
+			document.getElementById("StatusMode_lbl").style.color = "green";
+			//filename = "online\\"+localStorage.getItem("ipm_appname").toLowerCase()+"\\imp003_twa_060319.csv";
+		}
+		else{
+			document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: #7194b2;\"></i> ";
+			document.getElementById("StatusMode_lbl").style.color = "#7194b2";
+			filename = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+			//filename = "Reports\\" + localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id") + "\\"+file_name+".csv";
+		}
+		var filedaterange = localStorage.getItem("Selectedtime").replace(/:/g,"C") + ".txt";
+		var file = "Reports/"+log_folder+"/"+filename+"_"+filedaterange;
+		//var file = "Reports\\jun15_22_Anomaly.txt";
+		var rawFile = new XMLHttpRequest();
+		rawFile.open("GET", file, false);
+		rawFile.setRequestHeader('cache-control', 'max-age=0');
+		rawFile.setRequestHeader('expires', '0');
+		rawFile.setRequestHeader('pragma', 'no-cache');
+		rawFile.onreadystatechange = function ()
+		{
+			if(rawFile.readyState === 4)
+			{
+				if(rawFile.status === 200 || rawFile.status == 0)
+				{
+					var allText = rawFile.responseText;
+					var ext_response_arr = allText.toString().split("\n");
+					//console.log(ext_response_arr);
+					for (i=0;i<ext_response_arr.length;i++)
+					{
+						var ex_arr = ext_response_arr[i].split("=")
+						data_list.push(ex_arr[1].trim());
+						data_name.push(ex_arr[0].trim());
+						//console.log(ex_arr);
+					}
+					
+					 if (Number(data_list[1]) == 0){
+						 var str = "No Memory issue";
+						 str = str.fontcolor("green");
+						 document.getElementById('light_label').style.display = "block";
+						 document.getElementById('light_labelsub').style.display = "block";
+						 var abc = str+" observed";
+						 document.getElementById('light_labelsub').innerHTML = abc;
+						 clearLights();
+						 document.getElementById('goLight').style.backgroundColor = "green";
+					 }
+					 if (Number(data_list[1]) == 1){
+						 var str = "Out of Memory";
+						 str = str.fontcolor("red");
+						 document.getElementById('light_label').style.display = "block";
+						 document.getElementById('light_labelsub').style.display = "block";
+						 var abc = str+" detected. Increase the -Xmx or import \".hprof\" file for further analysis.";
+						 document.getElementById('light_labelsub').innerHTML = abc;
+						 clearLights();
+						 document.getElementById('stopLight').style.backgroundColor = "red";
+					 }
+					 console.log(data_name);
+					 var gc_tool_value = data_name[2].split(" : ")[1];
+					 //alert(Number(data_list[2]).toString())
+					 console.log(Number(data_list[2]));
+					 if(Number(data_list[2])>15)
+					 {
+						 gc_tool_value = gc_tool_value.fontcolor("red");
+						 document.getElementById('light_label1').style.display = "block";
+						 document.getElementById('light_labelsub1').style.display = "block";
+						 var abc = "High Overhead is detected,too much time spent on GC and little heap space.<br/>GC Overhead : "+gc_tool_value;
+						 document.getElementById('light_labelsub1').innerHTML = abc;
+						 clearLights1();
+						 document.getElementById('stopLight1').style.backgroundColor = "red";
+					 }
+					 else if(Number(data_list[2])>10){
+						 gc_tool_value = gc_tool_value.fontcolor("orange");
+						 document.getElementById('light_label1').style.display = "block";
+						 document.getElementById('light_labelsub1').style.display = "block";
+						 var abc = "GC Overhead : "+gc_tool_value;
+						 document.getElementById('light_labelsub1').innerHTML = abc;
+						 clearLights1();
+						 document.getElementById('slowLight1').style.backgroundColor = "yellow";
+					 }
+					 else if(Number(data_list[2])<11){
+						 gc_tool_value = gc_tool_value.fontcolor("green");
+						 document.getElementById('light_label1').style.display = "block";
+						 document.getElementById('light_labelsub1').style.display = "block";
+						 var abc = "GC Overhead is minimal<br/><br/>GC Overhead : "+gc_tool_value;
+						 document.getElementById('light_labelsub1').innerHTML = abc;
+						 clearLights1();
+						 document.getElementById('goLight1').style.backgroundColor = "green";
+					 }
+					 else{
+					 clearLights1();
+					 }
+					 
+					 console.log(Number(data_list[3]));
+					 var gc_fra_tool_value = data_name[3].split(" : ")[1]
+					 if(Number(data_list[3])>5)
+					 {
+						gc_fra_tool_value = gc_fra_tool_value.fontcolor("red");
+						document.getElementById('light_label2').style.display = "block";
+						document.getElementById('light_labelsub2').style.display = "block";
+						var abc = "High GC Time observerd due to fragmentation<br/><br/>GC Time : "+gc_fra_tool_value;
+						document.getElementById('light_labelsub2').innerHTML = abc;
+						clearLights2();
+						document.getElementById('stopLight2').style.backgroundColor = "red";
+					 }
+					 else if(Number(data_list[3])>2){
+						 gc_fra_tool_value = gc_fra_tool_value.fontcolor("orange");
+						 document.getElementById('light_label2').style.display = "block";
+						 document.getElementById('light_labelsub2').style.display = "block";
+						 var abc = "GC Time : "+gc_fra_tool_value;
+						 document.getElementById('light_labelsub2').innerHTML = abc;
+						 clearLights2();
+						 document.getElementById('slowLight2').style.backgroundColor = "yellow";
+					 }
+					 else if(Number(data_list[3])<3){
+						 gc_fra_tool_value = gc_fra_tool_value.fontcolor("green");
+						 document.getElementById('light_label2').style.display = "block";
+						 document.getElementById('light_labelsub2').style.display = "block";
+						 var abc = "GC Time is minimal, indicating quick memory allocation.<br/><br/>GC Time : "+gc_fra_tool_value;
+						 document.getElementById('light_labelsub2').innerHTML = abc;
+						 clearLights2();
+						 document.getElementById('goLight2').style.backgroundColor = "green";
+					 }
+					 else{
+					 clearLights1();
+					 }
+					 
+					 console.log(Number(data_list[4]));
+					 var objall_tool_value = data_name[4].split(" : ")[1];
+					 if (Number(data_list[4]) == 0){
+						 objall_tool_value = objall_tool_value.fontcolor("green");
+						 document.getElementById('light_label3').style.display = "block";
+						 document.getElementById('light_labelsub3').style.display = "block";
+						 var abc = "No Large object allocation detected.<br/><br/>Largest Allocation : "+objall_tool_value;
+						 document.getElementById('light_labelsub3').innerHTML = abc;
+						 clearLights3();
+						 document.getElementById('goLight3').style.backgroundColor = "green";
+					 }
+					 if (Number(data_list[4]) == 1){
+						 objall_tool_value = objall_tool_value.fontcolor("red");
+						 var abc = "Large Object Allocation "+objall_tool_value+" Detected. Further profiling required to identify large object";
+						 document.getElementById('light_label3').style.display = "block";
+						 document.getElementById('light_labelsub3').style.display = "block";
+						 document.getElementById('light_labelsub3').innerHTML = abc;
+						 clearLights3();
+						 document.getElementById('stopLight3').style.backgroundColor = "red";
+					 }
+					 
+					console.log(Number(data_list[0]));
+					localStorage.setItem("gauge_value",data_list[0]);	
+					//parent.document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="IMP004.html" ></object>'; 
+					//var logtime = data_list[5];
+					//document.getElementById('logtime').innerHTML = "<b>Log Timing: </b>"+logtime; 
+				}
+			}
+		}
+		rawFile.send();
+	}
+	
+	function readTimeDetails()
+	{
+		var xhttp = new XMLHttpRequest();
+		var fd = new FormData();
+		var lt_drp = document.getElementById("Drp_logtime");	
+		fd.append("user_id",localStorage.getItem("ipm_UserId"));
+		fd.append("rep_id",localStorage.getItem("rep_id"));
+		fd.append("Imperative_name",sessionStorage.getItem("Imperative_name"));
+		if(sessionStorage.getItem("isOnline") =="true")
+        {
+        fd.append("mode","ONL");
+        }
+        else{
+        fd.append("mode","OFL");
+        }
+		xhttp.onreadystatechange = function() {
+			if(xhttp.readyState === 4)
+			{
+				if(xhttp.status === 200 || xhttp.status == 0)
+				{
+					var allText = this.responseText;
+					var ext_response_arr = allText.toString().split("\n");
+					for (time_i=0;time_i<ext_response_arr.length-1;time_i++)
+					{
+						var ex_arr = ext_response_arr[time_i].split("_");
+						date_list.push(ex_arr[ex_arr.length - 1]);
+						var option = document.createElement("option");
+						option.text = ex_arr[ex_arr.length - 1].split(".")[0].replace(/C/g,":");
+						lt_drp.add(option, ex_arr[ex_arr.length - 1].split(".")[0].replace(/C/g,":"));
+					}
+					for (var i = 0; i < lt_drp.options.length; i++) {
+						if(localStorage.getItem("Selectedtime").toString().trim() != "")
+						{
+							if (lt_drp.options[i].text.trim().toString() == localStorage.getItem("Selectedtime").toString().trim()) {
+								lt_drp.selectedIndex = i;
+								break;
+							}
+						}
+						else{
+							lt_drp.selectedIndex = 0;
+							localStorage.setItem("Selectedtime", lt_drp.options[i].text.trim().toString());
+						}
+					}
+					readTextFile();
+				}
+			}
+		}
+		xhttp.open("POST", "../cgi-bin/getFilenameFromDir.py",true);
+		xhttp.send(fd);
+	}
+
+	function clearLights() {
+	  document.getElementById('stopLight').style.backgroundColor = "black";
+	  document.getElementById('goLight').style.backgroundColor = "black";
+	  document.getElementById('slowLight').style.backgroundColor = "black";
+	}
+	
+	function clearLights1() {
+	  document.getElementById('stopLight1').style.backgroundColor = "black";
+	  document.getElementById('goLight1').style.backgroundColor = "black";
+	  document.getElementById('slowLight1').style.backgroundColor = "black";
+	}
+	function clearLights2() {
+	  document.getElementById('stopLight2').style.backgroundColor = "black";
+	  document.getElementById('goLight2').style.backgroundColor = "black";
+	  document.getElementById('slowLight2').style.backgroundColor = "black";
+	}
+	function clearLights3() {
+	  document.getElementById('stopLight3').style.backgroundColor = "black";
+	  document.getElementById('goLight3').style.backgroundColor = "black";
+	  document.getElementById('slowLight3').style.backgroundColor = "black";
+	}
+	
+	function timeseries_link(){
+		window.location.href = "Anomaly.html"
+	}
+    </script>	
+    <script src="../JScript/app.js"></script>
+    <script src="../JScript/radial-gauge-ctrl.js"></script>
+    <script src="../JScript/ng-radial-gauge-dir.js"></script>
+    <script src="../JScript/d3-serv.js"></script>
+</body>
+</html>

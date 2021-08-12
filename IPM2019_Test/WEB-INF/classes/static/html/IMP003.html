@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">		
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+<style>
+
+@font-face {
+	font-family: 'AccentureRotis';
+	src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+		font-family: AccentureRotis;
+	 }
+text {
+  font: 12px AccentureRotis;
+  text-anchor: middle;
+}
+
+.node--hover circle {
+  stroke: #000;
+  stroke-width: 1.2px;
+}
+
+</style>
+<body onload="getObservation()">
+<label id="StatusMode_lbl" style="float: left; margin-left: 10px; width: 100%; margin-bottom: 0px;"></label>
+<svg width="800" height="500" font-family="AccentureRotis" font-size="14" style="float: left;" text-anchor="middle"><g transform="translate(1,1)"></g></svg><br/><br/>
+<div style="float: left;margin-left:-700px; margin-top:510px; color: black; font-size: 12px;font-family: AccentureRotis;"><label>* The size of the bubble is proportional to the count of service call</label></br></div>
+<script src="../JScript/d3.v4.min.js"></script>
+<script src="../JScript/Lapam.js"></script>
+<script>
+// function to get query string value
+function getQueryStrings() { 
+  var StrVal  = {};
+  var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+  var queryString = location.search.substring(1); 
+  var keyValues = queryString.split('&'); 
+
+  for(var i in keyValues) { 
+    var key = keyValues[i].split('=');
+    if (key.length > 1) {
+      StrVal[decode(key[0])] = decode(key[1]);
+    }
+  } 
+  return StrVal; 
+} 
+
+var qs = getQueryStrings();
+var qs_size = Object.keys(qs).length;
+if(qs_size > 1)
+{
+	localStorage.setItem("testname",qs["testname"]);
+}	
+var filename = "";	
+var current_date= new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+if(sessionStorage.getItem("isOnline") =="true")
+{
+	document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: green;\"></i> ";
+	document.getElementById("StatusMode_lbl").style.color = "green";		
+	var file_name = localStorage.getItem("ipm_appname") + "_" + sessionStorage.getItem("Imperative_name");
+	if(localStorage.getItem("online_tp") == "false"){
+		filename = "online\\"+file_name+"_ONL_"+current_date+".csv";
+	}
+	else{
+		filename = "online\\"+file_name+"_TP_"+current_date+".csv";
+	}
+}
+else{
+	document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: #7194b2;\"></i> ";
+	document.getElementById("StatusMode_lbl").style.color = "#7194b2";
+	var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+	filename = "Reports\\" + localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id") + "\\"+file_name+".csv";
+}
+//var filename = "Apache_Failure_failptn.csv";
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var format = d3.format(",d");
+
+var color = d3.scaleSequential(d3.interpolateMagma)
+    .domain([-4, 4]);
+
+var stratify = d3.stratify()
+    .parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf("/")); });
+
+var pack = d3.pack()
+    .size([width - 2, height - 2])
+    .padding(3);
+
+d3.csv(filename, function(error, data) {
+  if (error) throw error;
+
+  var root = stratify(data)
+      .sum(function(d) { return d.value; })
+      .sort(function(a, b) { return b.value - a.value; });
+
+  pack(root);
+
+  var node = svg.select("g")
+    .selectAll("g")
+    .data(root.descendants())
+    .enter().append("g")
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .attr("class", function(d) { return "node" + (!d.children ? " node--leaf" : d.depth ? "" : " node--root"); })
+      .each(function(d) { d.node = this; })
+      .on("mouseover", hovered(true))
+      .on("mouseout", hovered(false));
+
+  node.append("circle")
+      .attr("id", function(d) { return "node-" + d.id; })
+      .attr("r", function(d) { return d.r; })
+      .style("fill", function(d) { return color(d.depth); });
+
+  var leaf = node.filter(function(d) { return !d.children; });
+
+  leaf.append("clipPath")
+      .attr("id", function(d) { return "clip-" + d.id; })
+    .append("use")
+      .attr("xlink:href", function(d) { return "#node-" + d.id + ""; });
+
+  leaf.append("text")
+      .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+    .selectAll("tspan")
+    .data(function(d) { return d.id.substring(d.id.lastIndexOf("/") + 1).split(/(?=[A-Z][^A-Z])/g); })
+    .enter().append("tspan")
+      .attr("x", 0)
+      .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+      .text(function(d) { return d; });
+
+  node.append("title")
+      .text(function(d) { return d.id + "\n" + format(d.value); });
+});
+
+function hovered(hover) {
+  return function(d) {
+    d3.selectAll(d.ancestors().map(function(d) { return d.node; })).classed("node--hover", hover);
+  };
+}
+
+</script>
+
+</body>
+
+</html>

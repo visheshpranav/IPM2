@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<script language="JavaScript" type="text/javascript" src="../JScript/json2.js"></script>
+<script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.8.3.js"></script>
+<script src="../JScript/Lapam.js"></script>
+<style>
+
+@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+	
+
+label {
+ 
+  font-family: AccentureRotis;
+}
+
+html, body { font-family: 'AccentureRotis'; }
+
+table { border-collapse: collapse; }
+
+tbody tr:first-child { pointer-events: none; font-weight:bold} 
+table tr td {
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+table tr:nth-child(odd) { background: #f4f4f4; }
+
+tr:hover {
+background-color:#ffff99!important;
+cursor:pointer;
+}
+
+td{
+word-break: break-all;
+font-size:14px;
+}
+
+table{
+table-layout:fixed;
+width:75%;
+float:right;
+}
+
+
+</style>
+<body onload="fetchReports1(),fetchReports4()">
+	<div id="rer"   style="width: 100%; height: 100%;font-family: AccentureRotis,Arial,sans-serif;">
+		<label class="upload_lbl" style="width: 110px;">Report Name:</label>
+		<select id="slt_view" name="artifactsCount" style="margin-left: 5%" >
+			
+		</select>
+		<select id="slt_view1" name="artifactsCount" hidden></select>
+		<br><br><br>
+		
+		
+		<label id="lbl1" style="float: left; width: 150px;">New Reportname: </label>
+	
+		<input id="Repname" type="text" name="textbox2" style=" float: left; top: 10px; font-family: AccentureRotis;">
+		<label class="upload_lbl" style="float: left; font-size: 11px;">(Preferrable reportname prefix will be added)</label>
+		<br><br><br>
+		<label id="lbl0" style="float: left; width: 150px;">Time: </label>
+		<input id="time" type="text" name="textbox1" value="" maxlength="5" onkeypress="javascript:return isNumber(event)" style=" width: 24px;margin-left:0.2%; float: left; top: 10px; font-family: AccentureRotis;">
+		 <label class="upload_lbl" style="float: left; font-size: 11px;">(supports only number in hours)</label>
+		<br><br><br><br>
+		
+		
+		 <button type="submit" value="Submit" id="Btn_upload" class="btn btn-primary" onclick="upload_files()" style="width: 100px; margin-left: 140px; font-family: AccentureRotis;">Submit</button>
+  
+		
+		<br>
+		<br/>
+	</div>
+
+
+</body>
+
+
+
+</div>
+
+</div>
+
+</body>
+
+
+
+
+<script>
+function fetchReports1()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	xhttp.open("POST", "../cgi-bin/getLogNameForUser4.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			var optionValues1 = allText.split("\n");
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			optionValues.shift();
+			for (var i=0;i<optionValues.length;i++){
+            jQuery('#slt_view').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+			}
+			jQuery('#slt_view').append(jQuery("<option disabled selected value> -- select an option -- </option>"))
+			}			
+			};
+	xhttp.send(fd);
+}
+
+
+function fetchReports4()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			
+			var outputVal = this.responseText.trim();
+			if(outputVal != "")
+			{
+				var test_drp = document.getElementById("slt_view1");	
+				var test_length = test_drp.options.length;
+				for (i = 0; i < test_length; i++) {
+				  test_drp.options[0] = null;
+				}
+				var project_name_arr = this.responseText.split("\n");
+				for (var prj_i=1; prj_i<project_name_arr.length-1 ; prj_i=prj_i+1)
+				{					
+					var option = document.createElement("option");
+					option.text = project_name_arr[prj_i].split(",")[1];
+						test_drp.add(option, test_drp[0]);
+				} 
+				
+				
+			
+			}
+			else{
+				alert("Kindly analyze a log file to view this page");
+				document.getElementById("Btn_exist_proceed").disabled = true;
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getLogNameForUser.py",true);
+     xhttp.send(fd);
+}
+
+
+$(document).on('keydown', function (e) {
+  if (e.keyCode == 0 && $('#Repname').is(":focus") && $('#Repname').val().length < 5) {
+      e.preventDefault();
+  }
+});
+
+$(document).on('keydown', function (e) {
+  if (e.keyCode == 8 && $('#Repname').is(":focus") && $('#Repname').val().length < 5) {
+      e.preventDefault();
+  }
+});
+
+$(document).on('keydown', function (e) {
+  if (e.keyCode == 46 && $('#Repname').is(":focus") && $('#Repname').val().length < 5) {
+      e.preventDefault();
+  }
+});
+
+$(document).on('keydown', function (e) {
+  if (e.keyCode == 37 && $('#Repname').is(":focus") && $('#Repname').val().length < 5) {
+      e.preventDefault();
+  }
+});
+
+
+let textBox = document.getElementById("Repname");
+
+textBox.addEventListener("focus", function() {
+  if (!this.value) {
+    this.value += "OTB_";
+  }
+});
+textBox.addEventListener("blur", function() {
+  if (this.value == "OTB_") {
+    this.value = "";
+  }
+});
+
+function selectpattern()
+{
+
+
+var e = document.getElementById("slt_view");
+
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("Reportname",e.value);
+txtFile.open("POST", "../cgi-bin/savetrade.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			alert(allText);
+			myfunction(allText);
+			}			
+		};
+		txtFile.send(fd);
+	
+
+}	
+
+  function isNumber(evt) {
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57))
+            return false;
+
+        return true;
+    }    
+	
+	
+function myfunction(res)
+{
+
+if(res.includes("not"))
+{
+document.getElementById("slt_view").value="";
+return false;
+}
+}
+	
+function upload_files()
+{
+
+if(document.getElementById("Repname").value == "" || document.getElementById("time").value == "")
+{
+
+alert("Values should be filled");
+return false;
+}
+
+if(document.getElementById("slt_view").value == "")
+{
+
+alert("Select Reportname from dropdown");
+return false;
+}
+
+//var min= document.getElementById("time").value * 60;
+var tim= document.getElementById("time").value
+var values = Array.from(document.getElementById("slt_view1").options).map(e => e.value);
+const result = values.includes(document.getElementById("Repname").value);
+
+if(!result)
+{
+var nreport= document.getElementById("Repname").value
+var e= document.getElementById("slt_view").value;
+var y=e.trim();
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("NReportname",nreport);
+localStorage.setItem("nreport",nreport);
+fd.append("OReportname",y);
+fd.append("resp_time",tim);
+txtFile.open("POST", "../cgi-bin/murex_osp_time_log.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			myfunction1();
+			}			
+		};
+		txtFile.send(fd);
+}
+else{
+alert("Reportname already exists")
+document.getElementById("Repname").value ="";
+return false;
+}
+}
+
+
+function myfunction1()
+{
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("username","murex");
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+var Txt_reportname=localStorage.getItem("nreport");
+fd.append("Txt_reportname",localStorage.getItem("nreport"));
+txtFile.open("POST", "../cgi-bin/upload1.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			alert(allText);
+			}			
+		};
+		txtFile.send(fd);
+
+}
+
+</script>
+</html>

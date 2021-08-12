@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>    
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">		
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+    <script src="../JScript/jquery.min.js"></script>
+    <script src="../JScript/require.min.js"></script>
+    <script src="../JScript/d3.min.js"></script>
+	<link href="../styles/Anomaly.css" rel="stylesheet">
+	<script src="../JScript/Lapam.js"></script>
+	<script>
+	var tenuredata = "";
+var nurseryata = "";
+var GCdata = "";
+
+var txt_filename = "";
+var current_date =  new  Date().getFullYear() + '-' + ("0" + (new  Date().getMonth() + 1)).slice(-2) + '-' + ("0" + new  Date().getDate()).slice(-2);
+	var log_folder = localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id");
+	var heap_file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_"+sessionStorage.getItem("Imperative_name")+".txt";
+	//var filename = "Reports/"+log_folder+"/"+file_name+localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name")+ "_fail_response.txt";
+	txt_filename = "Reports/" + log_folder + "/" + heap_file_name;
+function readTextFile() {
+	//var file = "Reports/"+log_folder+"/"+heap_file_name;
+	//var file = "Reports\\jun15_22_Anomaly.txt";
+	var rawFile = new XMLHttpRequest();
+	rawFile.open("GET", txt_filename, false);
+	rawFile.setRequestHeader("Cache-Control", "no-cache");
+	rawFile.setRequestHeader("Pragma", "no-cache");
+	rawFile.onreadystatechange = function() {
+		if (rawFile.readyState === 4) {
+			if (rawFile.status === 200 || rawFile.status == 0) {
+				var allText = rawFile.responseText;
+				var ext_response_arr1 = allText.toString().split("\n");
+				var ext_response_arr = allText.toString().split("=");
+				console.log(ext_response_arr1);
+				//console.log(ext_response_arr1[0].toString().split("=")[1].toString());
+				//console.log(ext_response_arr[1].toString().substring(0, ext_response_arr[1].length - 6));
+				usedtenuredata = "[" + ext_response_arr1[0].toString().split("=")[1].toString() + "]";
+				tenuredata = "[" + ext_response_arr1[1].toString().split("=")[1].toString() + "]";
+				nurseryata = "[" + ext_response_arr1[2].toString().split("=")[1].toString() + "]";
+				GCdata = "[" + ext_response_arr1[3].toString().split("=")[1].toString() + "]";
+				Freedata = "[" + ext_response_arr1[4].toString().split("=")[1].toString() + "]";
+				var obj = JSON.parse(GCdata);
+				//console.log(obj);
+
+			}
+
+		}
+	}
+	rawFile.send();
+}
+
+'use strict';
+$(function() {
+	readTextFile();
+	$.ajaxPrefilter(function(options, original_Options, jqXHR) {
+		options.async = true;
+	});
+	requirejs.config({
+		"baseUrl": "../JScript/",
+		"paths": {
+			"app": "../JScript/",
+			'moment': '../JScript/moment.min',
+			'underscore': '../JScript/underscore-min'
+		}
+	});
+
+	require(['d3.chart'], function(d3Chart) {
+		d3Chart.init({
+			container: '#container',
+			xDim: 'DateTime'
+		});
+		used_json_data = $.parseJSON(usedtenuredata);
+		tenure_json_data = $.parseJSON(tenuredata);
+		nursery_json_data = $.parseJSON(nurseryata);
+		GC_json_data = $.parseJSON(GCdata);
+		Free_data = $.parseJSON(Freedata);
+		//console.log(tenure_json_data);
+		d3Chart.addGraph({
+			axisname: ['in'],
+			id: 'In (GB)',
+			type: 'analog',
+			dataId: 513,
+			yVal: ['in'],
+			data: used_json_data
+		});
+		d3Chart.addGraph({
+			axisname: ['Total'],
+			id: 'Total (GB)',
+			type: 'analog',
+			dataId: 513,
+			yVal: ['Total'],
+			data: tenure_json_data
+		});
+		d3Chart.addGraph({
+			axisname: ['out'],
+			id: 'Out (GB)',
+			type: 'analog',
+			dataId: 513,
+			yVal: ['out'],
+			data: nursery_json_data
+		});
+		d3Chart.addGraph({
+			axisname: ['Cached'],
+			id: 'Cached (GB)',
+			type: 'analog',
+			dataId: 513,
+			yVal: ['Cached'],
+			data: GC_json_data
+		});
+		d3Chart.addGraph({
+			axisname: ['Free'],
+			id: 'Free (GB)',
+			type: 'analog',
+			dataId: 513,
+			yVal: ['Free'],
+			data: Free_data
+		});
+		//   d3Chart.addGraph({ id: 'DI', type: 'digital', name: 'Digital Input', dataId: 522, data: diData });
+
+		//   d3Chart.addGraph({ id: 'Accel', type: 'analog', name: 'Accel', dataId: 522, yVal: ['X', 'Y', 'Z'], data: accelData });
+		d3Chart.render();
+
+		<!-- setTimeout(function () {	 -->
+		<!-- d3Chart.reorderGraph('Accel', 'up'); -->
+		<!-- }, 3000); -->
+
+	});
+
+});
+	</script>
+	
+</head>
+
+<body>
+    <h1 id="Lbl_hdr" style="color:black; font-size:20px; font-weight:bold; font-family: Verdana, sans-serif; margin-left: 40%;
+    margin-bottom: 0px;">Swap Utilization Trend</h1>
+    <!-- <button id="Btn_back" onclick="goBack()" style="float: right;">Back</button> -->
+    <div id="container" style="width:1000px; height:800px margin-left:400px">
+        <div class="loader">
+            <p>Working...</p>
+        </div>
+    </div>
+</body>
+
+</html>

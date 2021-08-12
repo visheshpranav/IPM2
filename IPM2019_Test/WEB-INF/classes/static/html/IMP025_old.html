@@ -1,0 +1,190 @@
+<html>
+<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+<style>
+#report_tbl {
+    border-collapse: collapse;
+	margin-top: 5px;
+    width: 99%;
+}
+
+#report_tbl td, #report_tbl th {
+    border: 1px solid #ddd;
+    padding: 5px;
+	font-size: 13px;
+	width: auto;
+}
+
+#report_tbl tr:nth-child(even){background-color: #f2f2f2; }
+
+#report_tbl tr:hover {background-color: #ddd;}
+
+#report_tbl th {
+    padding-top: 5px;
+	font-size: 16px;
+	font-weight: bold;
+    padding-bottom: 5px;
+    text-align: center;
+    background-color: #023e72;
+    color: white;
+}
+</style>
+<script src="../JScript/Lapam.js"></script>
+ <body onload="getExistingLogname()">
+<div>
+	<label style = "margin-left:100px">Project Name:</label>
+	<input type="text" id="Txt_prj" name="prj_name" disabled>
+	<label style = "margin-left:30px">Report Name:</label>
+	<select id="Drp_View_logName" disabled> </select>
+	<input type="button" value="Generate & Download Report" id ="generate_SAP" style="float:right; margin-right: 40px;" onclick="generateppt();">
+	<br>
+	<br/>
+</div>
+<div id="report-content" style="height: 100%; width: 99%;overflow-y: scroll;">
+<table id="report_tbl">
+	<thead>
+		<tr>
+			<th>Tcode</th>
+			<th>Total User Count</th>
+			<th>Impacted User Count</th>
+			<th>Total Tran. Count</th>
+			<th>Failed Tran. Count</th>
+			<th>Actual Response Time (s)</th>
+			<th>Maximum User</th>
+			<th>Maximum Response Time (s)</th>
+		</tr>
+		<tr>
+			<td>FBL5N</td>
+			<td>17</td>
+			<td>2</td>
+			<td>1320</td>
+			<td>22</td>
+			<td>0.17</td>
+			<td>RAJ01</td>
+			<td>14.24</td>
+		</tr>
+		<tr>
+			<td>MB52</td>
+			<td>15</td>
+			<td>8</td>
+			<td>1108</td>
+			<td>480</td>
+			<td>0.25</td>			
+			<td>SUBRAS14</td>
+			<td>12.25</td>
+		</tr>
+		<tr>
+			<td>ME2M</td>
+			<td>12</td>
+			<td>6</td>
+			<td>980</td>
+			<td>200</td>
+			<td>0.18</td>			
+			<td>KP01</td>
+			<td>11.05</td>
+		</tr>
+		<tr>
+			<td>ME21N</td>
+			<td>28</td>
+			<td>4</td>
+			<td>1002</td>
+			<td>189</td>
+			<td>0.10</td>			
+			<td>KP02</td>
+			<td>9.02</td>
+		</tr>
+		<tr>
+			<td>ME23N</td>
+			<td>1121</td>
+			<td>39</td>
+			<td>857</td>
+			<td>95</td>
+			<td>0.16</td>			
+			<td>KP81</td>
+			<td>10.75</td>
+		</tr>
+		<tr>
+			<td>MM03</td>
+			<td>895</td>
+			<td>11</td>
+			<td>426</td>
+			<td>70</td>
+			<td>0.14</td>			
+			<td>KP91</td>
+			<td>9.75</td>
+		</tr>
+		<tr>
+			<td>SE38</td>
+			<td>39</td>
+			<td>6</td>
+			<td>45</td>
+			<td>24</td>
+			<td>0.2</td>			
+			<td>KP51</td>
+			<td>9.05</td>
+		</tr>
+		<tr>
+			<td>VA03</td>
+			<td>589</td>
+			<td>22</td>
+			<td>879</td>
+			<td>98</td>
+			<td>0.5</td>			
+			<td>KP11</td>
+			<td>8.02</td>
+		</tr>
+		<tr>
+			<td>VK11</td>
+			<td>12</td>
+			<td>6</td>
+			<td>200</td>
+			<td>21</td>
+			<td>0.67</td>			
+			<td>RAJ02</td>
+			<td>7.05</td>
+		</tr>
+		<tr>
+			<td>VF03</td>
+			<td>12</td>
+			<td>6</td>
+			<td>980</td>
+			<td>200</td>
+			<td>0.18</td>			
+			<td>KP01</td>
+			<td>5.05</td>
+		</tr>
+	</thead>
+</table>
+</div>
+<script>
+
+function getExistingLogname()
+{
+	document.getElementById("Txt_prj").value = "Demo";
+
+	var test_drp = document.getElementById("Drp_View_logName");			
+	var option = document.createElement("option");
+	option.text = "Demo1";
+	test_drp.add(option, test_drp[0]);
+}
+
+// generate ppt 
+function generateppt()
+{
+	setTimeout(myTimer, 2000);
+	function myTimer() {
+		window.open("../Reports/Demo.pptx", '_blank');
+		alert("Report generated successfully");
+	}
+}
+
+
+function getReportView()
+{
+	
+}
+
+</script>
+</body>
+</html>

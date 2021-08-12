@@ -1,0 +1,702 @@
+html {
+font-family: 'Segoe UI Condensed','Segoe UI','Segoe WP',Tahoma,Arial,sans-serif;
+font-size: 12pt;
+background: white;
+position: relative;
+min-height: 100%;
+}
+body {
+  margin: 0px;
+}
+a{
+	text-decoration:none;
+}
+
+.text {
+  width: 57%;
+}
+
+/************************* Registration ***********************************/
+
+.reg_label{
+    width: 150px;
+    display: inline-block;
+	font-size: 14px;
+    padding-left: 100px;
+    margin-bottom: 20px;
+}
+.reg_text
+{
+	width: 200px;
+}
+.reg_notifylabel{
+    display: inline-block; font-size: 12px; width: 65%; text-align: right; margin-top: 20px; font-style: italic;
+}
+.reg_div{
+	position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: 600px; height: 320px;  background-color: #f3f3f3; opacity: 0.9;
+}
+.reg_imagediv{
+	background: url(../images/WelcomePage.png); height: 100%; width: 100%; background-position: center; background-repeat: no-repeat; margin-top:-100px; 
+}
+.reg_ConfMsg{
+	left: 0; right: 0; top: 0; bottom: 0; margin: auto; display: none; width: 1000px; font-size: 24px; color:blue;
+}
+.reg_header{
+	height:11.2%;width:100%;
+}
+.reg_welcomelbl{
+	font-size: 28px; width: 700px; padding-left: 50px; margin-top: 10px;
+}
+.reg_button{
+	margin-left: 260px; width: 120px; height:22px;
+}
+
+/**************************************************************************************/
+
+/************************* Admin ***********************************/
+
+.admin_label{
+    width: 200px;
+    display: inline-block;
+	font-size: 16px;
+    padding-left: 50px;
+    margin-bottom: 30px;
+}
+.admin_text
+{
+	width: 200px;
+	font-size: 16px;
+	margin-bottom: 30px;
+}
+
+.admin_btn_activate{
+	float: left; margin-left: 46%; margin-top: 15px;
+}
+
+.admin_button,.admin_btn_activate {
+	-moz-box-shadow: 0px 0px 0px 2px #9fb4f2;
+	-webkit-box-shadow: 0px 0px 0px 2px #9fb4f2;
+	box-shadow: 0px 0px 0px 2px #9fb4f2;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #7892c2), color-stop(1, #476e9e));
+	background:-moz-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:-webkit-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:-o-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:-ms-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#7892c2', endColorstr='#476e9e',GradientType=0);
+	background-color:#7892c2;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+	border:1px solid #4e6096;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:16px;
+	padding:4px 30px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #283966;
+}
+
+.admin_button {
+	margin-left: 260px; width: 120px; height:28px;
+}
+
+/* The Close Button */
+.close {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	margin-top: -20px;
+}
+
+.close:hover,
+.close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+}		
+
+/* The Modal (background) */
+.modal_admin {
+	display: none; 
+	position: fixed; 
+	z-index: 1; 
+	padding-top: 50px; 
+	left: 0;
+	top: 0;
+	width: 100%; 
+	height: 100%; 
+	overflow: auto; 
+	background-color: rgb(0,0,0); 
+	background-color: rgba(0,0,0,0.4); 
+}
+
+/* Modal Content */
+.modal-content-admin {
+	background-color: #fefefe;
+	margin: auto;
+	padding: 40px;
+	border: 1px solid #888;
+	width: 35%;
+}
+
+table.Tbl_admin {
+  border: 1px solid #1C6EA4;
+  background-color: #EEEEEE;
+  width: 75%;
+  text-align: left;
+  border-collapse: collapse;
+  border-radius: 10px;
+}
+table.Tbl_admin td, table.Tbl_admin th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+table.Tbl_admin th {
+  text-align: center;
+}
+table.Tbl_admin tbody td {
+  font-size: 14px;
+}
+table.Tbl_admin tr:nth-child(even) {
+  background: #D0E4F5;
+}
+table.Tbl_admin thead {
+  background: #1C6EA4;
+  background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  border-bottom: 2px solid #444444;
+}
+table.Tbl_admin thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+}
+table.Tbl_admin thead th:first-child {
+  border-left: none;
+}
+
+/**************************************************************************************/
+
+/************************************ Welcome *****************************************/
+
+.wc_ifm_header{
+	height:17%;width:100%;
+}
+
+.wc_ifm_logout{
+	height:4%;width:100%; margin-top: -7px;
+}
+
+.wc_div{
+	background: url(../images/WelcomePage.png); opacity:0.8; height: 100%; width: 100%; background-position: center; background-repeat: no-repeat; margin-top: 0px;
+}
+
+.wc_center_div{
+	position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: 800px; height: 200px;
+}
+
+/*.Home_lbl{
+	background: url(../images/Home.png);height: 100%; width: 100%; position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto; background-repeat: no-repeat; float: right;
+}
+
+.Logout_lbl{
+	background: url(../images/Logout.png);height: 100%; width: 100%; position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto; background-repeat: no-repeat; float: right;
+}*/
+/**************************************************************************************/
+
+
+.btn-li {
+	min-height: 25px;
+}
+
+.genBtn {
+  height: 22px;
+  background: #000;
+  border: 2px solid #000;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  padding: 1px 15px;
+  font-size: 14px;
+  margin-left:150px;
+}
+
+#Div_loginBlock {
+  width: 100%;
+  height: 100%;
+  margin: 5% 33%;
+  min-width: 280px;
+  max-width: 440px;
+  float: left;
+}
+
+#Div_loginBlock li {
+  list-style: none;
+  margin-bottom: 15px;
+  margin-left: -25px;
+}
+
+#Div_loginBlock li label {
+  float: left;
+  width: 135px;
+  padding-left: 20px;
+  margin-bottom: -5px;
+}
+
+#Div_loginBlock ul {
+  margin-top: 35px;
+}
+
+.txtCls {
+  width: 40%;
+  border-radius: 2px;
+  height: 20px;
+  padding-left: 5px;
+  border-color: black;
+  left:1px; 
+  top: 269px;
+  width: 181px;
+  margin-top:0px; 
+  margin-left: 135px;
+}
+
+.Username{
+	height:1px; 
+	margin-bottom:0px;
+}
+
+.li{
+	width: 5px;
+	height: 25px;	
+}
+
+.Password{
+	height: 3px;
+	margin-top: 11px; 
+	margin-bottom: 0px;
+}
+
+.loginBtn {
+  margin-top: 20px;  
+  width: 100px;
+  height: 24px;
+  float: left;
+  margin-left: 150px;
+}
+
+.errorCls {
+  color: red;
+  float: left;
+  margin-top: 25px;
+  margin-left: 15px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: white;
+    background-color: black;
+    text-align: center;
+}
+
+.accLogo {
+  margin-top: 10px;
+  float: right;
+  margin-right: 0px;
+  width: 140px;
+}
+
+.TTLMHeader {
+  background: #000;
+  float: left;
+  width: 100%;
+  display:block;
+}
+
+.TTLMHeader h2 {
+    color: #fff;
+    width: 60%;
+    float: left;
+    margin: 5px 10px 5px 10px;
+    font-size: 26px;
+    font-weight: normal;
+  display:block;
+}
+
+.TTLMHeader p {
+    color: wheat;
+    float: left;
+    width: 60%;
+    margin: 0px 10px 0px 15px;
+    font-size: 12px;
+  display:block;
+}
+
+.HomeHeader {
+  background: #105d9f;
+  float: left;
+  width: 100%;
+  display:block;
+}
+
+#Img_logo {
+  cursor: pointer;
+  width: 5%;
+  margin-top: 5px;
+  margin-left: 5px;
+  float: left;
+}
+
+.container {
+    height: 60px;
+    background: #105d9f;
+    margin: 0px;
+}
+
+.Hdr_Ribbon {
+    height: 50px;
+    background: #105d9f;
+    margin-top: 0px;
+}
+
+.links {
+    position: fixed;
+    top: 10%;
+    left: 4%;
+    bottom: 3%;
+    width: 100%;
+    background-color: white;
+    border-top: 5px;
+    font-weight: bold;  
+}
+
+.links a {
+  margin-left: 20px;
+  padding-left: 20px;
+}
+
+.NewQual
+{
+  margin-left: 20%;
+  margin-top: 50px;
+}
+.insight_lbl{
+    font-size: 24px; font-weight: bold; width: 400px; padding-left: 0px; margin-left: 20%; color: #fff; float: left; margin-bottom:0px;
+}
+
+.welcome_lbl
+{
+  font-size: 24px; margin-left: 10px; float: left; padding-left: 0px;
+}
+
+.welcomeQualNew_lbl
+{
+  margin-left: 10px; font-size: 30px; margin-top: 150px; float: left; width: 416px; height: 441px; background-color: grey; color: #fff; margin-top: 50px;
+}
+
+.welcomeQualExist_lbl
+{
+  margin-left: 110px; font-size: 30px; margin-top: 150px; float: left; width: 416px; height: 300px; background-color: grey; color: #fff; margin-top: 150px;
+}
+
+label {
+    width: 150px;
+    display: inline-block;
+    font-size: 12px;
+    padding-left: 200px;
+    margin-bottom: 20px;
+}
+
+#check_box1 {
+    width: 250px;
+    display: inline-block;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+.check-box
+{
+margin-left: 155px; 
+font-size: 13px;
+}
+
+.fieldset-checkbox
+{
+  border-radius:25px;
+  Height:250px; 
+  width:430px;
+  margin-left:50px;
+  border:double;
+}
+
+.checkbox_test
+{
+  margin-left: 155px; 
+  font-size: 13px;
+}
+
+.pop_checkbox_test
+{
+  margin-left: 200px; 
+  font-size: 13px;
+}
+
+#Chx_upload
+{
+  margin-left: 45px;
+}
+
+#Itl_upload
+{
+  margin-left: 5px;
+  color: black;
+}
+.Test-Log
+{
+  color: black;
+}
+
+#Btn_upload, #Btn_Qualify
+{
+  height: 22px; 
+  margin-left: 355px;
+  width: 120px;
+}
+
+#Btn_proceed_popup
+{
+  height: 22px; 
+  margin-left: 200px;
+  width: 100px;
+}
+
+#Div_NewQual_Output, #Div_ViewQual_Output
+{
+  margin-left: 150px; 
+  display: none;
+}
+#myModal
+{
+  display: none;
+}
+
+#Btn_Proceed
+{
+  margin-left:355px; 
+  height: 24px; 
+  width: 100px; 
+  display: none;
+}
+
+.Logout_lbl
+{
+	float: right;
+	margin-right: 20px;
+	font-size: 20px;
+	color: white;
+}
+
+#body_Logouthdr
+{
+	background-color: #6E6E6E;
+}
+
+#Drp_View_Testname
+{
+	width: 143px;
+}
+
+.ontop {
+	z-index: 999;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	display: none;
+	position: absolute;
+	background-color: #cccccc;
+	color: #aaaaaa;
+	opacity: .4;
+	filter: alpha(opacity=70);
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 40px;
+    border: 1px solid #888;
+    width: 30%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+	width: 22px;
+	height: 22px;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.Lbl_POPUP{
+	width: 120px;
+    display: inline-block;
+    font-size: 12px;
+    padding-left: 80px;
+    margin-bottom: 20px;
+}
+
+
+
+.loader7 {
+    width:250px;
+    height:16px;
+    border:1px solid #000;
+    border-radius:2px;
+    position:relative;
+    overflow:hidden;
+    background: rgb(200, 200, 200);
+    margin-left: 800px; 
+	margin-top:500px;
+}
+.loader7:after, .loader7:before {
+    content: " ";
+    position:absolute;
+    height:100%;
+    left:0;
+    width:10px;
+    z-index:1;
+    background: -moz-linear-gradient(left, rgba(170, 170, 170, 1) 0%, rgba(170, 170, 170, 0) 100%);
+    /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(170, 170, 170, 1)), color-stop(100%, rgba(170, 170, 170, 0)));
+    /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, rgba(170, 170, 170, 1) 0%, rgba(170, 170, 170, 0) 100%);
+    /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, rgba(170, 170, 170, 1) 0%, rgba(170, 170, 170, 0) 100%);
+    /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, rgba(170, 170, 170, 1) 0%, rgba(170, 170, 170, 0) 100%);
+    /* IE10+ */
+    background: linear-gradient(to right, rgba(170, 170, 170, 1) 0%, rgba(170, 170, 170, 0) 100%);
+    /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#00aaaaaa', GradientType=1);
+    /* IE6-9 */
+}
+.loader7:after {
+    left:auto;
+    right:0;
+    background: -moz-linear-gradient(left, rgba(170, 170, 170, 0) 0%, rgba(170, 170, 170, 1) 100%);
+    /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(170, 170, 170, 0)), color-stop(100%, rgba(170, 170, 170, 1)));
+    /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, rgba(170, 170, 170, 0) 0%, rgba(170, 170, 170, 1) 100%);
+    /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, rgba(170, 170, 170, 0) 0%, rgba(170, 170, 170, 1) 100%);
+    /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, rgba(170, 170, 170, 0) 0%, rgba(170, 170, 170, 1) 100%);
+    /* IE10+ */
+    background: linear-gradient(to right, rgba(170, 170, 170, 0) 0%, rgba(170, 170, 170, 1) 100%);
+    /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00aaaaaa', endColorstr='#aaaaaa', GradientType=1);
+    /* IE6-9 */
+}
+.loader7 > span {
+    content: " ";
+    top:0;
+    z-index:3;
+    width:100%;
+    height:100%;
+    box-shadow:0 0 1px #fff inset;
+    position:absolute;
+}
+.loader7 > span:before {
+    content: " ";
+    top:0;
+    width:100%;
+    height:100%;
+    position:absolute;
+    top:0;
+    background: -moz-linear-gradient(top,  rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.5) 25%, rgba(255,255,255,0.5) 49%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.4) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0.8)), color-stop(25%,rgba(255,255,255,0.3)), color-stop(49%,rgba(255,255,255,0.3)), color-stop(50%,rgba(255,255,255,0)), color-stop(70%,rgba(255,255,255,0)), color-stop(100%,rgba(255,255,255,0.4))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  rgba(255,255,255,0.8) 0%,rgba(255,255,255,0.5) 25%,rgba(255,255,255,0.5) 49%,rgba(255,255,255,0) 50%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.4) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  rgba(255,255,255,0.8) 0%,rgba(255,255,255,0.5) 25%,rgba(255,255,255,0.5) 49%,rgba(255,255,255,0) 50%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.4) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  rgba(255,255,255,0.8) 0%,rgba(255,255,255,0.5) 25%,rgba(255,255,255,0.5) 49%,rgba(255,255,255,0) 50%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.4) 100%); /* IE10+ */
+background: linear-gradient(to bottom,  rgba(255,255,255,0.8) 0%,rgba(255,255,255,0.5) 25%,rgba(255,255,255,0.5) 49%,rgba(255,255,255,0) 50%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.4) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ccffffff', endColorstr='#66ffffff',GradientType=0 ); /* IE6-9 */
+}
+.greenlight {
+    width:120px;
+    top:-50%;
+    height:250%;
+    position:absolute;
+    animation: greenglow 3s linear infinite;
+    -webkit-animation: greenglow 3s linear infinite;
+    z-index:2;
+    
+-webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 70%,rgba(0,0,0,0) 100%);
+mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 70%,rgba(0,0,0,1) 100%);
+mask: url(#light);
+/*background: linear-gradient(to bottom, rgba(166,229,179,1) 0%,rgba(166,229,179,1)42%,rgba(0,219,49,1) 42%);*/
+    background:rgb(26,83,255);
+}
+
+@-webkit-keyframes greenglow {
+    from {
+        left:-120px;
+    }
+    to {
+        left:100%;
+    }
+}
+@-moz-keyframes greenglow {
+    from {
+        left:-120px;
+    }
+    to {
+        left:100%;
+    }
+}
+@-o-keyframes greenglow {
+    from {
+        left:-120px;
+    }
+    to {
+        left:100%;
+    }
+}
+@keyframes greenglow {
+    from {
+        left:-120px;
+    }
+    to {
+        left:100%;
+    }
+}

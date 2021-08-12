@@ -1,0 +1,255 @@
+<html>
+<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+<style>
+
+@font-face {
+	font-family: 'AccentureRotis';
+	src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+	body {
+		font-family: AccentureRotis;
+	 }
+	 
+#header_div
+{
+float: left;
+margin-top: 20px;
+margin-left: 30px;
+}
+#lstBox1, #lstBox2 {
+	width: 200px;
+	height: 200px;
+	padding: 0;
+	margin-top: 10px;
+	font-size:12px;
+}
+#lstBox2{
+	margin-left: 40px;
+	float: left;
+}
+#btnAllRight {
+	width: 30px;
+    margin-left: 30px;
+	margin-top: 50px;
+}
+#btnRight,#btnLeft,#btnAllLeft {
+	width: 30px;
+    margin-left: 30px;
+	margin-top: 10px;
+}
+#CompareTest_lbl1,#CompareTest_lbl{
+	width: 150px;
+	height: 200px;
+	padding: 0;
+	font-weight: bold;
+}
+#CompareTest_lbl1{
+	margin-left: 40px;
+}
+
+.btn { 
+    background: #428bca;
+    border: 2px solid #428bca;
+    border-radius: 2px;
+    color: white;
+    cursor: pointer;
+    width: 130px;
+    height: 35px;	
+   	line-height: 30px;
+}
+
+.btn_compare {
+	background-color: #428bca;
+	color:#ffffff;
+	font-family: AccentureRotis;
+	font-size:16px;
+	margin-left: -310px; margin-top: 290px;
+}
+
+#Tbl_Compare {
+  border: 1px solid #1C6EA4;
+  width: 75%;
+  text-align: left;
+  border-collapse: collapse;
+  border-radius: 10px;
+}
+#Tbl_Compare td, #Tbl_Compare th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+#Tbl_Compare th {
+  text-align: center;
+}
+#Tbl_Compare tbody td {
+  font-size: 14px;
+}
+#Tbl_Compare tr:nth-child(even) {
+  background: #f2f2f2;
+}
+
+</style>
+<script type="text/javascript" src="../JScript/jquery-2.1.1.min.js"></script>
+<body onload="getExistingLognameSAP()" style="font-family: AccentureRotis; font-size: 14px;">
+<div>
+	<div id="bf_name" style="margin-left: 50px;">
+		Business Flow Name: <input type='textbox' id="bf">
+		<a href="javascript:clickbfc();" id ="Download_dc" style="margin-right: 50px; margin-top: 5px; float: right; text-decoration: underline; cursor: pointer;font-family: AccentureRotis;font-size: 14px;" >View Business flow</a>
+	</div>
+	<div id="header_div" style="margin-left: 50px;">
+		<label id="CompareTest_lbl">List of Tcodes: </label></br>
+		<select multiple="multiple" id='lstBox1' ></select>
+	</div>
+	<div id="header_div"><!--class="subject-info-arrows text-center"-->
+		<input type='button' id='btnAllRight' value='>>' class="btn btn-default" /><br />
+		<input type='button' id='btnRight' value='>' class="btn btn-default" /><br />
+		<input type='button' id='btnLeft' value='<' class="btn btn-default" /><br />
+		<input type='button' id='btnAllLeft' value='<<' class="btn btn-default" />
+	</div>
+	<div id="header_div">
+	  <label id="CompareTest_lbl1">Selected Tcodes: </label></br>
+	  <select multiple="multiple" id='lstBox2' ></select>
+	</div>
+
+	<input type="button" value="Save" id ="save_bf" class="btn_compare" onclick="saveBFC();"><br/>
+	
+</div>
+
+<script src="../JScript/Lapam.js"></script>
+<script>
+	$(function() {
+		$('#btnRight').click(function(e) {
+			var selectedOpts = $('#lstBox1 option:selected');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox2').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnAllRight').click(function(e) {
+			var selectedOpts = $('#lstBox1 option');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox2').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnLeft').click(function(e) {
+			var selectedOpts = $('#lstBox2 option:selected');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox1').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnAllLeft').click(function(e) {
+			var selectedOpts = $('#lstBox2 option');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox1').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+	});
+	
+	
+function getExistingLognameSAP()
+{
+	getObservation();
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	
+	console.log(document.getElementById("bf").value)
+	
+	fd.append("bf_name", document.getElementById("bf").value)
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var outputVal = this.responseText.trim();
+			console.log(outputVal);
+			var output_mat = outputVal.split(",");
+			console.log(output_mat);
+			if(outputVal != "" && output_mat != "[]")
+			{
+				var project_name_arr = this.responseText.split("'");
+				for (var prj_i=1; prj_i<project_name_arr.length ; prj_i=prj_i+2) {
+					var regex = /[@!#$%^&*()<>?\/\|}{~:]/g;
+					//   alert(project_name_arr[prj_i].match(regex));
+					if(project_name_arr[prj_i].match(regex)== null || project_name_arr[prj_i].match(regex) == "")
+					{   
+						var opt = document.createElement("option");
+						opt.text = project_name_arr[prj_i];
+						document.getElementById("lstBox1").options.add(opt);		 
+					}
+
+					/*var opt = document.createElement("option");
+					opt.text = project_name_arr[prj_i];
+					document.getElementById("lstBox1").options.add(opt);*/
+				} 
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getTcodeList.py",true);
+     xhttp.send(fd);
+}
+
+function clickbfc()
+{
+	window.location.href = "IMP020_drilldown.html";
+}
+
+
+
+function saveBFC()
+{
+	if(document.getElementById("bf").value != "")
+	{	
+		var x = document.getElementById("lstBox2"); 
+		if(x.length > 0)
+		{
+			var xhttp = new XMLHttpRequest();
+			var fd = new FormData();
+			var bfc_List = new Array();	
+			for (i = 0; i < x.length; i++) { 
+				bfc_List.push(document.getElementById("bf").value);	
+				bfc_List.push(x.options[i].text);
+				bfc_List.push(i+1);
+				bfc_List.push(localStorage.getItem("reportname"));
+			}
+			fd.append("bfc_list",bfc_List);
+			fd.append("userid",localStorage.getItem("ipm_UserId"));
+			fd.append("repid",localStorage.getItem("reportname").toLowerCase());
+			
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					var outputVal = this.responseText.trim();					
+					//window.location.href = "IMP020_drilldown.html";
+					alert("Business flow logic saved successfully");
+				}
+			 };
+			 xhttp.open("POST", "../cgi-bin/bfc_insert.py",true);
+			 xhttp.send(fd);
+		 }
+		 else{
+			alert("Kindly select tcodes from the list to proceed");
+		 }
+	 }
+	 else
+	 {
+		alert("Please enter 'Business Flow' name");
+	 }
+}
+
+	</script>				
+</html>

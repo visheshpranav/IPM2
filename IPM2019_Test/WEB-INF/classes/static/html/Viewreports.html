@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<script language="JavaScript" type="text/javascript" src="../JScript/json2.js"></script>
+<!-- <script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.8.3.js"></script> -->
+<script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.9.1.js"></script>
+<script src="../JScript/Lapam.js"></script>
+<link href="../styles/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+	
+
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+  font-family: AccentureRotis;
+}
+
+html, body { font-family: 'AccentureRotis'; }
+
+table { border-collapse: collapse; }
+
+tbody tr:first-child { pointer-events: none; font-weight:bold} 
+table tr td {
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+table tr:nth-child(odd) { background: #f4f4f4; }
+
+tr:hover {
+background-color:#ffff99!important;
+cursor:pointer;
+}
+
+td{
+word-break: break-all;
+font-size:14px;
+}
+
+
+
+td{
+word-break: break-all;
+font-size:14px;
+}
+
+table{
+table-layout:fixed;
+width:90%;
+margin-left:2%;
+margin-top:-8%;
+float:middle;
+}
+	@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+	
+.fieldset-checkbox {
+    border-radius: 25px;
+    height: auto;
+    width: 900px;
+    border: solid;
+	margin-left:16%;
+}
+fieldset {
+    display: block;
+	margin-inline-start: 2px;
+    margin-inline-end: 2px;
+    padding-block-start: 0.35em;
+    padding-inline-start: 0.75em;
+    padding-inline-end: 0.75em;
+    padding-block-end: 0.625em;
+    min-inline-size: min-content;
+    border-width: 2px;
+    border-style: groove;
+    border-color: threedface;
+    border-image: initial;
+}
+label {
+ 
+  font-family: AccentureRotis;
+  font-size:12px;
+  font-weight:bold;
+}
+
+html, body { font-family: 'AccentureRotis'; }
+
+
+</style>
+<body onload="fetchReports1();">
+<div id="Div_NewQual" class="NewQual" style="background-image: url('../images/upload.png'), linear-gradient(#ffffff,#d9d9d9); background-position: center right; background-size: contain; background-repeat: no-repeat; margin-top: 10%; background-blend-mode: normal;font-family: AccentureRotis,Arial,sans-serif;">
+
+<div id="container" style="margin-top:20px;margin-bottom:10px;float:right;"></div>
+<!-- <div style="position:fixed;float:left;">
+
+   <label style="margin-left:20%" class="list-heading1" id="CompareTest_lbl1">Select to proceed</label></br>
+  <div style="width: 100%;float:left">
+  
+ <label style="margin-left:20%" for="Pattern">Choose Pattern:</label><br>
+
+<select name="typepat" id="typepat" style="margin-left:20%" onchange="fetchReports1()">
+  <option disabled selected value> -- select an option -- </option>
+  <option value="TradeInsertion">TradeInsertion</option>
+  <option value="DeliverableMXML">DeliverableMXML</option>
+ </select>
+ <br><br><br>
+ <input type="button" id="sub" class="submit-row" style="margin-left:20%" value="Submit"/hidden> 
+<!--  <label for="Repname" id="LRepname" style="margin-left:5%" hidden>Template name:</label><br>
+  <input type="text" id="Repname" name="pname" style="margin-left:5%" hidden><br>
+ <br><br><br>
+ 
+ 
+ <label id="tradefamily" style="margin-left:5%; display:none;" for="Pattern">Choose a family:</label><br>
+<select id="mySelect" style="display:none; margin-left:5%"   onchange="getselecttrade()"><br> -->
+
+<!-- <input type="button" onclick="deleteLastColumn();" value="do it"/>
+ -->
+<!-- </div>
+</div> --> 
+</body>
+</div>
+<br><br><br>
+
+<!-- <input type="button" class="submit-row" value="save"/>
+<input type="button" onclick="getval()" value="submit"/>  -->
+
+
+
+
+<script>
+
+
+var b;
+function selectpattern()
+{
+
+document.getElementById("mySelect").innerHTML = "";
+document.getElementById("Repname").style.display = "block";
+document.getElementById("LRepname").style.display = "block";
+
+
+ if($("#tableMain").length){
+ //localStorage.clear();
+ //localStorage.removeItem("Fname");
+ //delete b;
+//b = null;
+location.reload();
+document.getElementById("tableMain").innerHTML = "";
+ }
+ 
+
+
+
+var c = document.getElementById("typepat");
+
+if(document.getElementById("typepat").value == "TradeInsertion")
+{
+let textBox = document.getElementById("Repname");
+textBox.addEventListener("focus", function() {
+  if (!this.value) {
+    this.value += "TRD_";
+  }
+});
+textBox.addEventListener("blur", function() {
+  if (this.value == "TRD_") {
+    this.value = "";
+  }
+});
+}
+/*if(document.getElementById("typepat").value == "DeliverableMXML")
+{
+let textBox = document.getElementById("Repname");
+textBox.addEventListener("focus", function() {
+  if (!this.value) {
+    this.value += "DEL_";
+  }
+});
+textBox.addEventListener("blur", function() {
+  if (this.value == "DEL_") {
+    this.value = "";
+  }
+});
+
+}*/
+
+
+
+if(c.value == "DeliverableMXML")
+
+{
+alert("Data not avail");
+location.reload();
+//b = null;
+//console.log(b);
+}
+
+else
+{
+    var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	localStorage.setItem("logtype",c.value);
+	fd.append("logtype",c.value);
+	txtFile.open("POST", "../cgi-bin/murex_typology1.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			selecttrade(allText);
+			}			
+		};
+		txtFile.send(fd);
+		}
+	
+}
+
+function fetchReports1()
+{
+	var c = "TradeInsertion"
+	if(c.value == "DeliverableMXML")
+	{
+	alert("Data not avail");
+	location.reload();
+	return false;
+	
+	}
+	else
+	{
+	localStorage.setItem("ttype",c.value)
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	fd.append("type",c);
+	xhttp.open("POST", "../cgi-bin/Viewreports.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			//console.log(allText);
+			var optionValues1 = allText.split("\n");
+			//console.log(optionValues1);
+			//console.log(allText);
+			//var opt= allText.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+			//opt2=opt.replace(/[\[\]']+/g,'');
+			//k= allText.replace( /[\r\n]+/gm, "" ); 
+			//console.log(k);
+			
+			//var optionValues1 = allText.split(",");
+			//console.log(optionValues1);
+			//var optionValues1 = allText.split("\n");
+			//console.log(optionValues1);
+			
+			
+			//console.log(optionValues1);
+			//var myArrayNew = optionValues1.filter(function (el) {
+			//return el != null && el != "";
+			//});
+			
+			//const newArr = [];
+			//for (let i = 0; i < optionValues1.length; i++) {
+			//	if (optionValues1[i]) {
+			//	newArr.push(optionValues1[i]);
+			//	}
+			//}
+			
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			optionValues.shift();
+			//console.log(optionValues);
+			document.getElementById("container").style.display = "block";
+			//document.getElementById("sub").style.display = "block";
+			myfunction2(optionValues);
+			}			
+			};
+	xhttp.send(fd);
+	}
+}		
+		
+
+
+ 
+
+    function selecttrade(typval)
+	{
+	document.getElementById("mySelect").style.display="";
+	document.getElementById("tradefamily").style.display="";
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#mySelect').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		jQuery('#mySelect').append(jQuery("<option disabled selected value> -- select an option -- </option>"))
+    }
+	
+	
+    function getselecttrade()
+	{
+	var t = document.getElementById("mySelect").value.trim();
+	
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("logtype",localStorage.getItem("logtype"));
+	localStorage.setItem("typology",t);
+	fd.append("typology",t);
+	txtFile.open("POST", "../cgi-bin/murex_patterns1.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			myfunction(allText);
+			}			
+		};
+		
+		txtFile.send(fd);
+		
+	}
+	
+
+
+function getval()
+{
+//var k= localStorage.getItem("Fname");
+
+ if($('#Repname').val().length < 5)
+ {
+ alert("Template name should not be empty! ");
+ return false;
+ }
+ 
+ 
+var values = Array.from(document.getElementById("slt_view4").options).map(e => e.value);
+values.pop();
+values.shift();
+var x = values.toString();
+//o = x.indexOf(document.getElementById("Repname").value.trim());
+o =x.includes(document.getElementById("Repname").value.trim());
+
+/*if(o != -1)
+{
+alert("Reportname already exists")
+document.getElementById("Repname").value ="";
+return false;
+
+}*/
+ 
+ 
+if(o)
+{
+alert("Reportname already exists")
+document.getElementById("Repname").value ="";
+return false;
+
+}
+
+ if(!$("#tableMain").length){
+ alert("You cant submit before selecting header from table");
+ return false;
+ }
+ 
+ 	if (!$(i).is(':checked')) {
+
+	alert("Select atleast one header then save and try submit");
+    return false;
+}
+
+var t = document.getElementById("typepat").value.trim();
+var n = document.getElementById("Repname").value.trim();
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("log_type",t);
+fd.append("jsondata",b);
+fd.append("template_name",n);
+txtFile.open("POST", "../cgi-bin/create_template.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		alert("Template created:"+n+ ",  you can view under compare reports tab. For next iteration change pattern or kindly refresh page");
+		}			
+	};
+	txtFile.send(fd);
+
+}
+
+
+
+
+
+
+
+	
+	function myfunction(tableData) {
+	
+	var opt= tableData.toString().replace(/[&\\\#+()$~%.'":*?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+	
+	optionValues.splice(0,0,"Report Name");
+	optionValues.splice(1,0,"Date Created");
+
+  var data = optionValues;
+  
+  var perrow = 2,
+      html = "<table id=tableMain><caption><b> Select all reports which you want to modify then submit (note: only report belongs to trade shown here): </b></caption><tr>";
+
+  for (var i=0; i<data.length; i++) {    
+	 
+	 if(i>0)
+	 {
+	 html += `<td>${data[i]}</td>`;
+	 html += "<td><input type='checkbox' name='tbox' class='checkBoxClass' id=i></td>";
+     }
+	 else
+	 {
+	 html += `<td>${data[i]}</td>`;
+	 html += "<td>CHECKBOX</td>";
+	 }
+    var next = i+1;
+    if (next%perrow==0 && next!=data.length) {
+	  
+      html += "</tr><tr>";
+	  
+    }
+  }
+  
+  html += "</tr></table>";
+ 
+ 
+ 	document.getElementById("container").innerHTML = html;
+	deleteLastColumn();
+let thetable = document.getElementById('tableMain').getElementsByTagName('tbody')[0];
+            for (let i = 0; i < thetable.rows.length; i++)
+                {
+                    thetable.rows[i].onclick = function()
+                    {
+                        //TableRowClick(this);
+                    };
+                }                      
+
+            function TableRowClick(therow) {
+	            let msg = therow.cells[0].innerHTML;
+				let msg2 = therow.cells[2].innerHTML;
+				alert("Header selected for delete: "+msg);
+				alert("Header selected for delete: "+msg2);
+				tempObj = {};
+				
+			
+				}
+	}
+	
+	
+	function deleteLastColumn() {
+    $('#tableMain tr').find('th:last-child, td:last-child').remove()
+}
+	
+	var jsonObj = [];
+	
+	$(".submit-row").click(function () {
+	
+	
+
+	if (!$(i).is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+}
+
+ 
+	
+	
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(0).text().trim()));
+	
+  }
+});
+
+console.log(jsonObj);
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("logtype",localStorage.getItem("ttype"));
+fd.append("reportlist",JSON.stringify(jsonObj));
+txtFile.open("POST", "../cgi-bin/update_reports.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		alert(allText);
+		location.reload();
+		}			
+	};
+	txtFile.send(fd);
+});
+	
+	
+	
+
+	function myfunction2(tableData) {
+	var opt= tableData.toString().replace(/[&\\\#+()$~%.'":?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+	optionValues.splice(0,0,"Reportname");
+	optionValues.splice(1,0,"Date Created");
+	
+  var data = optionValues;
+  
+  var perrow = 2,
+      html = "<table id=tableMain><caption><b> Click on the report you want to view: </b></caption><tr>";
+
+  for (var i=0; i<data.length; i++) {
+     html += `<td>${data[i]}</td>`;
+
+    var next = i+1;
+    if (next%perrow==0 && next!=data.length) {
+      html += "</tr><tr>";
+    }
+  }
+  html += "</tr></table>";
+ 	document.getElementById("container").innerHTML = html;
+	  let thetable = document.getElementById('tableMain').getElementsByTagName('tbody')[0];
+            for (let i = 0; i < thetable.rows.length; i++)
+                {
+                    thetable.rows[i].onclick = function()
+                    {
+                        TableRowClick(this);
+                    };
+                }                      
+
+            function TableRowClick(therow) {
+	            let msg = therow.cells[0].innerHTML;
+                msg2=msg.trim();
+				alert("Report selected : "+msg2);
+				var k= getConfirmation();
+				if(k==true)
+				{
+				fetchViewDetails(msg2);
+				
+				
+				}
+			     
+                else
+				{
+				alert("Select Another Report")
+				}
+				}
+	}
+	
+	
+	
+	
+	function getConfirmation() {
+               var retVal = confirm("Do you want to Proceed?");
+               if( retVal == true ) {
+                  
+                  return true;
+               } else {
+                  
+                  return false;
+               }
+            }
+
+
+
+
+</script>
+</html>

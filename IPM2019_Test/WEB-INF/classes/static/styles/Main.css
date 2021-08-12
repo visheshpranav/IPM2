@@ -1,0 +1,291 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Times New Roman", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+}
+
+.p-2 {
+    padding: .5rem!important;
+}
+
+@media (min-width: 768px) .container {
+    max-width: 720px;
+}
+
+@media (min-width: 576px) .container {
+    max-width: 540px;
+}
+
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+*,
+::after,
+::before {
+    box-sizing: border-box;
+}
+
+.bar {
+    height: 40px;
+    border-left: 3px solid #000000;
+}
+
+.p-1 {
+    padding: .25rem!important;
+}
+
+.mt-2,
+.my-2 {
+    margin-top: .5rem!important;
+}
+
+.header-logo {
+    width: 120px;
+    font-size: 1rem;
+}
+
+.ttp-title {
+    font-family: "Patua One", cursive;
+    vertical-align: middle;
+    flex-grow: 1;
+    align-items: center;
+    margin: 0;
+}
+
+.pat-text {
+    font-size: 0.7rem;
+    padding-left: 5px;
+}
+
+.ml-auto,
+.mx-auto {
+    margin-left: auto!important;
+}
+
+.mr-auto,
+.mx-auto {
+    margin-right: auto!important;
+}
+
+.m-0 {
+    margin: 0!important;
+}
+
+.accLogo {
+    margin-top: 10px;
+    float: right;
+    margin-right: 0px;
+    width: 140px;
+}
+
+.TTLMHeader {
+    background: #000;
+    float: left;
+    width: 100%;
+    display: block;
+}
+
+.TTLMHeader h2 {
+    color: #fff;
+    width: 60%;
+    float: left;
+    margin: 5px 10px 5px 10px;
+    font-size: 26px;
+    font-weight: normal;
+    display: block;
+}
+
+.TTLMHeader p {
+    color: wheat;
+    float: left;
+    width: 60%;
+    margin: 0px 10px 0px 15px;
+    font-size: 12px;
+    display: block;
+}
+
+#Img_logo {
+    cursor: pointer;
+    width: 5%;
+    margin-top: 5px;
+    margin-left: 5px;
+    float: left;
+}
+
+.NewQual {
+    padding-left: 20%;
+    padding-top: 50px;
+    padding-bottom: 24%;
+    display: none;
+}
+
+.upload_lbl {
+    margin-right: 20px;
+    margin-bottom: 20px;
+    width: 120px;
+}
+
+.ontop {
+    z-index: 999;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: none;
+    position: absolute;
+    background-color: #cccccc;
+    color: #aaaaaa;
+    opacity: .4;
+    filter: alpha(opacity=70);
+}
+
+.fieldset-checkbox {
+    border-radius: 25px;
+    height: auto;
+    width: 514px;
+    border: solid;
+}
+
+.fs_legend {
+    margin-left: 20px;
+    font-size: 16px;
+    width: 110px;
+    border-bottom: none;
+    padding-left: 10px;
+}
+
+.ball {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: 50%;
+    position: relative;
+    -webkit-transform-style: preserve-3d;
+    background: url('../images/grid-world.png') repeat-x;
+    background-size: auto 100%;
+    -webkit-animation: move-map 30s infinite linear;
+    -moz-animation: move-map 30s infinite linear;
+    -o-animation: move-map 30s infinite linear;
+    -ms-animation: move-map 30s infinite linear;
+    animation: move-map 30s infinite linear;
+}
+
+.ball:before {
+    content: "";
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: -40px 10px 70px 10px rgba(0, 0, 0, 0.5) inset;
+}
+
+.ball:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    -webkit-filter: blur(4);
+    opacity: 0.5;
+    background-color: #00ff00;
+}
+
+.off_ball:before {
+    content: "";
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: -40px 10px 70px 10px rgba(0, 0, 0, 0.5) inset;
+}
+
+.off_ball:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    -webkit-filter: blur(4);
+    background-color: #7194b2;
+}
+
+.stage {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-top: 7px;
+    -webkit-perspective: 1200px;
+    -moz-perspective: 1200px;
+    -ms-perspective: 1200px;
+    -o-perspective: 1200px;
+    perspective: 1200px;
+    -webkit-perspective-origin: 50% 50%;
+    -moz-perspective-origin: 50% 50%;
+    -ms-perspective-origin: 50% 50%;
+    -o-perspective-origin: 50% 50%;
+    perspective-origin: 50% 50%;
+}
+
+@-moz-keyframes move-map {
+    0% {
+        background-position: -849px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+@-webkit-keyframes move-map {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: -849px 0;
+    }
+}
+
+@-o-keyframes move-map {
+    0% {
+        background-position: -849px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+@-ms-keyframes move-map {
+    0% {
+        background-position: -849px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+@keyframes move-map {
+    0% {
+        background-position: -849px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}

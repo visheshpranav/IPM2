@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fault Model</title>
+<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+</head>
+<body>
+<style>
+
+<!--  body {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}  -->
+
+@font-face {
+font-family: 'AccentureRotis';
+src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+}
+
+body {
+font-family: AccentureRotis,Arial,sans-serif;
+} 
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+ display: none;
+}
+.toolTip {
+  position: absolute;
+  display: none;
+  min-width: 80px;
+  height: auto;
+  background: none repeat scroll 0 0 #ffffff;
+  border: 1px solid #6F257F;
+  padding: 14px;
+  text-align: center;
+}
+	.btnn {
+		background-color: DodgerBlue;
+		border: none;
+		color: white;
+		padding: 6px 12px;
+		cursor: pointer;
+		font-size: 14px;
+		border-radius:15px;
+		outline: none
+	}
+
+</style>
+
+<script src="../JScript/d3.v3.min.js"></script>
+
+ <script>
+  
+  function clickDownload(){
+    
+	var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")	
+	var filename = "Reports/"+foldername+"/OSP_queuecount.csv";
+	//var filename = "Reports/"+localStorage.getItem("IMP035_filename")+".csv";
+	window.open(filename, '_blank');
+	}
+  </script>
+
+    <!-- <a href="javascript:clickDownload();" id ="Download_Workstream" ><img src="../images/Download.png"  style="color:black; width: 48px; height: 30px; margin-right: 30px; margin-bottom:10px; float: right;" ></a>
+ 	 --> 
+	<div id="svg" style="float: left; width: 98%;height: 70%; border: solid; border-radius: 6px;">
+	<button class="btnn" id="Download_Workstream" onclick="javascript:clickDownload();" style="margin-top: 12px; margin-right: 30px; float: right;"><i class="fa fa-download"></i> Download</button> 
+ </div>
+ 
+<script>
+	var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")
+	var filename1 = "Reports/"+foldername+"/OSP_queuecount.json";
+
+	var margin = {top: 40, right: 30, bottom: 150, left: 80},
+    width = 1100 - margin.left - margin.right,
+    height = 550 - margin.top - margin.bottom;
+
+
+	var x0 = d3.scale.ordinal().rangeRoundBands([0, width], .1);
+
+	var x1 = d3.scale.ordinal();
+
+	var y = d3.scale.linear().range([height, 0]);
+
+	var xAxis = d3.svg.axis().scale(x0).tickSize(0).orient("bottom");
+
+	var yAxis = d3.svg.axis().scale(y).orient("left");
+
+	var color = d3.scale.ordinal().range(["#DF013A","#210B61","#808080","#00FFFF","#800080"]);
+	
+	var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
+	var svg = d3.select("#svg").append("svg")
+				/* .attr("width", width + margin.left + margin.right)*/
+				.attr("width", 1200)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+	d3.json(filename1, function(error, data) {
+		var categoriesNames = data.map(function(d) { return d.Queue; });
+		var nameNames = data[0].tops.map(function(d) { return d.name; });
+	
+  x0.domain(categoriesNames);
+  x1.domain(nameNames).rangeRoundBands([0, x0.rangeBand()]);
+  y.domain([0, d3.max(data, function(Queue) { return d3.max(Queue.tops, function(d) { return d.count; }); })]);
+
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0,"+height+")")
+    .call(xAxis)
+    .selectAll("text")
+    .attr("y", 9)
+    .attr("x", 0)
+    .attr("dy", ".1000em")
+    .attr("transform", "rotate(30)")
+    .style("text-anchor", "start")
+	.style('font-size','12px');
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .style('opacity','0')
+      .call(yAxis)
+	  .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .style('font-size','12px')
+      .text("Count");
+
+  svg.select('.y').transition().duration(500).delay(1300).style('opacity','1').style('font-size','12px');
+
+  var slice = svg.selectAll(".slice")
+      .data(data)
+      .enter().append("g")
+      .attr("class", "g")
+      .attr("transform",function(d) { return "translate(" + x0(d.Queue) + ",0)"; });
+	  
+ 	  
+  slice.selectAll("rect")
+      .data(function(d) { return d.tops; })
+  .enter().append("rect")
+      .attr("width", x1.rangeBand())
+      .attr("x", function(d) { return x1(d.name); })
+      .style("fill", function(d) { return color(d.name) })
+      .attr("y", function(d) { return y(0); })
+      .attr("height", function(d) { return height - y(0); })
+      .on("mouseover", function(d){
+            tooltip
+              .style("left", d3.event.pageX - 70 + "px")
+              .style("top", d3.event.pageY - 80 + "px")
+              .style("display", "inline-block")
+			  .style('font-size','12px')
+              .html("Family:" + (d.family) + "<br>" + "Group:" + (d.group) + "<br>" + "FX Swap count:" + (key_count) +  "<br>" + "IRS count:" + (key_count1));
+			  
+        })
+      .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+  slice.selectAll("rect")
+      .transition()
+      .delay(function (d) {return Math.random()*1000;})
+      .duration(1000)
+      .attr("y", function(d) { return y(d.count); })
+      .attr("height", function(d) { return height - y(d.count); });
+
+
+  //Legend
+  var legend = svg.selectAll(".legend")
+      .data(data[0].tops.map(function(d) { return d.name; }).reverse())
+  .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d,i) { return "translate(0," + i * 20 + ")"; })
+      .style("opacity","0");
+
+  legend.append("rect")
+      .attr("x", width + 80)
+      .attr("width", 16)
+      .attr("height", 16)
+      .style("fill", function(d) { return color(d); });
+
+  legend.append("text")
+      .attr("x", width + 5)
+      .attr("y", 9)
+      .attr("dy", ".25em")
+      .style("text-anchor", "right")
+	  .style('font-size','14px')
+      .text(function(d) {return d; });
+
+  legend.transition().duration(500).delay(function(d,i){ return 1300 + 100 * i; }).style("opacity","1");  
+  
+  
+  var CSVToArray = function CSVToArray(data) {
+        var delimiter =
+            arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ",";
+        var omitFirstRow =
+            arguments.length > 2 && arguments[2] !== undefined
+                ? arguments[2]
+                : false;
+    
+        return data
+            .slice(omitFirstRow ? data.indexOf("\n") + 1 : 0)
+            .split("\n")
+            .map(function(v) {
+                return v.split(delimiter);
+            });
+    };
+   
+    var csvArray = []
+   
+	getUniqueTradeCount();
+    var master_unique = [];
+    var master_counts = {};
+    function getUniqueTradeCount()
+    {
+        var txtFile = new XMLHttpRequest();
+        var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname");
+        txtFile.open("GET", "../html/Reports/"+foldername+"/OSP_master1.csv", true);
+        txtFile.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200)
+            {
+                mastercsvArray = CSVToArray(this.responseText);
+                //unique[mastercsvArray[5]] = 1;
+                var master_trdhdr_value = "";
+                var master_typhdr_value = "";
+                for( let hdr_i = 0; hdr_i < mastercsvArray[0].length; hdr_i++ ){
+                    if(mastercsvArray[0][hdr_i].trim() === "Contractid"){
+                        master_trdhdr_value = hdr_i;   
+                    }
+                    else if(mastercsvArray[0][hdr_i].trim() === "tradeTypology"){
+                        master_typhdr_value = hdr_i;   
+                    }
+                }
+                for( let csv_i = 1; csv_i < mastercsvArray.length; csv_i++ ){
+                    if(mastercsvArray[csv_i][master_typhdr_value] != "")
+                    {
+                        master_counts[mastercsvArray[csv_i][master_typhdr_value] +"__"+mastercsvArray[csv_i][master_trdhdr_value]] = 1 + (master_counts[mastercsvArray[csv_i][master_typhdr_value] +"__"+mastercsvArray[csv_i][master_trdhdr_value]] || 0);
+                       
+                    }
+                }
+                for (var key in master_counts){
+                  master_unique[key.split("__")[0]] = 1 + (master_unique[key.split("__")[0]] || 0)
+                }
+                console.log(master_counts)
+                console.log(master_unique)
+            }
+		
+            key_count=master_unique['Spot'];
+			key_count1=master_unique['IRS'];
+			console.log(key_count)
+			console.log(key_count1)
+     
+        };
+        txtFile.send();
+    }
+
+});
+
+</script>
+</body>
+</html>

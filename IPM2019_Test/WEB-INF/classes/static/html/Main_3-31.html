@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>IPM</title>
+    <!-- Custom Fonts -->
+    <link href="../styles/landing-page.css" rel="stylesheet">
+    <link href="../styles/Imperatives.css" rel="stylesheet">
+    <link href="../styles/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="../styles/font-awesome/css/all.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../styles/all.css">
+    <!-- jQuery -->
+    <script src="../JScript/jquery.js"></script>
+    <script src="../JScript/Lapam.js"></script>
+    <script src="../JScript/bootstrap.min.js"></script>
+    <script src="../JScript/jquery.min.js"></script>
+    <link href="../styles/Main.css" rel="stylesheet">
+    <link href="../styles/bootstrap.min.css" rel="stylesheet">
+	<style>
+	@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	.loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('../images/loader.gif') 50% 50% no-repeat rgb(249,249,249);
+    opacity: .8;
+	</style>
+</head>
+
+<body onload="bindUserDetail()">
+<div class="loader" style="display:none"></div>
+    <nav class="navbar navbar-light align-items-center" style="margin-bottom: 0px; min-height: 0px;font-family: AccentureRotis,Arial,sans-serif;">
+        <div class="container p-2" style="display: flex; margin-left: 10px; width: 99%;">
+            <a href="#" class="pr-2">
+                <img src="../images/logo.jpg" alt="" class="d-inlink-block mt-1 align-top header-logo" style="margin-right: 5px;">
+            </a>
+            <span class="p-1 mt-2 bar"></span>
+			<!--<span class="h3 d-inline ttp-title mt-3" style="margin-top: 10px; font-weight:bold;font-family: AccentureRotis,Arial,sans-serif;">Touchless Testing Platform<p class="m-0 mx-auto pat-text"style="font-size: 11px;">Patent No: US 10073763</p></span>-->
+			<!-- <span class="h3 d-inline ttp-title mt-3" style="margin-top: 15px; font-weight:bold;font-family: AccentureRotis,Arial,sans-serif;">Cloud Reliability Assurance</span> -->
+            <p style="font-size: 24px; font-weight: bold; margin: 10px; margin-right: 15px">Insightful Pattern Mining</p>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <nav class="navbar navbar-inverse" style="position: inherit; margin-bottom: 0px; font-family: AccentureRotis,Arial,sans-serif;">
+        <div class="container-fluid">
+            <div class="navbar-header" style="width: 100%">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Get Started <span class="caret"</span></a>
+                        <ul class="dropdown-menu multi-level">
+                            <li class="dropdown-submenu">
+                                <li><a href="#" onclick="getStarted()">Mine Pattern</a></li>
+								<li><a href="#" id="addpat" onclick="getaddpat()">Add Pattern</a></li>
+								<li><a href="#" id="delpat" onclick="getdelpat()">Delete Pattern</a></li>
+								<li><a href="#" id="osptime" onclick="getosptime()">Osp Timebox</a></li>
+								<li><a href="#" id="createpat" onclick="getcpat()">Create Template</a></li>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="mine2">Mine <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            <li class="dropdown-submenu">
+                                <li><a href="#" id="mine_report_li2" onclick="getmine()">Reports</a></li>
+                                <li><a href="#" id="mine_report_li" onclick="getOnlineData()">Online</a></li>
+								<li><a href="#" id="mine_report_li4" onclick="getcomdata()">Compare Reports</a></li>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" id="log_report"><span class="glyphicon glyphicon-file"></span></a></li>
+                    <li><a href="#" id="logged_user"><span class="glyphicon glyphicon-user"></span></a></li>
+                    <li><a href="#" id="logged_app"><span class="glyphicon glyphicon-briefcase"></span></a></li>
+                    <li>
+                        <section class="stage">
+                            <figure id="fg_online" class="off_ball"><span class="shadow"></span></figure>
+                        </section>
+                    </li>
+                    <li><a href="Home.html"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Feature -->
+    <div class="intro-header1" id="Div_HomeHeader" style="padding-bottom: 0px; padding-top: 0px; font-family: AccentureRotis,Arial,sans-serif;">
+        <section class="container mt-3">
+            <div class="row mt-5" style="margin-top: 50px;">
+                <div class="col-md-4 mb-4 text-center">
+                    <i class="fa fa-book fa-3x mb-2"></i>
+                    <h3 style="font-weight: bold;">Data format Agnostic</h3>
+                    <p>Supports analysis of unstructured data from varied data sources</p>
+                </div>
+                <div class="col-md-4 mb-4 text-center">
+                    <i class="fa fa-pie-chart fa-3x mb-2"></i>
+                    <h3 style="font-weight: bold;">Intuitive Visualization </h3>
+                    <p>Provides visual representation and reports of the analyzed data using D3.js charts</p>
+                </div>
+                <div class="col-md-4 mb-4 text-center">
+                    <i class="fa fa-inbox fa-3x mb-2"></i>
+                    <h3 style="font-weight: bold;">Multi Technology /Tools Coverage</h3>
+                    <p>Aggregates data from different data sources – application logs to output from application monitoring tools</p>
+                </div>
+                <div class="d-block w-100"></div>
+                <div class="col-md-4 mb-4 text-center" style="margin-left: 15%; margin-top: 5%;">
+                    <i class="fa fa-search fa-3x mb-2"></i>
+                    <h3 style="font-weight: bold;">Minimal Optimal Testing </h3>
+                    <p>Provides insights on production usage to have the right test coverage</p>
+                </div>
+                <div class="col-md-4 mb-4 text-center" style="margin-top: 5%;">
+                    <i class="fab fa-connectdevelop fa-3x mb-2"></i>
+                    <h3 style="font-weight: bold;">Learning Engine</h3>
+                    <p>Builds machine learning model with the analyzed data sets that are stored</p>
+                </div>
+                <div class="col-md-4 mb-4 text-center" style="display: none; margin-top: 5%;">
+                    <i class="fab fa-osi fa-3x mb-2"></i>
+                    <h3 style="font-weight: bold;">Open Source Solution </h3>
+                    <p>Built using Java, Python, Elasticsearch, Logstash and D3.js charts</p>
+                </div>
+            </div>
+        </section>
+    </div>
+	<!-- Main -->
+    <div id="Div_NewQual" class="NewQual" style="background-image: url('../images/upload.png'), linear-gradient(#ffffff,#d9d9d9); background-position: center right; background-size: contain; background-repeat: no-repeat; margin-top: 10%; background-blend-mode: normal;font-family: AccentureRotis,Arial,sans-serif;">
+        <div style="margin-top: -10%;">
+            <label class="upload_lbl">Report Name:</label>
+            <input type="text" id="Txt_reportname" name="report_name" maxlength="20">
+            <br/>
+            <div>
+                <fieldset id="fs_atr" class="fieldset-checkbox">
+                    <legend class="fs_legend"> File upload </legend>
+                    <div id="Div_Addditional" style="overflow-y: auto; width: 500px; margin-left: 5px; padding-left: 5px;">
+                        <div>
+                </fieldset>
+                </div>
+                <br/>
+                <label class="upload_lbl" style="float: left; width: 100%; margin-left: 20px; margin-top: -10px; font-size: 11px;">(supported file types: .xls(x),.csv,.zip file, .log, .txt)</label>
+                <br><br/>
+				<input type="checkbox" id="format_chx" name="German" value="German">
+				<label for="format_chx" id="upload_lbl"> Is the uploaded file in German format?</label><br>
+				<input type="checkbox" id="merge" name="merge" value="merge" onclick="generatereports()">
+				<label for="merge" id="lab2"> Merge with existing report</label><br>
+				<label for="slt_view32" id="lab4" hidden> Select Existing Report</label>
+				<select id="slt_view32" name="artifactsCount"  hidden></select><br>
+                <button type="submit" value="Upload" id="Btn_upload" class="btn btn-primary" onclick="upload_files()" style="width: 100px; margin-left: 140px;">Upload</button>
+                <button type="submit" value="Pattern Match" id="Btn_MatchPatt" class="btn btn-light" onclick="PatternMapping()" style="width: 120px; margin-left: 20px; cursor: not-allowed;">Pattern Match</button>
+                <br/>
+                </div>
+            </div>
+		</div>
+	</div>
+	<div id="Div_ViewQual" class="NewQual" style="width: 100%; height: 82%;background-image: linear-gradient(#ffffff,#d9d9d9);font-family: AccentureRotis,Arial,sans-serif;">
+		<label class="upload_lbl" style="width: 110px;">Report Name:</label>
+		<select id="slt_view" name="artifactsCount">
+			<option value="0">select</option>
+		</select>
+		<br/>
+		<button type="submit" style="margin-left: 130px;" value="Upload" id="Btn_exist_proceed" onclick="fetchViewDetails()">View Reports</button>
+		<br/>
+		<br/>
+		<div class="container bootstrap snippet">
+			<div id="div_imperatives" style="width: 900px; height: 82%;" class="row">
+			</div>
+		</div>
+		<br>
+		<br/>
+	</div>
+	<div id="div_imp_page"></div>
+	<div id="div_online_page"></div>
+    <div id="top" class="ontop"></div>
+</body>
+
+</html>

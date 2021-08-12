@@ -1,0 +1,80 @@
+<html>
+<head>
+	<style>
+		.dropbtn {
+		  background-color: #4CAF50;
+		  color: white;
+		  padding: 16px;
+		  font-size: 16px;
+		  height: 20px;
+		}
+
+		.dropdown {
+		  position: relative;
+		  display: inline-block;
+		}
+
+		.dropdown-content {
+		  display: none;
+		  position: absolute;
+		  background-color: #f1f1f1;
+		  min-width: 160px;
+		  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		  z-index: 1;
+		}
+
+		.dropdown-content a {
+		  color: black;
+		  padding: 12px 16px;
+		  text-decoration: none;
+		  display: block;
+		}
+
+		.dropdown-content a:hover {background-color: #ddd;}
+
+		.dropdown:hover .dropdown-content {display: block;}
+
+		.dropdown:hover .dropbtn {background-color: #3e8e41;}
+	</style>
+</head>
+<body onload="disp1()">
+  <label for="prod">Prod Logs:</label>
+  <select onchange="myFunction()" id="logs">
+	<option value="cron">Cron</option>
+	<option value="mbl">MBL</option>
+	<option value="mif">MIF</option>
+	<option value="ui">UI</option>
+  </select>
+	<div id="log_chart_div"></div>
+	<iframe id="ifm_content" style="height:100%;width:100%; float: left;"></iframe>
+</body>
+<script>
+	
+	function myFunction() {
+		var x = document.getElementById("logs").value;
+		if(x==="cron"){ disp1() }
+		else if(x==="mbl"){ disp2() }
+		else if(x==="mif"){ disp3() }
+		else if(x==="ui"){ disp4() }
+		
+		 
+	}
+	
+	function disp1()
+	{
+		document.getElementById("ifm_content").src = "templates/UA_IIS_CRON.html";
+	}
+	function disp2()
+	{
+		document.getElementById("ifm_content").src = "templates/UA_IIS_MBL.html";
+	}
+	function disp3()
+	{
+		document.getElementById("ifm_content").src = "templates/UA_IIS_MIF.html";
+	}
+	function disp4()
+	{
+		document.getElementById("ifm_content").src = "templates/UA_IIS_UI.html";
+	}
+</script>
+</html>

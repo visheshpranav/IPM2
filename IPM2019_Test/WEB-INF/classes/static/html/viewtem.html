@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<script language="JavaScript" type="text/javascript" src="../JScript/json2.js"></script>
+<script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.8.3.js"></script>
+<link href="../styles/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+	
+
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+  font-family: AccentureRotis;
+}
+
+html, body { font-family: 'AccentureRotis'; }
+
+table { border-collapse: collapse; }
+
+tbody tr:first-child { pointer-events: none; font-weight:bold} 
+table tr td {
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+table tr:nth-child(odd) { background: #f4f4f4; }
+/*
+tr:hover {
+background-color:#ffff99!important;
+cursor:pointer;
+}
+*/
+td{
+word-break: break-all;
+font-size:14px;
+}
+
+table{
+table-layout:fixed;
+width:75%;
+float:right;
+}
+	@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+	
+.fieldset-checkbox {
+    border-radius: 25px;
+    height: auto;
+    width: 900px;
+    border: solid;
+	margin-left:16%;
+}
+fieldset {
+    display: block;
+	margin-inline-start: 2px;
+    margin-inline-end: 2px;
+    padding-block-start: 0.35em;
+    padding-inline-start: 0.75em;
+    padding-inline-end: 0.75em;
+    padding-block-end: 0.625em;
+    min-inline-size: min-content;
+    border-width: 2px;
+    border-style: groove;
+    border-color: threedface;
+    border-image: initial;
+}
+label {
+ 
+  font-family: AccentureRotis;
+  font-size:12px;
+  font-weight:bold;
+}
+
+html, body { font-family: 'AccentureRotis'; }
+
+
+</style>
+<body>
+
+<div id="Div_NewQual" class="NewQual" style="background-image: url('../images/upload.png'), linear-gradient(#ffffff,#d9d9d9); background-position: center right; background-size: contain; background-repeat: no-repeat; margin-top: 10%; background-blend-mode: normal;font-family: AccentureRotis,Arial,sans-serif;">
+<fieldset id="fs_atr" class="fieldset-checkbox">
+<div id="container" style="margin-top:20px;margin-bottom:10px;float:right;" ></div>
+<div style="position:fixed;float:left;">
+  <label style="margin-left:5%" class="list-heading1" id="CompareTest_lbl1">Select Template to View</label></br>
+  <div style="width: 100%;float:left">
+   <label style="margin-left:5%" for="Pattern">Choose DataType:</label>
+
+<select name="typepat" id="typepat" style="margin-left:5%" onchange="fetchtemplate()">
+  <option disabled selected value> -- select an option -- </option>
+  <option value="TradeInsertion">TradeInsertion</option>
+  <option value="DeliverableMXML">DeliverableMXML</option>
+ </select>
+ <br>
+ <label style="margin-left:5%; display:none" for="Pattern" id= "lab4" >Choose Template:</label>
+<select id="slt_view4" style="margin-left:5%; display:none" onchange="getselecttrade()" ></select>
+ <br>
+<!--  <label style="margin-left:5%" for="Pattern">Choose a report1:</label>
+
+<select id="slt_view" style="margin-left:5%"; ></select>
+ <br>
+ 
+ 
+ <label style="margin-left:5%; " for="Pattern">Choose a report2:</label>
+<select id="slt_view2" style="margin-left:5%"; ></select> 
+
+<button type="submit" value="Upload" id="Btn_upload22" class="btn btn-primary"  onclick="getvaluesd()" style="width: 100px; margin-left: 140px; font-family: AccentureRotis;">Compare</button>-->
+
+
+
+</div>
+</div>
+</body>
+</div>
+</fieldset>
+
+
+
+
+
+<script>
+
+
+
+
+function fetchtemplate()
+{
+
+$("#slt_view4").empty();
+	document.getElementById("lab4").style.display = "block";
+	document.getElementById("slt_view4").style.display = "block";
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("logtype",document.getElementById("typepat").value);
+	xhttp.open("POST", "../cgi-bin/gettemplate.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			var optionValues1 = allText.split("\n");
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			optionValues.shift();
+			for (var i=0;i<optionValues.length;i++){
+            jQuery('#slt_view4').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+			}
+			jQuery('#slt_view4').append(jQuery("<option disabled selected value> -- select an option -- </option>"))
+			}			
+			};
+	xhttp.send(fd);
+	
+		
+}		
+	
+    function getselecttrade()
+	{
+	var t = document.getElementById("slt_view4").value.trim();
+	
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("logtype",document.getElementById("typepat").value);
+	fd.append("temname",t);
+	txtFile.open("POST", "../cgi-bin/viewtemplate.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			myfunction(allText);
+			}			
+		};
+		
+		txtFile.send(fd);
+		
+	}
+	
+	function myfunction(tableData) {
+	
+	//console.log(tableData);
+	var opt= tableData.toString().replace(/[&\\\#+()$~%.'":?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	//console.log(opt2);
+	var optionValues = opt2.split(',');
+	//console.log(optionValues);
+	optionValues.splice(0,0,"FAMILY");
+	optionValues.splice(1,0,"HEADER");
+	optionValues.splice(2,0,"HEADERPATH");
+	
+	var data = optionValues;
+  
+	var perrow = 3,
+      html = "<table id=tableMain><caption><b> Content of selected Template</b></caption><tr>";
+	  for (var i=0; i<data.length; i++) {
+		html += `<td>${data[i]}</td>`;
+
+		var next = i+1;
+		if (next%perrow==0 && next!=data.length) {
+		html += "</tr><tr>";
+		}
+	}
+	html += "</tr></table>";
+ 	document.getElementById("container").innerHTML = html;
+	}
+	
+	
+function getvaluesd()
+{
+var t = document.getElementById("slt_view").value.trim();
+var r = document.getElementById("slt_view2").value.trim();
+var y = document.getElementById("slt_view4").value.trim();
+var k = document.getElementById("typepat").value.trim();
+
+if(t == "" ||r == "" ||y == "" ||k == "" )
+{
+alert("Kindly choose all values from dropdown then compare");
+return false;
+
+} 
+
+if(t==r)
+{
+alert("Reports cant be same! select two different reports");
+return false;
+}
+else
+{
+alert("You can proceed")
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("template_name",y);
+fd.append("base_report",t);
+fd.append("compare_report",r);
+txtFile.open("POST", "../cgi-bin/compare_reports.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		alert(allText);
+		}			
+	};
+	txtFile.send(fd);
+}
+}
+	
+</script>
+</html>

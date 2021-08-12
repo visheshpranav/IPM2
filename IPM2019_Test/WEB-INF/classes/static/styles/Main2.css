@@ -1,0 +1,48 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : May 22, 2018, 10:15:01 AM
+    Author     : aishvarya.thangaraj
+*/
+body{        
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+.node rect {
+  cursor: pointer;
+  fill: steelblue;
+  fill-opacity: .5;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 12px sans-serif;
+  pointer-events: none;
+}
+
+path.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
+.container{
+        width: 50%;
+        margin: 0 auto; /* Center the DIV horizontally */
+    }
+    .fixed-header, .fixed-footer{
+        
+        width: 100%;
+        position: fixed;        
+        background: #333;
+        padding: 3px 0;
+        color: #fff;
+    }
+    .fixed-header{
+        top: 0;
+        text-align: center;
+        font: 18px sans-serif;
+    }

@@ -1,0 +1,44 @@
+{
+	"DM Table": {
+		"PROCESSING SCRIPTS": {
+			"BATCH OF FEEDER": {
+				"FEEDER": {
+					"REPORT_TABLE": [
+						"INDEXED",
+						"DYNAMIC TABLE",
+						"SQL BASED TABLE",
+						"TIME"
+					]
+				},
+				"Global Filter": []
+			},
+			"BATCH OF EXTRACTION": {
+				"EXTRACTION": {
+					"REPORT_TABLE": [
+						"INDEXED",
+						"DYNAMIC TABLE",
+						"SQL BASED TABLE",
+						"TIME"
+					]
+				}
+			}
+		}
+	},
+	"DM Reports": {
+		"SOD/EOD/INTRADAY": {
+			"CATEGORY": {
+				"REPORT_NAME": {
+					"BATCH OF EXTRACTION": {
+						"EXTRACTION": {
+							"REPORT_TABLE": [
+								"COLUMNS",
+								"DYNAMIC TABLE",
+								"SQL BASED TABLE"
+							]
+						}
+					}
+				}
+			}
+		}
+	}
+}

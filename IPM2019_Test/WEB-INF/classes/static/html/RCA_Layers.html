@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fault Model</title>
+
+    <!-- We use google fonts for many of the examples, but they are not necessary -->
+    <link href='../styles/googleapis_Roboto.css' rel='stylesheet' type='text/css'>
+
+    <!-- Test container style sheets -->
+    <link rel="stylesheet" href="../styles/examples.css">
+
+    <!-- Vizuly specific style sheets -->
+    <link rel="stylesheet" href="../styles/vizuly.css">
+    <link rel="stylesheet" href="../styles/vizuly_weightedtree.css">
+
+    <!-- Supporting test container files:  Vizuly does NOT rely on these -->
+    <link href="../styles/googleapis_materialicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/cssmenu.css">
+    <script type="text/javascript" src="../JScript/jquery-2.1.1.min.js"></script>
+    <script src="../JScript/cssmenu.js"></script>
+
+    <!-- D3.js ... of course! -->
+    <script src="../JScript/d3.min.js"></script>
+
+    <!-- debug source scripts: start --> <!--
+    <script src="src/core/_namespace.js"></script>
+
+
+
+	
+
+    <script src="src/core/component.js"></script>
+    <script src="src/core/data.js"></script>
+    <script src="src/core/util.js"></script>
+
+    <script src="src/core/format.js"></script>
+
+    <script src="src/svg/gradient.js"></script>
+    <script src="src/svg/filter.js"></script>
+    <script src="src/viz/weightedtree.js"></script>
+    <script src="src/theme/weightedtree.js"></script>
+
+    --> <!-- debug source scripts: end -->
+	
+	
+  <title>HTML Reference</title>
+	
+
+    <script src="../JScript/vizuly_core.min.js"></script>
+	<script src="../JScript/vizuly_weightedtree.min.js"></script>
+
+    <script src="../JScript/RCA_Layer.js"></script>
+
+</head>
+
+<body onload = "load_txtval()">
+
+<div id='cssmenu'>
+    <ul class="main-menu">
+        <li class='active'>
+            <a><span>Display</span><br><span class="setting"></span></a>
+            <!--ul class="options"-->
+                <li id="currentDisplay"></li>
+                <!--li item_value="1000,1000"><a>1000px - 1000px</a></li-->
+                <!--li item_value="800,600"><a>800px - 600px</a></li-->
+                <!--li item_value="375,667"><a>375px - 667px</a></li-->
+                <!--li item_value="320,568"><a>320px - 568px</a></li-->
+            <!--/ul-->
+			
+        </li>
+		
+        <!-- <li class='active'><a><span>Theme </span><br><span class="setting"></span></a> -->
+            <!-- <ul class="options" callback="changeSkin"> -->
+                <!-- <li item_value="None"><a>None</a></li> -->
+                <!-- <li item_value="Axiis" class="selected"><a>Axiis</a></li> -->
+            <!-- </ul> -->
+        <!-- </li> -->
+        <!-- <li class='active'><a><span class="label">Data </span><br><span class="setting"></span></a> -->
+          <!-- <ul class="options" callback="changeData"> -->
+                <!-- <li item_value="0" class="selected"><a>Failures</a></li> -->
+                <!-- <li item_value="1"><a>State</a></li> -->
+                <!-- <li item_value="2"><a>Local</a></li> -->
+            <!-- </ul> -->
+        <!-- </li> -->
+    </ul>
+</div>
+
+<!-- Our main content container-->
+<!-- <div class="container" style="width:100%"> -->
+
+ <div id="wrapper">
+<div class="fixed-header">
+	   <label style="color:#e25c09;">Deviation Across </label><label>Layers</label>
+	   <!-- </div>    -->
+	   
+	   </div> </br></br>
+	</div>
+    <div id="viz_container">
+	<br/>
+	<input type="radio" style="margin-left: 7%;" id="wk_RCA" onclick="radio_RCA(this);" name="Deviation" value="0" /><i id="check_box1" >Deviation Across WorkStreams</i>
+		<input type="radio" id="ly_RCA" onclick="radio_RCA(this);" name="Deviation" value="1" checked /><i id="check_box2" >Deviation Across Layers</i>
+		<a href="javascript:viewfullpage();" id ="view_page" style="margin-left: 80px;">Zoomout view</a>
+		<label id="ws_lbl" style="font-size: 16px; margin-left: 20px;">Response time: </label>		
+		<input type="Number" id="res_txt" onfocusout="call_RCA()" style="width: 40px; margin-left: 5px;" min="0"/>
+		<label id="sec_lbl" style="font-size: 12px; margin-left: 2px;">Sec</label>		
+	<a href="javascript:clickDownload();" id ="Download_Layers" ><img src="../images/Download.png"  style="color:black; width: 48px; height: 30px; margin-top: 20px; margin-right: 30px; float: right;" ></a>
+	<br/>
+	</div>
+    
+       
+    <!-- </div> 
+	<div class="sticky">
+<div class="fixed-footer"></div>
+</div>-->
+
+
+
+
+<script>
+function viewfullpage()
+	{
+		var win = window.open("RCA.html", '_blank');
+		localStorage.setItem("isDetailedView", "true");
+		win.focus();
+	}
+	
+	function load_txtval()
+	{
+		
+		document.getElementById("res_txt").value = localStorage.getItem("RCA_responseval");
+	}
+	
+	function call_RCA() {			
+		var fd = new FormData();
+		var xhttp = new XMLHttpRequest();
+		fd.append("userid", localStorage.getItem("ipm_UserId"));
+		fd.append("prjid", localStorage.getItem("rep_id"));
+		fd.append("Txt_testname", localStorage.getItem("reportname") );
+		localStorage.setItem("RCA_responseval", document.getElementById("res_txt").value);
+		fd.append("res_time", document.getElementById("res_txt").value);
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				window.location.href = "RCA_Layers.html"
+			 }
+		 };
+		 xhttp.open("POST", "../cgi-bin/SAPRCA.py",true);
+		 xhttp.send(fd);
+	}
+	
+		function getQueryStrings() { 
+		  var StrVal  = {};
+		  var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+		  var queryString = location.search.substring(1); 
+		  var keyValues = queryString.split('&'); 
+
+		  for(var i in keyValues) { 
+			var key = keyValues[i].split('=');
+			if (key.length > 1) {
+			  StrVal[decode(key[0])] = decode(key[1]);
+			}
+		  } 
+		  return StrVal; 
+		} 
+
+		var qs = getQueryStrings();
+		var qs_size = Object.keys(qs).length;
+		if(qs_size > 1)
+		{
+			localStorage.setItem("testname",qs["testname"]);
+		}
+		
+    //Once the document is ready we set javascript and page settings
+    var screenWidth;
+    var screenHeight;
+	//var testname = localStorage.getItem("testname").toLowerCase();
+	
+	var testname = localStorage.getItem("reportname");
+	var userid = localStorage.getItem("ipm_UserId");
+	var prjid = localStorage.getItem("rep_id");
+	
+	if(localStorage.getItem("isDetailedView") == "true")
+	{
+		document.getElementById("view_page").style.display = "none";
+	}
+	else{
+		document.getElementById("view_page").style.display = "inline-block";
+	}
+	test_log = userid + "_"+prjid+"_"+testname;
+	var log_folder = localStorage.getItem("ipm_UserId") +"_"+localStorage.getItem("rep_id")+"_"+localStorage.getItem("reportname").toLowerCase();
+	var filename = "Reports\\"+log_folder+"\\RCALayers_"+localStorage.getItem("RCA_responseval")+".csv";
+	
+	
+	
+    $(document).ready(function () {
+
+        var rect;
+        if (self==top) {
+            rect = document.body.getBoundingClientRect();
+        }
+        else {
+            rect =  parent.document.body.getBoundingClientRect();
+        }
+
+        //Set display size based on window size.
+        screenWidth = (rect.width < 960) ? Math.round(rect.width*.95) : Math.round((rect.width - 210) *.95);
+
+        screenHeight=750;
+
+        d3.select("#currentDisplay")
+                .attr("item_value", (String(screenWidth) + "," + String(screenHeight)))
+                .attr("class", "selected")
+                .html("<a>" + screenWidth + "px - " + screenHeight + "px</a>");
+
+
+        $("#cssmenu").menumaker({
+            title: "FAULT MODEL",
+            format: "multitoggle"
+			//text-align: "center";
+        });
+
+        // Set the size of our container element.
+        viz_container = d3.selectAll("#viz_container")
+                .style("width", screenWidth + "px")
+                .style("height", screenHeight + "px");
+				
+
+
+        loadData();
+
+
+    });
+	
+function radio_RCA()
+	{
+		if(document.getElementById('ly_RCA').checked)
+		{
+			//parent.ifm_content.src = "templates/RCA_Layers.html";
+			window.location.href = "RCA_Layers.html";
+		}
+		else{
+			//parent.ifm_content.src = "templates/RCA.html";
+			window.location.href = "RCA.html";
+		}
+	}
+	
+	function clickDownload(){
+    //document.getElementById("Download_Usageanalysis").href="../../cgi-bin/download.py?"+ localStorage.getItem("testname").toLowerCase() + "_usageptn";
+	window.open(filename, '_blank');
+	}
+
+</script>
+
+
+</body>
+
+
+</html>

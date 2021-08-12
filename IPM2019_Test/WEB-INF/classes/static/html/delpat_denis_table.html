@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+  <script
+    language="JavaScript"
+    type="text/javascript"
+    src="../JScript/json2.js"
+  ></script>
+  <script
+    language="JavaScript"
+    type="text/javascript"
+    src="../JScript/jquery-1.8.3.js"
+  ></script>
+  <link href="../styles/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- <link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css"
+    crossorigin="anonymous"
+  /> -->
+
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="../styles/jquery.dataTables.min2.css"
+  />
+  <script
+    type="text/javascript"
+    charset="utf8"
+    src="../JScript/jquery.dataTables.min2.js"
+  ></script>
+  <style>
+    html,
+    body {
+      font-family: "AccentureRotis";
+    }
+
+    main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 3rem;
+    }
+
+    label {
+      font-family: AccentureRotis;
+      padding: 12px 12px 12px 0;
+      display: inline-block;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    table {
+      table-layout: fixed;
+
+      /* float:right; */
+    }
+
+    th {
+      min-height: 72px;
+      min-width: 60px;
+      padding: 10px;
+    }
+
+    /* tbody tr:first-child { 
+pointer-events: none;
+}  */
+
+    table tr td {
+      border: 1px solid #000;
+      padding: 10px;
+    }
+
+    table tr:nth-child(odd) {
+      background: #f4f4f4;
+    }
+
+    tr:hover {
+      background-color: #ffff99 !important;
+      cursor: pointer;
+    }
+
+    td {
+      word-break: break-all;
+      font-size: 14px;
+    }
+
+    fieldset {
+      width: 100%;
+      display: flex;
+    }
+
+    .select-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* .select-container-control > #tradefamily {
+      display: none;
+    }
+    .select-container-control > #mySelect {
+      display: none;
+    } */
+
+    /* fieldset {
+      display: block;
+      margin-inline-start: 2px;
+      margin-inline-end: 2px;
+      padding-block-start: 0.35em;
+      padding-inline-start: 0.75em;
+      padding-inline-end: 0.75em;
+      padding-block-end: 0.625em;
+      min-inline-size: min-content;
+      border-width: 2px;
+      border-style: groove;
+      /* border-color: threedface;  <----
+      border-image: initial;
+    } */
+
+    @font-face {
+      font-family: "AccentureRotis";
+      src: url("../styles/rotsan.woff") format("woff"); /* Modern Browsers */
+    }
+
+    .table-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .table-section > .table-container {
+      width: 100%;
+      padding: 2rem 0;
+    }
+
+    .table-options {
+      display: flex;
+      justify-content: space-between;
+      padding-right: 1rem;
+      margin-bottom: 2rem;
+    }
+    .table-options > p {
+      font-weight: bold;
+    }
+
+    #patterns-table {
+      width: 100%;
+    }
+  </style>
+  <body>
+    <main>
+      <fieldset id="fs_atr" class="fieldset-checkbox">
+        <div>
+          <div class="select-container">
+            <div class="select-container-control">
+              <label for="Pattern">Choose Datatype:</label>
+              <select name="typepat" id="typepat" onchange="selectpattern()">
+                <option disabled selected value>-- select an option --</option>
+                <option value="Trade Char">Trade Insertion</option>
+                <option value="Deliverable">Deliverable</option>
+              </select>
+            </div>
+            <div class="select-container-control">
+              <label id="tradefamily" for="Pattern">Choose family:</label>
+              <select id="mySelect" onchange="getselecttrade()"></select>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <section class="table-section">
+        <div class="table-container">
+          <table id="patterns-table">
+            <div class="table-options">
+              <p>Select rows that you want to delete</p>
+              <div class="table-buttons">
+                <button id="add-records" class="btn btn-success">
+                  Add Pattern
+                </button>
+                <button id="delete-records" class="btn btn-danger">
+                  Delete Records
+                </button>
+              </div>
+            </div>
+            <thead>
+              <tr>
+                <th>CHECKBOX (delete)</th>
+                <th>System</th>
+                <th>Type</th>
+                <th>Sub Type</th>
+                <th>Imperative</th>
+                <th>Uniqueness</th>
+                <th>Typology</th>
+                <th>Header</th>
+                <th>Path</th>
+                <th>Ordinal</th>
+                <th>Display</th>
+                <th>Download Column Name</th>
+                <th>Creation Date</th>
+                <th>Created By</th>
+              </tr>
+            </thead>
+
+            <tbody id="patterns-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+      <!-- TABLE END -->
+    </main>
+  </body>
+
+  <script>
+    // Dummy data
+    const fetchedData = [
+      {
+        id: "1",
+        ordinal: "5",
+        xmlType: "c",
+        imperative: "imperative1",
+        creationDate: "CreationDate1",
+        createdBy: "createdBy1",
+        system: "system1",
+        type: "type1",
+        subType: "subType1",
+        header: "header1",
+        path: "Path1",
+        download: "download1",
+        uniqueness: "uniqueness1",
+        display: "display1",
+        typology: "typology1",
+      },
+      {
+        id: "1",
+        ordinal: "5",
+        xmlType: "c",
+        imperative: "imperative1",
+        creationDate: "CreationDate1",
+        createdBy: "createdBy1",
+        system: "system1",
+        type: "type1",
+        subType: "subType1",
+        header: "header1",
+        path: "Path1",
+        download: "download1",
+        uniqueness: "uniqueness1",
+        display: "display1",
+      },
+      {
+        id: "1",
+        ordinal: "5",
+        xmlType: "c",
+        imperative: "imperative1",
+        creationDate: "CreationDate1",
+        createdBy: "createdBy1",
+        system: "system1",
+        type: "type1",
+        subType: "subType1",
+        header: "header1",
+        path: "Path1",
+        download: "download1",
+        uniqueness: "uniqueness1",
+        display: "display1",
+      },
+      {
+        id: "1",
+        ordinal: "5",
+        xmlType: "c",
+        imperative: "imperative1",
+        creationDate: "CreationDate1",
+        createdBy: "createdBy1",
+        system: "system1",
+        type: "type1",
+        subType: "subType1",
+        header: "header1",
+        path: "Path1",
+        download: "download1",
+        uniqueness: "uniqueness1",
+        display: "display1",
+      },
+      {
+        id: "1",
+        ordinal: "5",
+        xmlType: "c",
+        imperative: "imperative1",
+        creationDate: "CreationDate1",
+        createdBy: "createdBy1",
+        system: "system1",
+        type: "type1",
+        subType: "subType1",
+        header: "header1",
+        path: "Path1",
+        download: "download1",
+        uniqueness: "uniqueness1",
+        display: "display1",
+      },
+    ];
+
+    // START -> Table manipulation
+    const tableBody = document.querySelector("#patterns-table-body");
+    const deleteButton = document.querySelector("#delete-records");
+
+    let sampleData;
+
+    sampleData = fetchedData;
+
+    $(document).ready(function () {
+      // Fill the table with
+      populateTable(sampleData);
+      $("#patterns-table").DataTable();
+    });
+
+    // Iterate throught the data object and create rows
+    const populateTable = (tableData) => {
+      // Reset table body content
+      tableBody.innerHTML = "";
+
+      try {
+        for (const data of tableData) {
+          // Destructure object
+          const {
+            system = "-",
+            type = "-",
+            subType = "-",
+            imperative = "-",
+            uniqueness = "-",
+            typology = "-",
+            header = "-",
+            path = "-",
+            ordinal = "-",
+            display = "-",
+            download = "-",
+            creationDate = "-",
+            createdBy = "-",
+          } = data;
+
+          let rowData = `<td><input type="checkbox" class="check-box" /></td>
+        <td>${system}</td>
+        <td>${type}</td>
+        <td>${subType}</td>
+        <td>${imperative}</td>
+        <td>${uniqueness}</td>
+        <td>${typology}</td>
+        <td>${header}</td>
+        <td>${path}</td>
+        <td>${ordinal}</td>
+        <td>${display}</td>
+        <td>${download}</td>
+        <td>${creationDate}</td>
+        <td>${createdBy}</td>
+      `;
+
+          // Insert at the end of the table
+          let newRow = tableBody.insertRow(-1);
+          newRow.innerHTML = rowData;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const deleteCheckedRecords = () => {
+      const rowsToDelete = [];
+      let fieldsToRemove = false;
+      const tableRows = tableBody.rows;
+
+      // Get the array of checked inputs to delete
+      for (const row of tableRows) {
+        let checkBox = row.cells[0].getElementsByTagName("input")[0];
+
+        if (checkBox && checkBox.checked) {
+          fieldsToRemove = true;
+          rowsToDelete.push(row);
+        }
+      }
+
+      // Err when nothing was checked
+      if (!fieldsToRemove) {
+        alert("Please select atleast one field that you wish to delete");
+        return;
+      }
+
+      // Confirm deletion of the records
+      const isDeletingRows = window.confirm(
+        "Are you sure, that you want to delete selected rows?"
+      );
+
+      // Delete records on the FE
+      if (isDeletingRows) {
+        for (const rowToDelete of rowsToDelete) {
+          rowToDelete.parentNode.removeChild(rowToDelete);
+
+          //TODO: Send request to BE to delete the record
+          //---------------------------------------------
+          //---------------------------------------------
+        }
+      }
+    };
+
+    deleteButton.addEventListener("click", deleteCheckedRecords);
+
+    // END -> Table manipulation
+
+    function selectpattern() {
+      document.getElementById("mySelect").innerHTML = "";
+      var e = document.getElementById("typepat");
+
+      if (e.value == "Deliverable") {
+        alert("Data not avail");
+      } else {
+        var txtFile = new XMLHttpRequest();
+        var fd = new FormData();
+
+        fd.append("user_id", localStorage.getItem("ipm_UserId"));
+        localStorage.setItem("logtype", e.value);
+        fd.append("logtype", e.value);
+        txtFile.open("POST", "../cgi-bin/murex_typology.py", true);
+        txtFile.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            allText = this.responseText;
+            //alert(allText);
+            selecttrade(allText);
+          }
+        };
+        txtFile.send(fd);
+      }
+    }
+
+    function selecttrade(typval) {
+      document.getElementById("mySelect").style.display = "";
+      document.getElementById("tradefamily").style.display = "";
+      var opt = typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, "");
+      opt2 = opt.replace(/[\[\]']+/g, "");
+      var optionValues = opt2.split(",");
+      for (var i = 0; i < optionValues.length; i++) {
+        jQuery("#mySelect").append(
+          jQuery("<option></option>").val(optionValues[i]).text(optionValues[i])
+        );
+      }
+      jQuery("#mySelect").append(
+        jQuery(
+          "<option disabled selected value> -- select an option -- </option>"
+        )
+      );
+      SortOptions("#mySelect");
+    }
+
+    function SortOptions(id) {
+      var prePrepend = "#";
+      if (id.match("^#") == "#") prePrepend = "";
+      $(prePrepend + id).html(
+        $(prePrepend + id + " option").sort(function (a, b) {
+          return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+        })
+      );
+    }
+
+    function getselecttrade() {
+      var t = document.getElementById("mySelect").value.trim();
+
+      var txtFile = new XMLHttpRequest();
+      var fd = new FormData();
+      fd.append("user_id", localStorage.getItem("ipm_UserId"));
+      fd.append("logtype", localStorage.getItem("logtype"));
+      localStorage.setItem("typology", t);
+      fd.append("typology", t);
+      txtFile.open("POST", "../cgi-bin/murex_patterns.py", true);
+      txtFile.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          allText = this.responseText;
+
+          console.log("ALL TEXT -------->", allText);
+          // TODO: HERE ADD TABLE
+          // populateTable(allText);
+          //   myfunction(allText);
+        }
+      };
+
+      txtFile.send(fd);
+    }
+
+    function myfunction(tableData) {
+      var opt = tableData.toString().replace(/[&\\\#+()$~%.'":?<>{}]/g, "");
+      opt2 = opt.replace(/[\[\]']+/g, "");
+      var optionValues = opt2.split(",");
+      optionValues.splice(0, 0, "HEADER");
+      optionValues.splice(1, 0, "HEADERPATH");
+
+      var data = optionValues;
+
+      var perrow = 2,
+        html =
+          "<table id=tableMain><caption><b> Please click on a row to select the row for deletion: </b></caption><tr>";
+
+      for (var i = 0; i < data.length; i++) {
+        html += `<td>${data[i]}</td>`;
+
+        var next = i + 1;
+        if (next % perrow == 0 && next != data.length) {
+          html += "</tr><tr>";
+        }
+      }
+      html += "</tr></table>";
+      document.getElementById("container").innerHTML = html;
+      let thetable = document
+        .getElementById("tableMain")
+        .getElementsByTagName("tbody")[0];
+      for (let i = 0; i < thetable.rows.length; i++) {
+        thetable.rows[i].onclick = function () {
+          TableRowClick(this);
+        };
+      }
+
+      function TableRowClick(therow) {
+        let msg = therow.cells[0].innerHTML;
+        msg2 = msg.trim();
+        alert("Header selected for delete: " + msg2);
+        var k = getConfirmation();
+        if (k == true) {
+          var txtFile = new XMLHttpRequest();
+          var fd = new FormData();
+
+          fd.append("user_id", localStorage.getItem("ipm_UserId"));
+          fd.append("logtype", localStorage.getItem("logtype"));
+          fd.append("typology", localStorage.getItem("typology"));
+          fd.append("header", msg2);
+          txtFile.open("POST", "../cgi-bin/murex_delete_pattern.py", true);
+          txtFile.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+              allText = this.responseText;
+              alert("Sucessfully deleted from the list");
+              myfunction(allText);
+            }
+          };
+          txtFile.send(fd);
+        } else {
+          alert("Delete Process Cancelled");
+        }
+      }
+    }
+
+    function getConfirmation() {
+      var retVal = confirm("Do you want to Proceed?");
+      if (retVal == true) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  </script>
+</html>

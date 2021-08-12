@@ -1,0 +1,234 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">		
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+	
+	<script src="../JScript/d3.v4.min.js"></script>
+	<script src="../JScript/Lapam.js"></script>
+</head>
+
+<style>
+
+
+@font-face {
+	font-family: 'AccentureRotis';
+	src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+	body {
+		font-family: AccentureRotis;
+	 }
+
+
+h1{	margin-bottom: 0; }
+		
+p{margin-top: 0;}
+		
+#tbl_content {
+    font-family: "AccentureRotis";
+    border-collapse: collapse;
+    width: 98%;
+	margin-left:5px;
+}
+
+#tbl_content td, #tbl_content th {
+    border: 1px solid #ddd;
+    padding: 8px;
+	font-size: 12px;
+	font-family: "AccentureRotis";
+}
+
+#tbl_content tr:nth-child(even){background-color: #f2f2f2;}
+
+#tbl_content tr:hover {background-color: #ddd;}
+
+#tbl_content th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #5d8aa8;
+    color: white;
+}
+</style>
+
+<body onload="insertDropdown()">
+<label id="StatusMode_lbl" style="float: left; width: 90%; margin-bottom: 0px;"></label>
+<button onclick="goBack()" style="font-family:AccentureRotis;float: right;  margin-right: 10px;">Back</button>
+<div id = "tbl_content">
+<label id="Service_lbl" style="font-family: AccentureRotis;font-size: 16px; width: 150px; margin-left:10px; margin-top: 10px; float: left; margin-bottom: 0px;">Select ServiceCall: </label>
+<select id="key_drp" onchange="getKeyValue()" style="font-family: AccentureRotis;width: 330px; float: left; margin-top: 10px; margin-bottom: 0px;"></select> 				
+<div id="result-content" style="height: 85%; width: 99%;overflow-y: scroll;"><br/>
+<table id="drilldown_tbl">
+</table>
+</div>	
+</div>
+</body>
+<script>
+
+var report_folder = localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id");
+
+function goBack(){
+	window.location.href = "IMP002.html";
+}
+
+function insertDropdown()
+{
+	sessionStorage.setItem("isDrilldown", "true");
+	var option_i=1;
+	var filename = "";
+	var current_date= new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+	if(sessionStorage.getItem("isOnline") =="true")
+	{
+		//filename = "online\\"+localStorage.getItem("ipm_appname").toLowerCase()+"\\imp002_twa_060319.json";
+		var file_name = localStorage.getItem("ipm_appname") + "_" + sessionStorage.getItem("Imperative_name");
+		if(localStorage.getItem("online_tp") == "false"){
+			filename = "online\\"+file_name+"_ONL_"+current_date+".json";
+		}
+		else{
+			filename = "online\\"+file_name+"_TP_"+current_date+".json";
+		}
+	}
+	else{
+		var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+		filename = "Reports\\"+report_folder+"\\"+file_name+".json";
+	}
+	readTextFile(filename, function(text){
+		var key_arr = text.split("\"");
+		for (var key_i = 3; key_i < key_arr.length; key_i=key_i + 6) {  
+			var option = document.createElement("option");
+			option.text = key_arr[key_i];
+			option.id = option_i;
+			key_drp.add(option, key_drp[0]);
+			option_i++;
+		}		
+		getKeyValue();
+	});
+	/*var key_val = localStorage.getItem("serviceCallKeys").split(",");
+	for (var ser_i = 0; ser_i < key_val.length; ser_i++) { 
+		var option = document.createElement("option");
+		option.text = key_val[ser_i];
+		key_drp.add(option, key_drp[0]);
+	}*/
+	//getKeyValue();
+}
+
+function getKeyValue()
+{
+	var key_drp = document.getElementById('key_drp');
+	var service_name = "";
+	//document.getElementById("key_drp").options[1].selected=true;
+	if(key_drp.selectedIndex != -1)
+	{
+		service_name = key_drp.options[key_drp.selectedIndex].text;
+	}
+	else{
+		key_drp.selectedIndex = 0;
+		service_name = key_drp.options[key_drp.selectedIndex].text;
+	} 
+		
+	//var test_folder = "1_1_nov21_2";
+	localStorage.setItem("serviceCall_selectedItem",key_drp.options[key_drp.selectedIndex].text);
+	var filename = "";
+	if(sessionStorage.getItem("isOnline") =="true")
+	{
+		document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: green;\"></i> ";
+		document.getElementById("StatusMode_lbl").style.color = "green";
+		var current_date= new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+		var file_name = localStorage.getItem("ipm_appname") + "_" + sessionStorage.getItem("Imperative_name");
+		if(localStorage.getItem("online_tp") == "false"){
+			filename = "online\\"+file_name+"_ONL_"+localStorage.getItem("serviceCall_selectedItem")+"_"+current_date+".csv";
+		}
+		else{
+			filename = "online\\"+file_name+"_TP_"+localStorage.getItem("serviceCall_selectedItem")+"_"+current_date+".csv";
+		}
+		//filename = "online\\"+localStorage.getItem("ipm_appname").toLowerCase()+"\\"+localStorage.getItem("serviceCall_selectedItem")+"_keypair.csv";
+	}
+	else{
+		document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: #7194b2;\"></i> ";
+		document.getElementById("StatusMode_lbl").style.color = "#7194b2";
+		var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+		filename = "Reports\\"+report_folder+"\\"+file_name+"_"+localStorage.getItem("serviceCall_selectedItem")+".csv";
+	}
+	readTextFile(filename, function(text){
+		var row_arr = text.split('\n');
+		var drilltbl = document.getElementById("drilldown_tbl");
+		var rowCount = drilltbl.rows.length;
+		var tableHeaderRowCount = 0;
+		for (var x=tableHeaderRowCount; x < rowCount; x++) {
+		   drilltbl.deleteRow(tableHeaderRowCount);
+		}
+		var col_val = 0;
+		for(var row_i=0; row_i < row_arr.length-1; row_i++)
+		{
+			var col_arr = row_arr[row_i].split(',');
+			var lastRow = drilltbl.rows.length;
+			var header = "";
+			var row = "";
+			row = drilltbl.insertRow(lastRow);
+			var status_id = 0;
+			
+			for (var col_i=0; col_i < col_arr.length+1; col_i++)
+			{
+				if(row_i==0)
+				{
+					drilltbl.rows[0].style.backgroundColor = "#365890";
+					drilltbl.rows[0].style.color = "#FFFFFF";
+				}					
+				if(row_i==0 && col_i == 0)
+				{				
+					var cell = row.insertCell(0);
+					cell.innerHTML = "S.No";
+				}
+				else if(col_i == 0 && row_i!=0)
+				{
+					var cell = row.insertCell(0);
+					cell.innerHTML = col_val;
+				}
+				else{
+					if(row_i==0)
+					{
+						if(col_arr[col_i-1] == "Status")
+						{
+							status_id = col_i-1;
+						}
+					}
+					var cell = row.insertCell(col_i);					
+					cell.innerHTML = col_arr[col_i-1];
+					if(status_id == (col_i-1))
+					{
+						if(col_arr[col_i-1] == "Pass")
+						{
+							cell.style.color = "#008000";
+						}
+						else if(col_arr[col_i-1] == "Fail")
+						{
+							cell.style.color = "#FF0000";
+						}
+					}
+				}
+			}
+			col_val++;
+			drilltbl.appendChild(row);
+		}
+	});
+}
+
+function readTextFile(file, callback) {
+	var rawFile = new XMLHttpRequest();
+	rawFile.overrideMimeType("application/json");
+	rawFile.open("GET", file, true);
+	rawFile.onreadystatechange = function() {
+		if (rawFile.readyState === 4 && rawFile.status == "200") {
+			callback(rawFile.responseText);
+		}
+	}
+	rawFile.send(null);
+}
+</script>
+
+</html>

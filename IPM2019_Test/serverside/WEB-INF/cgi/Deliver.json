@@ -1,0 +1,24 @@
+{
+	"Products":["IRS", "XCCY Swap", "FX Swap", "FX Spot"],
+	"Fields":
+	{
+		"Delivarable Primary system": "MxML/deliverableFlows/deliverableFlow/businessObjectId/primarySystem",
+		"Trade Typology": "MxML/deliverableFlows/deliverableFlow/deliverableFlowHeader/flowCategories/tradeTypology",
+		"Portfolio": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/portfolio/businessObjectId/identifier",
+		"Flow type(Send or receive)": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/flowSendReceive",
+		"Flow amount": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/flowAmount",
+		"Trade Family": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/flowAccountingData/tradeFamily",
+		"Trade Group": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/flowAccountingData/tradeGroup",
+		"Instrument": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/flowAccountingData/instrument",
+		"To be Netted": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/toBeNetted",
+		"Flow currency": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/flowCurrency",
+		"Position Type(nostro or Vostro)": "MxML/deliverableFlows/deliverableFlow/deliverableFlowBody/flowCash/positionType/businessObjectId/@mefClass",
+		"Counterparty name": "MxML/deliverableFlows/deliverableFlow/deliverableFlowInputCondition/tradeParty/partyName",
+		"FlowSettlementdate": "MxML/deliverableFlows/deliverableFlow/deliverableFlowInputCondition/settlementDate",
+		"FlowValueDate": "MxML/deliverableFlows/deliverableFlow/deliverableFlowInputCondition/valueDate"
+	},
+	"Extra":
+	{
+		"identifier": "MxML/deliverableFlows/deliverableFlow/flowDetails/flowDetail/FunctionalProducer/businessObjectId/identifier"
+	}
+}

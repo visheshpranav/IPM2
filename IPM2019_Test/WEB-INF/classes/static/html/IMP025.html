@@ -1,0 +1,596 @@
+<html>
+<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+<style>
+
+/* Set header to stick to the top of the container. */
+thead tr th {
+  position: sticky;
+  top: 0;
+}
+
+/* If we use border,
+we must use table-collapse to avoid
+a slight movement of the header row */
+table {
+ border-collapse: collapse;
+}
+
+/* Because we must set sticky on th,
+ we have to apply background styles here
+ rather than on thead */
+th {
+  padding: 2px;
+  padding-left: 5px;
+  border-left: 1px dotted rgba(200, 209, 224, 0.6);
+  border-bottom: 1px solid #e8e8e8;
+  background: #023e72;
+  text-align: left;
+  font-size: 14px;
+  /* With border-collapse, we must use box-shadow or psuedo elements
+  for the header borders */
+  box-shadow: 0px 0px 0 2px #e8e8e8;
+  color: white;
+}
+
+/* Basic Demo styling */
+table {
+  width: 99%;
+  font-family: sans-serif;
+}
+table td {
+  padding: 2px;
+	font-size: 12px;
+}
+tbody tr {
+  border-bottom: 2px solid #e8e8e8;
+}
+thead {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+  text-align: center;
+}
+tbody tr:hover {
+  background: #e6f7ff;
+}
+
+</style>
+<script src="../JScript/Lapam.js"></script>
+
+<!--<link rel="stylesheet" href="../styles/imp029.css">-->
+<link rel="stylesheet" href="../styles/bootstrap.min.css">
+<script src="../JScript/jquery.min.js"></script>
+<script src="../JScript/bootstrap.min.js"></script>
+<link rel="stylesheet" href="../styles/bootstrap-multiselect.css" type="text/css">
+<script type="text/javascript" src="../JScript/multi-select.js"></script>
+<script>
+(function($) {
+
+$.fn.ddTableFilter = function(options) {
+  options = $.extend(true, $.fn.ddTableFilter.defaultOptions, options);
+
+  return this.each(function() {
+    if($(this).hasClass('ddtf-processed')) {
+      refreshFilters(this);
+      return;
+    }
+    var table = $(this);
+    var start = new Date();
+
+    $('th:visible', table).each(function(index) {
+      if($(this).hasClass('skip-filter')) return;
+      var selectbox = $('<select id="slt_type" class="form-control">');
+      var values = [];
+      var opts = [];
+	  if($(this).text() == "All")
+	  {
+      selectbox.append('<option value="--all--">' + $(this).text() + '</option>');
+
+      var col = $('tr:not(.skip-filter) td:nth-child(' + (index + 1) + ')', table).each(function() {
+        var cellVal = options.valueCallback.apply(this);
+        if(cellVal.length == 0) {
+          cellVal = '--empty--';
+        }
+        $(this).attr('ddtf-value', cellVal);
+
+        if($.inArray(cellVal, values) === -1) {
+          var cellText = options.textCallback.apply(this);
+          if(cellText.length == 0) {cellText = options.emptyText;}
+          values.push(cellVal);
+          opts.push({val:cellVal, text:cellText});
+        }
+      });
+      if(opts.length < options.minOptions){
+        return;
+      }
+      if(options.sortOpt) {
+        opts.sort(options.sortOptCallback);
+      }
+      $.each(opts, function() {
+        $(selectbox).append('<option value="' + this.val + '">' + this.text + '</option>')
+      });
+
+      $(this).wrapInner('<div style="display:none">');
+      $(this).append(selectbox);
+
+      selectbox.bind('change', {column:col}, function(event) {
+		console.log($('#report_tbl tr').length)
+		event.preventDefault();
+        var changeStart = new Date();
+        var value = $(this).val();
+		
+		$("table#report_tbl tr td:nth-child(2)").each(function () {//$('tr', table).each(function() {ww
+		  if($(this).attr('ddtf-value') === value || value == '--all--') {
+            $(this).removeClass('ddtf-filtered');
+          }
+          else {
+            $(this).addClass('ddtf-filtered');
+          }
+		});
+
+        /*event.data.column.each(function() {
+          if($(this).attr('ddtf-value') === value || value == '--all--') {
+            $(this).removeClass('ddtf-filtered');
+          }
+          else {
+            $(this).addClass('ddtf-filtered');
+          }
+        });*/
+        var changeStop = new Date();
+        if(options.debug) {
+          console.log('Search: ' + (changeStop.getTime() - changeStart.getTime()) + 'ms');
+        }
+        refreshFilters(table);
+
+      });
+      table.addClass('ddtf-processed');
+      if($.isFunction(options.afterBuild)) {
+        options.afterBuild.apply(table);
+      }
+	  }
+    });
+
+    function refreshFilters(table) {
+      var refreshStart = new Date();
+      $('tr', table).each(function() {
+        var row = $(this);
+        if($('td.ddtf-filtered', row).length > 0) {
+          options.transition.hide.apply(row, options.transition.options);
+        }
+        else {
+          options.transition.show.apply(row, options.transition.options);
+        }
+      });
+
+      if($.isFunction(options.afterFilter)) {
+        options.afterFilter.apply(table);
+      }
+
+      if(options.debug) {
+        var refreshEnd = new Date();
+        console.log('Refresh: ' + (refreshEnd.getTime() - refreshStart.getTime()) + 'ms');
+      }
+    }
+
+    if(options.debug) {
+      var stop = new Date();
+      console.log('Build: ' + (stop.getTime() - start.getTime()) + 'ms');
+    }
+  });
+};
+
+$.fn.ddTableFilter.defaultOptions = {
+  valueCallback:function() {
+    return encodeURIComponent($.trim($(this).text()));
+  },
+  textCallback:function() {
+    return $.trim($(this).text());
+  },
+  sortOptCallback: function(a, b) {
+    return a.text.toLowerCase() > b.text.toLowerCase();
+  },
+  afterFilter: null,
+  afterBuild: null,
+  transition: {
+    hide:$.fn.hide,
+    show:$.fn.show,
+    options: []
+  },
+  emptyText:'--Empty--',
+  sortOpt:true,
+  debug:false,
+  minOptions:2
+}
+
+})(jQuery);
+</script>
+<!--<script src="../JScript/jquery-1.11.3.min.js"></script>-->
+ <body onload="getExistingLogname()">
+<div>
+	<label style = "margin-left:100px">Project Name:</label>
+	<input type="text" id="Txt_prj" name="prj_name" disabled>
+	<label style = "margin-left:30px">Report Name:</label>
+	<select id="Drp_View_logName" onchange="getReportView();" disabled = "True"> </select>
+	<!-- <input type="button" value="Generate & Download Report" id ="generate_SAP" style="float:right; margin-right: 40px;" onclick="generateppt();"> -->
+	<a href="javascript:clickDownload();" id ="Download_Usageanalysis" ><img src="../images/Download.png"  style="color:black; width: 48px; height: 30px; margin-right: 30px; float: right;" ></a>
+
+	<br>
+	<br/>
+</div>
+<!-- <div id="report-content" style="height: 100%; width: 99%;overflow-y: scroll;"> -->
+
+<div id="report-content" style="height: 100%; width: 99%;">
+
+     <select id="boot-multiselect-demo" multiple="multiple">
+    </select>
+
+
+<table id="report_tbl">
+	<thead >
+		<tr>
+			<th>Tcode</th>			
+			<th>All</th>
+			<th>Total User Count</th>
+			<th>Impacted User Count</th>
+			<th>Total Transaction Count</th>
+			<th>Failed Transaction Count</th>
+			<th>Average Response Time (ms)</th>
+			<th>Maximum User</th>
+			<th>Maximum Response Time (ms)</th>
+		</tr>
+	</thead>
+	<tbody id="report_bdy"></tbody>
+</table>
+</div>
+
+<script>
+document.getElementById("Txt_prj").value = localStorage.getItem("ipm_appname");
+var log_folder = localStorage.getItem("ipm_UserId") +"_"+localStorage.getItem("reportname").toLowerCase();
+var filename = "Reports\\"+log_folder+"\\"+log_folder+"_reports.csv";
+var report_response;
+function clickDownload(){
+	window.open(filename, '_blank');
+}
+
+function getExistingLogname()
+{	
+	document.getElementById("Txt_prj").value = "RETAIL";
+	var test_drp = document.getElementById("Drp_View_logName");			
+	var option = document.createElement("option");
+	option.text = "P700NA";
+	test_drp.add(option, test_drp[0]);
+	getReportView();
+}
+
+// generate ppt 
+
+/*
+function generateppt()
+{
+	parent.document.getElementById('top').style.display = 'block';
+	var xhttp = new XMLHttpRequest();
+	var Drp_View = document.getElementById('Drp_View_logName');
+	var Drp_ViewTestname = Drp_View.options[Drp_View.selectedIndex].text;
+	var fd = new FormData();
+	fd.append("prjid",localStorage.getItem("PrjId"));
+	fd.append("Txt_testname",Drp_ViewTestname);
+	fd.append("userid",localStorage.getItem("ipm_UserId"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			filename = localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("PrjId") + "_" + Drp_ViewTestname;
+			window.open("../Reports/"+filename+"/"+filename+".pptx", '_blank');
+			parent.document.getElementById('top').style.display = 'none';
+			alert("Report generated successfully");
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/generatePPT.py",true);
+     xhttp.send(fd);
+}*/
+
+
+function getReportView()
+{
+	//getObservation();
+	var res_arr = [];
+	var myDropDownList = $("#boot-multiselect-demo");
+	var select_drp = document.getElementById('boot-multiselect-demo');
+	var test_length = select_drp.options.length;
+	for (i = 1; i < test_length; i++) {
+	  select_drp.options[0] = null;
+	}
+	var ws_i=0;
+	
+	var Drp_View = document.getElementById('Drp_View_logName');
+	var Drp_ViewTestname = Drp_View.options[Drp_View.selectedIndex].text;
+	var outputVal = "SAPMSSYC,Standard,12,10,1638,66,416.68,PTFIORI02,3798.0,(B)Other,Job,2,1,907,125,550.26,BASIS,9662.0,RSPOWP00,Standard,1,0,170,0,4.49,SAPSYS,20.0,Buf.Sync,Standard,1,0,86,0,13.23,SAPSYS,24.0,APPD_STAD_COL,Job,1,0,85,0,578.2,BASIS,1451.0,MON_PF1I000000_APD_AGT1M,Job,1,0,85,0,763.18,BASIS,954.0,MON_PF1I000000_APD_DEF1M,Job,1,0,85,0,509.35,BASIS,571.0,MON_PF1I000000_APD_HDB1M,Job,1,0,85,0,1140.78,BASIS,1217.0,AutoABAP,Standard,1,0,68,0,176.26,SAPSYS,415.0,MON_PF1I000000_APD_AGT5M,Job,1,0,17,0,412.76,BASIS,439.0,MON_PF1I000000_APD_BW5M,Job,1,0,17,0,323.35,BASIS,349.0,MON_PF1I000000_APD_DEF5M,Job,1,1,17,17,3230.0,BASIS,7842.0,MON_PF1I000000_APD_HDB5M,Job,1,0,17,0,767.76,BASIS,841.0,MON_PF1I000000_APD_IDOC5M,Job,1,0,17,0,342.82,BASIS,374.0,Login_Pw,Standard,1,0,3,0,29.67,UNKNOWN,38.0,SAPMSYST,Standard,2,0,2,0,546.5,BAHAM,998.0,SESSION_MANAGER,Standard,2,0,2,0,972.0,BAHAM,1368.0,MON_PF1I000000_APD_AGT1H,Job,1,0,1,0,1399.0,BASIS,1399.0,MON_PF1I000000_APD_DEF1H,Job,1,0,1,0,1279.0,BASIS,1279.0,SAPMHTTP_PUBLIC,Custom,1,0,1339,0,23.29,UNKNOWN,35.75,SAPMHTTP_BC,Custom,11,3,451,4,4639.59,PTFIORI03,8352.75,SAPMHTTP_MD_BUSINESSPARTNER_SRV,Custom,5,4,186,85,5741.18,PTFIORI03,80619.0,SAPMHTTP,Custom,10,5,134,16,5949.91,PTFIORI04,35068.8,SAPMHTTP_ESH_SEARCH_SRV,Custom,4,4,18,16,23999.39,PTFIORI03,152299.0,SAPMHTTP_CV_ATTACHMENT_SRV,Custom,3,3,7,3,8888.86,PTFIORI02,27457.0,";
+	var res_arr = outputVal.split(",");
+	report_response = res_arr;
+	var report_tbl = document.getElementById("report_tbl").getElementsByTagName('tbody')[0];
+	var lastRow = report_tbl.rows.length;
+	var tableHeaderRowCount = 1;
+	for (var x=tableHeaderRowCount; x < lastRow; x++) {
+	   report_tbl.deleteRow(tableHeaderRowCount);
+	}
+	for(var res_i=0; res_i < res_arr.length-1; res_i=res_i+9)
+	{
+		var lastRow = report_tbl.rows.length;
+		var tcode_val = res_arr[res_i].replace('\\r','');
+		var tran_count = res_arr[res_i+8].replace(')','');
+		tran_count = tran_count.replace(']','');
+		tcode_val = tcode_val.replace('(','');
+		tcode_val = tcode_val.replace(')','');
+		tcode_val = tcode_val.replace('[','');
+		tcode_val = tcode_val.replace(/\'/gi, "");
+		var row = report_tbl.insertRow(lastRow);
+		var cell1 = row.insertCell(0);
+		tcode_val = tcode_val.replace('<','&lt;').replace('>','&gt;');
+		//myDropDownList.append($("<option></option>").val(tcode_val).html(tcode_val));
+		//$("#slt_multiple").append('<option value="'+tcode_val+'">'+tcode_val+'</option>');
+		var option = document.createElement("option");
+		option.value = tcode_val;
+		option.text = tcode_val;
+		select_drp.add(option, select_drp[ws_i+1]);
+		
+		//cell1.innerHTML = tcode_val;
+		cell1.innerHTML =  "<a href='javascript:tcodeUsage(\""+tcode_val+"\");' style='text-decoration: underline;'>" +tcode_val+"</a>"
+		var cell_ta = row.insertCell(1);
+		res_arr[res_i+1] = res_arr[res_i+1].replace(/\'/gi, "");
+		cell_ta.innerHTML = res_arr[res_i+1];
+		cell_ta.style.textAlign="center";
+		var cell2 = row.insertCell(2);
+		res_arr[res_i+2] = res_arr[res_i+2].replace(/\'/gi, "");
+		cell2.innerHTML = res_arr[res_i+2];
+		cell2.style.textAlign="center";
+		var cell3 = row.insertCell(3);
+		res_arr[res_i+3] = res_arr[res_i+3].replace(/\'/gi, "");
+		cell3.innerHTML = res_arr[res_i+3];
+		cell3.style.textAlign="center";
+		var cell4 = row.insertCell(4);
+		status = res_arr[res_i+4].replace(/\'/gi, "");
+		
+		if(status.trim() == "Pass")
+		{
+			status = status.fontcolor("green");
+		}
+		else if(status.trim() == "Fail")
+		{
+			status = status.fontcolor("red");
+		}
+		cell4.innerHTML = status;
+		cell4.style.textAlign="center";
+		var cell5 = row.insertCell(5);
+		res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+		cell5.innerHTML = res_arr[res_i+5];
+		cell5.style.textAlign="center";
+		//res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+		var cell6 = row.insertCell(6);
+		res_arr[res_i+6] = res_arr[res_i+6].replace(/\'/gi, "");
+		cell6.innerHTML = res_arr[res_i+6];
+		cell6.style.textAlign="center";
+		var cell7 = row.insertCell(7);
+		res_arr[res_i+7] = res_arr[res_i+7].replace(/\'/gi, "");
+		cell7.innerHTML = res_arr[res_i+7];
+		cell7.style.textAlign="center";
+		var cell8 = row.insertCell(8);
+		tran_count = tran_count.replace(/\'/gi, "");
+		cell8.innerHTML = tran_count;
+		cell8.style.textAlign="center";
+		report_tbl.appendChild(row);
+		ws_i++;
+		//parent.document.getElementById('top').style.display = 'none';
+	}			
+	makeAllSortable();
+	//jQuery('#report_tbl').ddTableFilter();
+	$('#boot-multiselect-demo').multiselect({
+		nonSelectedText: 'Select Tcode',
+		buttonWidth: 250,
+		enableFiltering: true
+	});
+}
+
+function tcodeUsage(tcode_val)
+{
+	localStorage.setItem("tcode_val", tcode_val)
+	window.location.href = "IMP029_drilldown.html?tcode_val="+tcode_val;
+}
+
+function sortTable(table, col, reverse) {
+    var tb = table, // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+        tr = Array.prototype.slice.call(tb.rows, 1), // put rows into array
+        i;
+    reverse = -((+reverse) || -1);
+    
+    tr = tr.sort(function (a, b) { // sort rows
+        if(!isNaN(a.cells[col].textContent) && !isNaN(b.cells[col].textContent))
+        return reverse * ((+a.cells[col].textContent) - (+b.cells[col].textContent))
+       return reverse // `-1 *` if want opposite order
+            * (a.cells[col].textContent.trim() // using `.textContent.trim()` for test
+                .localeCompare(b.cells[col].textContent.trim())
+               );
+    });
+    for(i = 1; i < tr.length; ++i) tb.appendChild(tr[i]); // append each row in order
+}
+
+function updateTable()
+{
+	console.log("update table",$('.multiselect .multiselect-selected-text').text());
+		var report_tbl = document.getElementById("report_tbl");
+		var lastRow = report_tbl.rows.length;
+		var tableHeaderRowCount = 1;
+		var ws_i=0;
+		var res_arr = report_response;
+		if($('.multiselect .multiselect-selected-text').text() == "" || $('.multiselect .multiselect-selected-text').text() == "Select Tcode")
+		{
+			for (var x=tableHeaderRowCount; x < lastRow; x++) {
+			   report_tbl.deleteRow(tableHeaderRowCount);
+			}
+			for(var res_i=0; res_i < res_arr.length-1; res_i=res_i+9)
+			{
+			
+			
+			var lastRow = report_tbl.rows.length;
+			var tcode_val = res_arr[res_i].replace('\\r','');
+			var tran_count = res_arr[res_i+8].replace(')','');
+			tran_count = tran_count.replace(']','');
+			tcode_val = tcode_val.replace('(','');
+			tcode_val = tcode_val.replace(')','');
+			tcode_val = tcode_val.replace('[','');
+			tcode_val = tcode_val.replace(/\'/gi, "");
+			var row = report_tbl.insertRow(lastRow);
+			var cell1 = row.insertCell(0);
+			tcode_val = tcode_val.replace('<','&lt;').replace('>','&gt;');
+			
+			//cell1.innerHTML = tcode_val;
+			cell1.innerHTML =  "<a href='javascript:tcodeUsage(\""+tcode_val+"\");' style='text-decoration: underline;'>" +tcode_val+"</a>"
+			var cell_ta = row.insertCell(1);
+			res_arr[res_i+1] = res_arr[res_i+1].replace(/\'/gi, "");
+			cell_ta.setAttribute('ddtf-value', res_arr[res_i+1]);
+			cell_ta.innerHTML = res_arr[res_i+1];
+			cell_ta.style.textAlign="center";
+			var cell2 = row.insertCell(2);
+			res_arr[res_i+2] = res_arr[res_i+2].replace(/\'/gi, "");
+			cell2.innerHTML = res_arr[res_i+2];
+			cell2.style.textAlign="center";
+			var cell3 = row.insertCell(3);
+			res_arr[res_i+3] = res_arr[res_i+3].replace(/\'/gi, "");
+			cell3.innerHTML = res_arr[res_i+3];
+			cell3.style.textAlign="center";
+			var cell4 = row.insertCell(4);
+			status = res_arr[res_i+4].replace(/\'/gi, "");
+			
+			if(status.trim() == "Pass")
+			{
+				status = status.fontcolor("green");
+			}
+			else if(status.trim() == "Fail")
+			{
+				status = status.fontcolor("red");
+			}
+			cell4.innerHTML = status;
+			cell4.style.textAlign="center";
+			var cell5 = row.insertCell(5);
+			res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+			cell5.innerHTML = res_arr[res_i+5];
+			cell5.style.textAlign="center";
+			//res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+			var cell6 = row.insertCell(6);
+			res_arr[res_i+6] = res_arr[res_i+6].replace(/\'/gi, "");
+			cell6.innerHTML = res_arr[res_i+6];
+			cell6.style.textAlign="center";
+			var cell7 = row.insertCell(7);
+			res_arr[res_i+7] = res_arr[res_i+7].replace(/\'/gi, "");
+			cell7.innerHTML = res_arr[res_i+7];
+			cell7.style.textAlign="center";
+			var cell8 = row.insertCell(8);
+			tran_count = tran_count.replace(/\'/gi, "");
+			cell8.innerHTML = tran_count;
+			cell8.style.textAlign="center";
+			report_tbl.appendChild(row);
+			ws_i++;
+			}
+		}
+		else{
+		
+		var slt_value = $('.multiselect .multiselect-selected-text').text().split(', ');
+		for (var x=tableHeaderRowCount; x < lastRow; x++) {
+			   report_tbl.deleteRow(tableHeaderRowCount);
+			}
+		for (slt_i=0; slt_i < slt_value.length; slt_i++)
+		{
+			for(var res_i=0; res_i < res_arr.length-1; res_i=res_i+9)
+			{
+				var tcode_val = res_arr[res_i].replace('\\r','');
+				var tran_count = res_arr[res_i+8].replace(')','');
+				tran_count = tran_count.replace(']','');
+				tcode_val = tcode_val.replace('(','');
+				tcode_val = tcode_val.replace(')','');
+				tcode_val = tcode_val.replace('[','');
+				tcode_val = tcode_val.replace(/\'/gi, "");
+				if(slt_value[slt_i] == tcode_val)
+				{
+				
+				var lastRow = report_tbl.rows.length;
+				
+				var row = report_tbl.insertRow(lastRow);
+				var cell1 = row.insertCell(0);
+				tcode_val = tcode_val.replace('<','&lt;').replace('>','&gt;');
+				
+				//cell1.innerHTML = tcode_val;
+				cell1.innerHTML =  "<a href='#'>" +tcode_val+"</a>"
+				var cell_ta = row.insertCell(1);
+				res_arr[res_i+1] = res_arr[res_i+1].replace(/\'/gi, "");
+				cell_ta.setAttribute('ddtf-value', res_arr[res_i+1]);
+				cell_ta.innerHTML = res_arr[res_i+1];
+				cell_ta.style.textAlign="center";
+				var cell2 = row.insertCell(2);
+				res_arr[res_i+2] = res_arr[res_i+2].replace(/\'/gi, "");
+				cell2.innerHTML = res_arr[res_i+2];
+				cell2.style.textAlign="center";
+				var cell3 = row.insertCell(3);
+				res_arr[res_i+3] = res_arr[res_i+3].replace(/\'/gi, "");
+				cell3.innerHTML = res_arr[res_i+3];
+				cell3.style.textAlign="center";
+				var cell4 = row.insertCell(4);
+				status = res_arr[res_i+4].replace(/\'/gi, "");
+				
+				if(status.trim() == "Pass")
+				{
+					status = status.fontcolor("green");
+				}
+				else if(status.trim() == "Fail")
+				{
+					status = status.fontcolor("red");
+				}
+				cell4.innerHTML = status;
+				cell4.style.textAlign="center";
+				var cell5 = row.insertCell(5);
+				res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+				cell5.innerHTML = res_arr[res_i+5];
+				cell5.style.textAlign="center";
+				//res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+				var cell6 = row.insertCell(6);
+				res_arr[res_i+6] = res_arr[res_i+6].replace(/\'/gi, "");
+				cell6.innerHTML = res_arr[res_i+6];
+				cell6.style.textAlign="center";
+				var cell7 = row.insertCell(7);
+				res_arr[res_i+7] = res_arr[res_i+7].replace(/\'/gi, "");
+				cell7.innerHTML = res_arr[res_i+7];
+				cell7.style.textAlign="center";
+				var cell8 = row.insertCell(8);
+				tran_count = tran_count.replace(/\'/gi, "");
+				cell8.innerHTML = tran_count;
+				cell8.style.textAlign="center";
+				report_tbl.appendChild(row);
+				ws_i++;
+				break;
+				}
+			}
+		}
+		//makeAllSortable();
+		//$('#report_tbl').ddTableFilter();
+	}	
+	makeAllSortable();
+	$('#report_tbl').ddTableFilter();
+}
+
+function makeSortable(table) {
+    var th = table.tHead, i;
+    th && (th = th.rows[0]) && (th = th.cells);
+    if (th) i = th.length;
+    else return; // if no `<thead>` then do nothing
+    while (--i >= 0) (function (i) {
+        var dir = 1;
+        th[i].addEventListener('click', function () {sortTable(table, i, (dir = 1 - dir))});
+    }(i));
+}
+
+function makeAllSortable(parent) {
+    parent = parent || document.body;
+    var t = parent.getElementsByTagName('table'), i = t.length;
+    while (--i >= 0) makeSortable(t[i]);
+}
+
+</script>
+</body>
+</html>

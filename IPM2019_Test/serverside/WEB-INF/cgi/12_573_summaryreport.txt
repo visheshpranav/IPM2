@@ -1,0 +1,14 @@
+ * 6 SOE ID has encountered failures - KK29335,PJ67075,PT44785,KA86546,G2C18260 and SR29421 
+ * 5/9 service calls failed 
+ * CalculateFixedIncomeOrderInqRq  has highest failure rate  
+ 		  *. 4 failures due to failure of Broker ( ESB)  
+ 		  *. 4 due to wrong data combination .  
+ 		  *. VK21440 has the correct data set where as  KK29335 and G2C18260 data set is wrong . 
+ * PreprocessForMutualFundOrderInqRq - 7 failures observed and all the failures are due to  failed validation 
+ 	 check because of wrong data set. 
+ * PreprocessForMutualFundSwitchInq - 5 failure observed and all are failed validations
+ * On Average < 4GB Heap Memory 
+ * No Batch has been executed on this day
+
+
+

@@ -1,0 +1,299 @@
+<html>
+<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+<style>
+
+/* Set header to stick to the top of the container. */
+thead tr th {
+  position: sticky;
+  top: 0;
+}
+
+/* If we use border,
+we must use table-collapse to avoid
+a slight movement of the header row */
+table {
+ border-collapse: collapse;
+}
+
+/* Because we must set sticky on th,
+ we have to apply background styles here
+ rather than on thead */
+th {
+  padding: 2px;
+  padding-left: 5px;
+  border-left: 1px dotted rgba(200, 209, 224, 0.6);
+  border-bottom: 1px solid #e8e8e8;
+  background: #023e72;
+  text-align: left;
+  font-size: 14px;
+  /* With border-collapse, we must use box-shadow or psuedo elements
+  for the header borders */
+  box-shadow: 0px 0px 0 2px #e8e8e8;
+  color: white;
+}
+
+/* Basic Demo styling */
+table {
+  width: 99%;
+  font-family: sans-serif;
+}
+table td {
+  padding: 2px;
+	font-size: 12px;
+}
+tbody tr {
+  border-bottom: 2px solid #e8e8e8;
+}
+thead {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+  text-align: center;
+}
+tbody tr:hover {
+  background: #e6f7ff;
+}
+
+</style>
+<script src="../JScript/Lapam.js"></script>
+<!--<link rel="stylesheet" href="../styles/imp029.css">-->
+ <body onload="getExistingLogname()">
+<div>
+	<label style = "margin-left:100px">Project Name:</label>
+	<input type="text" id="Txt_prj" name="prj_name" disabled>
+	<label style = "margin-left:30px">Report Name:</label>
+	<select id="Drp_View_logName" onchange="getReportView();" disabled = "True"> </select>
+	<!-- <input type="button" value="Generate & Download Report" id ="generate_SAP" style="float:right; margin-right: 40px;" onclick="generateppt();"> -->
+	<a href="javascript:clickDownload();" id ="Download_Usageanalysis" ><img src="../images/Download.png"  style="color:black; width: 48px; height: 30px; margin-right: 30px; float: right;" ></a>
+
+	<br>
+	<br/>
+</div>
+<!-- <div id="report-content" style="height: 100%; width: 99%;overflow-y: scroll;"> -->
+
+<div id="report-content" style="height: 100%; width: 99%;">
+<table id="report_tbl">
+	<thead >
+		<tr>
+			<th>Tcode</th>
+			<th>Total User Count</th>
+			<th>Impacted User Count</th>
+			<th>Total Transaction Count</th>
+			<th>Failed Transaction Count</th>
+			<th>Average Response Time (Seconds)</th>
+			<th>Maximum User</th>
+			<th>Maximum Response Time (Seconds)</th>
+		</tr>
+	</thead>
+	<tbody id="report_bdy"></tbody>
+</table>
+</div>
+<script>
+
+document.getElementById("Txt_prj").value = localStorage.getItem("ipm_appname");
+var log_folder = localStorage.getItem("ipm_UserId") +"_"+localStorage.getItem("reportname").toLowerCase();
+var filename = "Reports\\"+log_folder+"\\"+log_folder+"_reports.csv";
+function clickDownload(){
+	window.open(filename, '_blank');
+}
+
+function getExistingLogname()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();	
+	//var prj_name = document.getElementById("Txt_prj").value;
+	//alert(localStorage.getItem("reportname").toLowerCase())
+	var prj_name = localStorage.getItem("rep_id")
+	fd.append("prj_name",prj_name);
+	var user_id = localStorage.getItem("ipm_UserId");
+	fd.append("user_id",user_id);
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var outputVal = this.responseText.trim();
+			var output_mat = outputVal.match(/\[\]/g);
+			if(outputVal != "" && output_mat != "[]")
+			{
+				var test_drp = document.getElementById("Drp_View_logName");	
+				var test_length = test_drp.options.length;
+				for (i = 0; i < test_length; i++) {
+				  test_drp.options[0] = null;
+				}
+				var project_name_arr = this.responseText.split("'");
+				for (var prj_i=1; prj_i<project_name_arr.length ; prj_i=prj_i+2) {					
+					var option = document.createElement("option");
+					option.text = project_name_arr[prj_i];
+					test_drp.add(option, test_drp[0]);
+				} 
+			}
+		var textToFind = localStorage.getItem("reportname").toLowerCase();
+		var dd = document.getElementById('Drp_View_logName');
+		for (var i = 0; i < dd.options.length; i++) {
+			//alert(dd.options[i].text+"-"+textToFind)
+			if (dd.options[i].text.toLowerCase() == textToFind) {
+				dd.selectedIndex = i;
+				break;
+			}
+		}
+			getReportView();
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getSAPLogName.py",true);
+     xhttp.send(fd);
+}
+
+// generate ppt 
+
+
+function generateppt()
+{
+	parent.document.getElementById('top').style.display = 'block';
+	var xhttp = new XMLHttpRequest();
+	var Drp_View = document.getElementById('Drp_View_logName');
+	var Drp_ViewTestname = Drp_View.options[Drp_View.selectedIndex].text;
+	var fd = new FormData();
+	fd.append("prjid",localStorage.getItem("PrjId"));
+	fd.append("Txt_testname",Drp_ViewTestname);
+	fd.append("userid",localStorage.getItem("ipm_UserId"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			filename = localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("PrjId") + "_" + Drp_ViewTestname;
+			window.open("../Reports/"+filename+"/"+filename+".pptx", '_blank');
+			parent.document.getElementById('top').style.display = 'none';
+			alert("Report generated successfully");
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/generatePPT.py",true);
+     xhttp.send(fd);
+}
+
+
+function getReportView()
+{
+		getObservation();
+	var res_arr = [];
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	//parent.document.getElementById('top').style.display = 'block';
+	var Drp_View = document.getElementById('Drp_View_logName');
+	var Drp_ViewTestname = Drp_View.options[Drp_View.selectedIndex].text;
+	fd.append("prjid",localStorage.getItem("rep_id"));
+	fd.append("Txt_testname",Drp_ViewTestname);
+	localStorage.setItem("reportname",Drp_ViewTestname);
+	fd.append("userid",localStorage.getItem("ipm_UserId"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+		var outputVal = this.responseText.trim();
+		var response_Text = this.responseText.toString();
+		var res_arr = response_Text.split(",");
+		var report_tbl = document.getElementById("report_tbl").getElementsByTagName('tbody')[0];
+		var lastRow = report_tbl.rows.length;
+		var tableHeaderRowCount = 1;
+		for (var x=tableHeaderRowCount; x < lastRow; x++) {
+		   report_tbl.deleteRow(tableHeaderRowCount);
+		}
+		for(var res_i=0; res_i < res_arr.length-1; res_i=res_i+8)
+		{
+			var lastRow = report_tbl.rows.length;
+			var tcode_val = res_arr[res_i].replace('\\r','');
+			var tran_count = res_arr[res_i+7].replace(')','');
+			tran_count = tran_count.replace(']','');
+			tcode_val = tcode_val.replace('(','');
+			tcode_val = tcode_val.replace(')','');
+			tcode_val = tcode_val.replace('[','');
+			tcode_val = tcode_val.replace(/\'/gi, "");
+			var row = report_tbl.insertRow(lastRow);
+			var cell1 = row.insertCell(0);
+			tcode_val = tcode_val.replace('<','&lt;').replace('>','&gt;');
+			//cell1.innerHTML = tcode_val;
+			cell1.innerHTML =  "<a href='javascript:tcodeUsage(\""+tcode_val+"\");' style='text-decoration: underline;'>" +tcode_val+"</a>"
+			var cell2 = row.insertCell(1);
+			res_arr[res_i+1] = res_arr[res_i+1].replace(/\'/gi, "");
+			cell2.innerHTML = res_arr[res_i+1];
+			cell2.style.textAlign="center";
+			var cell3 = row.insertCell(2);
+			res_arr[res_i+2] = res_arr[res_i+2].replace(/\'/gi, "");
+			cell3.innerHTML = res_arr[res_i+2];
+			cell3.style.textAlign="center";
+			var cell4 = row.insertCell(3);
+			status = res_arr[res_i+3].replace(/\'/gi, "");
+			
+			if(status.trim() == "Pass")
+			{
+				status = status.fontcolor("green");
+			}
+			else if(status.trim() == "Fail")
+			{
+				status = status.fontcolor("red");
+			}
+			cell4.innerHTML = status;
+			cell4.style.textAlign="center";
+			var cell5 = row.insertCell(4);
+			res_arr[res_i+4] = res_arr[res_i+4].replace(/\'/gi, "");
+			cell5.innerHTML = res_arr[res_i+4];
+			cell5.style.textAlign="center";
+			res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+			var cell6 = row.insertCell(5);
+			res_arr[res_i+5] = res_arr[res_i+5].replace(/\'/gi, "");
+			cell6.innerHTML = res_arr[res_i+5];
+			cell6.style.textAlign="center";
+			var cell7 = row.insertCell(6);
+			res_arr[res_i+6] = res_arr[res_i+6].replace(/\'/gi, "");
+			cell7.innerHTML = res_arr[res_i+6];
+			cell7.style.textAlign="center";
+			var cell8 = row.insertCell(7);
+			tran_count = tran_count.replace(/\'/gi, "");
+			cell8.innerHTML = tran_count;
+			cell8.style.textAlign="center";
+			report_tbl.appendChild(row);
+			//parent.document.getElementById('top').style.display = 'none';
+		}			
+		makeAllSortable();
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getReportView.py",true);
+     xhttp.send(fd);
+}
+
+function tcodeUsage(tcode_val)
+{
+	localStorage.setItem("tcode_val", tcode_val)
+	window.location.href = "IMP029_drilldown.html?tcode_val="+tcode_val;
+}
+
+function sortTable(table, col, reverse) {
+    var tb = table, // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+        tr = Array.prototype.slice.call(tb.rows, 1), // put rows into array
+        i;
+    reverse = -((+reverse) || -1);
+    
+    tr = tr.sort(function (a, b) { // sort rows
+        if(!isNaN(a.cells[col].textContent) && !isNaN(b.cells[col].textContent))
+        return reverse * ((+a.cells[col].textContent) - (+b.cells[col].textContent))
+       return reverse // `-1 *` if want opposite order
+            * (a.cells[col].textContent.trim() // using `.textContent.trim()` for test
+                .localeCompare(b.cells[col].textContent.trim())
+               );
+    });
+    for(i = 1; i < tr.length; ++i) tb.appendChild(tr[i]); // append each row in order
+}
+
+function makeSortable(table) {
+    var th = table.tHead, i;
+    th && (th = th.rows[0]) && (th = th.cells);
+    if (th) i = th.length;
+    else return; // if no `<thead>` then do nothing
+    while (--i >= 0) (function (i) {
+        var dir = 1;
+        th[i].addEventListener('click', function () {sortTable(table, i, (dir = 1 - dir))});
+    }(i));
+}
+
+function makeAllSortable(parent) {
+    parent = parent || document.body;
+    var t = parent.getElementsByTagName('table'), i = t.length;
+    while (--i >= 0) makeSortable(t[i]);
+}
+</script>
+</body>
+</html>

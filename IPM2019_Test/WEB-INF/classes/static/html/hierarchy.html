@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html>
+<script language="JavaScript" type="text/javascript" src="../JScript/json2.js"></script>
+<script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.8.3.js"></script>
+<script language="JavaScript" type="text/javascript" src="../JScript/json2.js"></script>
+<!-- <script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.8.3.js"></script> -->
+<script language="JavaScript" type="text/javascript" src="../JScript/jquery-1.9.1.js"></script>
+<link href="../styles/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+html, body { font-family: 'AccentureRotis'; }
+
+table { border-collapse: collapse; }
+
+
+table tr td {
+  border: 1px solid #000;
+  padding: 5px;
+}
+
+table tr:nth-child(odd) { background: #f4f4f4; }
+
+
+
+td{
+word-break: break-all;
+font-size:14px;
+}
+
+table{
+margin-left:45px;
+margin-bottom:14px;
+table-layout:fixed;
+width:55%;
+
+}
+thead tr th:first-child,
+tbody tr td:first-child {
+  width: 2em;
+  min-width: 2em;
+  max-width: 2em;
+
+}
+	@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+body {
+font-family: AccentureRotis;
+}
+	
+
+input[type=text] {
+  width: 75%;
+  height: 50%;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+  font-family: AccentureRotis;
+  margin:2px 0;
+}
+
+input[type=button] {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 6px 20px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+</style>
+<body onload="dumy()">
+
+<label for="typepat"  style="margin-left:24%">Choose the typology:</label>
+<select name="typepat" id="typepat" style="margin-left:5%" onchange="fetchReports1()">
+  <option selected value="TradeInsertion">TradeInsertion</option>
+ <!--  <option value="DeliverableMXML">DeliverableMXML</option>
+  <option value="OSP">OSP</option>
+  <option value="DATAMART">DATAMART</option> -->
+</select>
+
+<br><br><br><br>
+<div>
+ 
+  <button type="submit" value="Upload" id="levelnext" class="btn btn-primary"   onclick="hoop5()" style="width:142px;margin-left:-64%;margin-top:2675px; font-family: AccentureRotis;">Move to level n</button>
+  
+  <div id="container" style="width: 25%;float:left; margin-left:12px;margin-top:75px;" >
+ 
+ <!--  <div id="container" style="width: 25%;float:left; margin-left:12px;margin-top:75px;border-style: solid;border-radius: 25px;" >
+  -->
+</div>
+
+<!-- div style="width: 40%;position:relative;float:left;border-style: solid;border-radius: 25px;margin-top:6%;margin-left:24px" > -->
+<div style="width: 40%;position:relative;float:left;margin-top:6%;margin-left:24px" >
+
+<!-- <label for="level1">Level1:</label>
+<select id="level1" name="level1" >
+<option value="select" disabled>select</option>
+</select>
+<br>
+<label for="level2">Level2:</label>
+<select id="level2" name="level2" >
+<option value="select" disabled>select</option>
+</select> -->
+
+<div id="container2" style="margin-left:25px;"></div>
+<label for="Lastlevel" style="margin-left:25px">Level n:</label>
+<select id="Lastlevel" style="margin-left:25px; margin-top:25px" name="Lastlevel" size="5">
+<option value="select" disabled>select</option>
+
+</select>
+
+
+
+</div>
+
+<!-- <div id ="tab" style="width: 25%;float:right;border-style: solid;border-radius: 25px;margin-top:6%;margin-right:4%;"> -->
+<div id ="tab" style="width: 25%;float:right;margin-top:6%;margin-right:4%;">
+<button type="submit" value="Upload" id="addlevel" class="btn btn-primary"  style="margin-left:-64px;width:102px; margin-top:24px; font-family: AccentureRotis;">Add level</button>
+<br><br>
+<button type="submit" value="Upload" id="removelevele" class="btn btn-primary"  onclick="removed()" style="margin-left:44px; width:102px; margin-top:-95px;  font-family: AccentureRotis;">Remove level</button>
+<br><br>
+<button type="submit" value="Upload" id="submitt" class="btn btn-primary"  onclick="finalsubmit()"  style="margin-bottom:-4992px;  font-family: AccentureRotis;">Submit</button>
+</div>
+</div>
+</body>
+
+
+
+
+<script>
+var data;
+	var m =1;
+$(document).ready(function(){
+    $("#addlevel").click(function(){
+	//var data= ["Trade Family", "Currency", "Portfolio", "Trade Group","Trade Type","Nominal","Counterparty"]
+	max=data.length-1;
+//	console.log(max);
+       if(m==0)
+	   {
+	   m=m+1;
+	   }
+	   if(m<0)
+	   {
+	   m=1;
+	   }
+	   if(m<=max)
+	   {
+       var select = $('<select>').prop('id', 'level_'+m)
+                    .prop('name', 'level_'+m).prop('class', 'drops').prop('style','display: block')
+		
+		$("#container2").append(('<label id=levelL_'+m+'>'+'level_'+m+'</label>'));
+        $("#container2").append(select);   
+		  /*$("#container2").append('<br>'); */
+		  
+		  headers(data,m)
+		  m++;
+		  }
+		  else{
+		  alert("you cant add levels more than headers");
+		  }
+    })    
+	
+});
+
+
+function headers(typval,m)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#level_'+m).append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		
+    }
+	
+	function removed() {
+z=m-1;
+if(document.getElementById("level_"+z))
+{
+var elem = document.getElementById("level_"+z);
+  elem.parentNode.removeChild(elem);
+
+var elem2 = document.getElementById("levelL_"+z);
+elem2.parentNode.removeChild(elem2);
+ $('span').remove();
+}
+
+m=z;
+
+}
+/*
+function getready()
+
+{
+
+   var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	
+	fd.append("logtype",document.getElementById("typepat").value.trim());
+	txtFile.open("POST", "../cgi-bin/hierarchy_columns.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			selecttrade(allText);
+			}			
+		};
+		txtFile.send(fd);
+}
+
+ function selecttrade(typval)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#typo').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		
+    }
+*/
+
+var jsonObj2 = [];
+var jsonObj3 = [];
+function finalsubmit()
+{
+
+
+
+
+if(!($('#Lastlevel option').length>1))
+{
+alert("Last level cant be empty, kindly move headers from table to last level");
+return false;
+}
+
+if(!(document.getElementById("level_1")))
+{
+alert("you cant submit without adding atleast one level");
+return false;
+}
+var e= $('.drops').length;
+
+for(c=1;c<=e;c++)
+{
+var g= document.getElementById("level_"+c).value
+
+jsonObj3.push(g);
+
+}
+
+$("#Lastlevel option").each(function()
+{
+if ($(this).val().toLowerCase() != "select")
+{
+  
+    jsonObj3.push($(this).val());
+}
+});
+
+
+var repli = jsonObj3.filter((s => v => s.has(v) || !s.add(v))(new Set));
+
+//console.log(repli);
+if(repli!="")
+{
+alert("All level should contain different values and must not be same");
+jsonObj3 = [];
+return false;
+}
+
+
+
+for(c=1;c<=e;c++)
+{
+var g= document.getElementById("level_"+c).value
+item = {};
+item["level_"+c] = g;
+jsonObj2.push(item);
+
+}
+
+
+$("#Lastlevel option").each(function()
+{
+if ($(this).val().toLowerCase() != "select")
+{
+   item = {};
+   var w= e+1;
+	item["level_"+w] = $(this).val();
+    jsonObj2.push(item);
+}
+});
+
+var json_text = JSON.stringify(jsonObj2, null, 2);
+console.log(json_text);
+var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("json_data",json_text);
+	
+	txtFile.open("POST", "../cgi-bin/save_hierarchy.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;	
+			alert("hierarchy save successfully");
+			}			
+		};
+		txtFile.send(fd);
+document.getElementById("submitt").disabled = true;
+}
+
+
+function upload_files()
+{
+
+fileExtension = document.getElementById("Tradeint").value.substring(document.getElementById("Tradeint").value.lastIndexOf(".") + 1, document.getElementById("Tradeint").value.length);
+
+
+if (fileExtension.toLowerCase() == "xml")
+{
+
+var file = document.getElementById("Tradeint").files[0];
+var reader = new FileReader();
+reader.onload = function (e) {
+    var textArea = document.getElementById("txt1");
+    textArea.value = e.target.result;
+	var fileInput = document.getElementById('Tradeint');   
+	var filename = fileInput.files[0].name;
+	console.log(filename)
+	localStorage.setItem("Fname",filename);
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("values",e.target.result);
+	fd.append("filename",filename);
+	
+	txtFile.open("POST", "../cgi-bin/savexml.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;	
+			alert(allText);
+			}			
+		};
+		txtFile.send(fd);
+};
+reader.readAsText(file);
+alert("File uploaded...");
+return true;
+}
+else
+{
+alert("Kindly select a valid file for upload");
+document.getElementById('Tradeint').value=null;
+return false; 
+}
+
+}
+
+
+
+
+/*var x=1;
+function myFunction() {
+
+if (x>8)
+{
+alert("Limit exceed! cant add more than 4 values");
+$(myForm).find("input:not(input[type='submit'])").remove();
+x=1;
+}
+else
+{
+   var d = document.getElementById('myForm');
+   d.innerHTML += "<input type='text' name='tbox' placeholder='Header' id='myinput"+ x++ +"' required />";
+    d.innerHTML += "<input type='text' name='tbox' placeholder='HeaderPath' id='myinput"+ x++ +"' required /> <p>";
+	}
+}*/
+
+
+function deleteNode1(){
+   $(myForm).find("input:not(input[type='submit'])").remove();
+   x=1;
+}
+
+
+  
+
+function getvaluesd() {
+
+	y=$(myForm).find("input:not(input[type='submit'])").length;
+	for(i=1;i<y;i++)
+	{
+	if(document.getElementById('myinput'+y).value == "")
+	{
+    var valid="false";
+	}
+	}
+	
+	if(valid=="false")
+	{
+	alert("Header and headerpath values should be filled");
+	}
+	else 
+		{
+
+            tempObj = {};
+		    	
+			for(i=1;i<$(myForm).find("input:not(input[type='submit'])").length;i++)
+			{
+			j=i+1;
+                tempObj[$('#myinput'+ i).val()] = $('#myinput'+ j).val();
+			i++;
+			}
+			
+	var json_text = JSON.stringify(tempObj, null, 2);
+	console.log(json_text);
+	var dropdown1= document.getElementById("typo").value;
+	
+	var dropdown2= document.getElementById("type").value;
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("typology",dropdown1.trim());
+	fd.append("patterntype",dropdown2.trim());
+	fd.append("filename",localStorage.getItem("Fname"));
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("headerjson",json_text);
+	txtFile.open("POST", "../cgi-bin/murex_validation.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			alert(allText);
+			}			
+		};
+		txtFile.send(fd);
+	}
+}
+
+
+function hoop2()
+{
+var jsonObj=[];
+if (!$('table [type="checkbox"]').is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+	}
+	
+		
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(1).text().trim()));
+	
+	}
+	});
+    level1values2(jsonObj)
+	//console.log(jsonObj);
+}
+
+
+function level1values2(typval)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#level2').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		
+    }
+
+
+function hoop5()
+{
+var jsonObj=[];
+if (!$('table [type="checkbox"]').is(':checked')) {
+
+	alert("Select atleast one header to proceed further");
+    return false;
+	}
+	
+		
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(1).text().trim()));
+	
+	}
+	});
+	
+    level1values5(jsonObj)
+	//console.log(jsonObj);
+}
+
+
+function level1values5(typval)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#Lastlevel').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+	
+   
+}
+
+
+
+
+
+
+
+
+function hoop3()
+{
+var jsonObj=[];
+if (!$('table [type="checkbox"]').is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+	}
+	
+		
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(1).text().trim()));
+	
+	}
+	});
+    level1values3(jsonObj)
+	//console.log(jsonObj);
+}
+
+
+function level1values3(typval)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#level3').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		
+    }
+var trp;
+function hoop4()
+{
+if(document.getElementById("level_4"))
+{
+trp= true;
+}
+
+if(trp)
+{
+var jsonObj=[];
+if (!$('table [type="checkbox"]').is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+	}
+	
+		
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(1).text().trim()));
+	
+	}
+	});
+    level1values4(jsonObj)
+	//console.log(jsonObj);
+	}
+	else{
+	alert("you must add level4 to proceed");
+	
+	}
+	
+}
+
+
+function level1values4(typval)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#level_4').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		
+    }
+
+
+function dumy()
+{
+
+//var data= ["Trade Family", "Currency", "Portfolio", "Trade Group","Trade Type","Nominal","Counterparty"]
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("logtype",document.getElementById("typepat").value.trim());
+txtFile.open("POST", "../cgi-bin/hierarchy_columns.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		//console.log(allText);
+		data = allText;
+		myfunction(allText);
+		
+		}			
+	};
+	txtFile.send(fd);
+
+
+}
+
+
+function myfunction(tableData) {
+	
+	var opt= tableData.toString().replace(/[&\\\#+()$~%'":*?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+	
+  var data = optionValues;
+  
+  var perrow = 1,
+      html = "<table id=tableMain class=HI><caption><b>Select headers</b></caption><tr>";
+
+  for (var i=0; i<data.length; i++) {    
+	 
+	 if(i>=0)
+	 {
+	
+	 html += "<td><input type='checkbox' name='tbox' class='checkBoxClass' id=i></td>";
+	 html += `<td>${data[i]}</td>`;
+	 }
+
+    var next = i+1;
+    if (next%perrow==0 && next!=data.length) {
+	  
+      html += "</tr><tr>";
+	  
+    }
+  }
+  
+  html += "</tr></table>";
+ 
+ 
+ 
+ 	document.getElementById("container").innerHTML = html;
+/*	var jsonObj = [];
+$("#levelbutton1").click(function () {
+	
+	
+
+	if (!$(i).is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+}
+
+ 
+	
+	
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(0).text().trim()));
+	
+  }
+});
+
+//console.log(jsonObj);
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("logtype",localStorage.getItem("ttype"));
+fd.append("reportlist",JSON.stringify(jsonObj));
+txtFile.open("POST", "../cgi-bin/update_reports.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		alert("Changes updated on existing reports");
+		location.reload();
+		}			
+	};
+	txtFile.send(fd);
+});
+*/
+
+}
+
+function hoop()
+{
+var jsonObj=[];
+if (!$('table [type="checkbox"]').is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+	}
+	
+		
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(1).text().trim()));
+	
+	}
+	});
+    level1values(jsonObj)
+	//console.log(jsonObj);
+}
+
+
+function level1values(typval)
+	{
+	
+	var opt= typval.toString().replace(/[&\/\\#+()$~%.'":*?<>{}]/g, '')
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+        for (var i=0;i<optionValues.length;i++){
+            jQuery('#level1').append(jQuery("<option></option>").val(optionValues[i]).text(optionValues[i]))
+        }
+		
+    }
+
+	var i =4;
+	
+
+
+
+
+
+
+
+
+	
+</script>
+</html>

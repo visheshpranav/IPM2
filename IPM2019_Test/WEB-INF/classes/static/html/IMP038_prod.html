@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fault Model</title>
+<script  src="chart_files/d3.min.js"></script>
+<script  src="chart_files/d3plus.js"></script>
+<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+</head>
+<body>
+<style>
+	.btnn {
+		background-color: DodgerBlue;
+		border: none;
+		color: white;
+		padding: 10px;
+		cursor: pointer;
+		font-size: 18px;
+	}
+</style>
+  <script>
+  
+  function clickDownload(){
+    
+	var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname")	
+	var filename = "Reports/"+foldername+"/OSP_queuecount.csv";
+	//var filename = "Reports/"+localStorage.getItem("IMP035_filename")+".csv";
+	window.open(filename, '_blank');
+	}
+  </script>
+  <div>
+    <!-- <a href="javascript:clickDownload();" id ="Download_Workstream" ><img src="../images/Download.png"  style="color:black; width: 48px; height: 30px; margin-right: 30px; margin-bottom:10px; float: right;" ></a>
+ 	 --> 
+	<button class="btnn" id="Download_Workstream" onclick="javascript:clickDownload();" style="margin-top: 20px; margin-right: 30px; float: right;"><i class="fa fa-download"></i></button> 
+	<br/>
+ </div>
+<div id="viz"></div>
+<script>
+var data=[]
+/*$.getJSON('Reports/input.json', function(data) {
+    console.log('data',data);
+});*/
+var request = new XMLHttpRequest();
+var foldername= localStorage.getItem("ipm_UserId") + "_"+ localStorage.getItem("reportname");
+request.open('GET', 'Reports/'+foldername+'/OSP_queuecount.json', true);
+request.onload = function(){ 
+    if (request.status >= 200 && request.status < 400) {
+    // Success!
+    var data = JSON.parse(request.responseText);
+    console.log('data',data);
+	var visualization = d3plus.viz()
+        .container("#viz")
+        .data(data)
+        .type("bar")
+        .id("name")
+        .x("Queue")
+        .y("count")
+        .axes({"ticks" : false})
+        .draw()              // This draws the visualization
+  }
+};
+request.send();
+
+  viz = d3.selectAll("#viz")
+          .style("width", 1000 + "px")
+          .style("height", 600 + "px");
+          /*var data = [
+{"Queue":"    Initiate Settlement    ",    "name":    "FX Swap",    "value":    8    },
+{"Queue":"    Initiate Settlement    ",    "name":    "IRS",    "value":    2    },
+{"Queue":"    Initiate Settlement    ",    "name":    "Outright",    "value":    3    },
+{"Queue":"    Initiate Settlement    ",    "name":    "Spot",    "value":    12    },
+{"Queue":"    Initiate Settlement    ",    "name":    "Xccy Swap",    "value":    13    },
+{"Queue":"    Match Contracts With Confirmation Generated Outside of MX    ",    "name":    "FX Swap",    "value":    3    },
+{"Queue":"    Match Contracts With Confirmation Generated Outside of MX    ",    "name":    "IRS",    "value":    4    },
+{"Queue":"    Match Contracts With Confirmation Generated Outside of MX    ",    "name":    "Outright",    "value":    3    },
+{"Queue":"    Match Contracts With Confirmation Generated Outside of MX    ",    "name":    "Spot",    "value":    2    },
+{"Queue":"    Match Contracts With Confirmation Generated Outside of MX    ",    "name":    "Xccy Swap",    "value":    2    },
+{"Queue":"    Monitor Next Days Netting    ",    "name":    "FX Swap",    "value":    2    },
+{"Queue":"    Monitor Next Days Netting    ",    "name":    "Spot",    "value":    2    },
+{"Queue":"    Monitor Next Days Netting    ",    "name":    "Xccy Swap",    "value":    2    },
+{"Queue":"    Monitoring of Cancelled Trades    ",    "name":    "FX Swap",    "value":    1    },
+{"Queue":"    Monitoring of Cancelled Trades    ",    "name":    "IRS",    "value":    1    },
+{"Queue":"    Monitoring of Cancelled Trades    ",    "name":    "Spot",    "value":    1    },
+{"Queue":"    Monitoring of Cancelled Trades    ",    "name":    "Xccy Swap",    "value":    1    },
+{"Queue":"    Monitoring of Trades    ",    "name":    "FX Swap",    "value":    2    },
+{"Queue":"    Monitoring of Trades    ",    "name":    "IRS",    "value":    3    },
+{"Queue":"    Monitoring of Trades    ",    "name":    "Outright",    "value":    1    },
+{"Queue":"    Monitoring of Trades    ",    "name":    "Spot",    "value":    2    },
+{"Queue":"    Monitoring of Trades    ",    "name":    "Xccy Swap",    "value":    2    },
+{"Queue":"    Net Before EOD    ",    "name":    "FX Swap",    "value":    2    },
+{"Queue":"    Net Before EOD    ",    "name":    "Spot",    "value":    2    },
+{"Queue":"    Net Before EOD    ",    "name":    "Xccy Swap",    "value":    2    },
+{"Queue":"    Validate Contract Economic Exceptions    ",    "name":    "FX Swap",    "value":    1    },
+{"Queue":"    Validate Contract Economic Exceptions    ",    "name":    "IRS",    "value":    10    },
+{"Queue":"    Validate Contract Economic Exceptions    ",    "name":    "Outright",    "value":    1    },
+{"Queue":"    Validate Contract Economic Exceptions    ",    "name":    "Spot",    "value":    1    },
+{"Queue":"    Validate Contract Economic Exceptions    ",    "name":    "Xccy Swap",    "value":    3    },
+{"Queue":"    Validate Contract Non-Economic Exceptions    ",    "name":    "FX Swap",    "value":    5    },
+{"Queue":"    Validate Contract Non-Economic Exceptions    ",    "name":    "IRS",    "value":    9    },
+{"Queue":"    Validate Contract Non-Economic Exceptions    ",    "name":    "Outright",    "value":    6    },
+{"Queue":"    Validate Contract Non-Economic Exceptions    ",    "name":    "Spot",    "value":    6    },
+{"Queue":"    Validate Contract Non-Economic Exceptions    ",    "name":    "Xccy Swap",    "value":    6    },
+{"Queue":"    Validate Events    ",    "name":    "FX Swap",    "value":    2    },
+{"Queue":"    Validate Events    ",    "name":    "IRS",    "value":    2    },
+{"Queue":"    Validate Events    ",    "name":    "Outright",    "value":    1    },
+{"Queue":"    Validate Events    ",    "name":    "Spot",    "value":    1    },
+{"Queue":"    Validate Events    ",    "name":    "Xccy Swap",    "value":    1    },
+{"Queue":"    doc_settlementMsg_errorQueue    ",    "name":    "FX Swap",    "value":    1    },
+{"Queue":"    doc_settlementMsg_errorQueue    ",    "name":    "Xccy Swap",    "value":    1    },
+{"Queue":"    doc_settlementMsg_holdMsg    ",    "name":    "FX Swap",    "value":    1    },
+{"Queue":"    doc_settlementMsg_holdMsg    ",    "name":    "Spot",    "value":    1    },
+{"Queue":"    doc_settlementMsg_holdMsg    ",    "name":    "Xccy Swap",    "value":    1    }
+]*/
+      
+</script>
+</body>
+</html>

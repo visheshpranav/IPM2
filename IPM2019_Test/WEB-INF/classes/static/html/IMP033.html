@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">		
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+  
+<style>
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+	margin-left: 10px;
+	margin-right: 10px;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+	border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+	margin-left: 10px;
+	margin-right: 10px;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+	height: 500px;
+}
+
+/* Style the close button */
+.topright {
+    float: right;
+    cursor: pointer;
+    font-size: 28px;
+}
+
+.topright:hover {color: red;}
+
+.input-group-addon{
+	display: inline-block;
+	height: 24px;
+	width: 1%;
+	white-space: nowrap;
+	vertical-align: middle;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+	cursor: pointer;
+	border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#Rollview {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 90%;
+	margin-left:15px;
+}
+
+#Rollview td, #Rollview th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#Rollview tr:nth-child(even){background-color: #f2f2f2;}
+
+#Rollview tr:hover {background-color: #ddd;}
+
+#Rollview th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #5d8aa8;
+    color: white;
+}
+ 
+#tbl_content, #bp_tbl_content {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 98%;
+    margin-left:30px;
+}
+ 
+#tbl_content td, #tbl_content th, #bp_tbl_content td, #bp_tbl_content th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+ 
+#tbl_content tr:nth-child(even){background-color: #f2f2f2;}
+ 
+#tbl_content tr:hover {background-color: #ddd;}
+
+#bp_tbl_content tr:nth-child(even){background-color: #f2f2f2;}
+ 
+#bp_tbl_content tr:hover {background-color: #ddd;}
+ 
+#tbl_content th, #bp_tbl_content th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #5d8aa8;
+    color: white;
+}
+object{
+height: 100%;
+width: 100%;}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 35%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+</style>
+<script src="../JScript/moment-with-locales.min.js"></script>
+<link rel="stylesheet" href="../styles/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" href="../styles/bootstrap.min.css">
+<script src="../JScript/jquery.min.js"></script>
+<script src="../JScript/bootstrap-datetimepicker.min.js"></script>
+<script src="../JScript/bootstrap.min.js"></script>
+<script type="text/javascript" src="../JScript/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../JScript/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="../JScript/jquery.tablesorter.widgets.js"></script>
+<script src="../JScript/Lapam.js"></script>
+ </head>
+<body style="font-size: 12px; background-color: #ffffff00;" onload="displayUsageDetails()" >
+  <label id="StatusMode_lbl" style="float: left; margin-left: 10px; width: 100%; margin-bottom: 10px;"></label>
+  <div id="Rollview" class="component"></div>
+  <label style="font-size: 10px; font-style: italic; margin-left: 15px; width: 100%; margin-top: 10px;">* response time is considered only for passed transactions</label>
+
+<script>
+//variable declaration
+var report_folder = localStorage.getItem("ipm_UserId") +"_"+localStorage.getItem("rep_id");
+var serviceCall_key = []
+var value_arr = []
+
+var file = "";		
+var current_date= new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+if(sessionStorage.getItem("isOnline") =="true")
+{
+	document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: green;\"></i> ";
+	document.getElementById("StatusMode_lbl").style.color = "green";
+	var filename = "";	
+	file_name = localStorage.getItem("ipm_appname") + "_" + sessionStorage.getItem("Imperative_name");
+	if(localStorage.getItem("online_tp") == "false"){
+		file = "online/"+file_name+"_ONL_"+current_date+ ".csv";
+	}
+	else{
+		file = "online/"+file_name+"_TP_"+current_date+ ".csv";
+	}
+	//file = "online\\"+localStorage.getItem("ipm_appname").toLowerCase()+"\\imp005_nfv_060319.json";
+}
+else{
+	<!-- var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name"); -->
+	<!-- file = "Reports\\"+report_folder+"\\"+file_name+".csv"; -->
+	document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: #7194b2;\"></i> ";
+	document.getElementById("StatusMode_lbl").style.color = "#7194b2";
+	var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+	file = "Reports\\" + localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id") + "\\"+file_name+".csv";
+	//file = "Reports\\5_111\\TWA_citi_ch_Non Functional View.csv"
+}
+
+// function to display user details in dropdown field
+function displayLogtime()
+{
+	var startDate = localStorage.getItem("startdate"), // some start date
+    endDate  = localStorage.getItem("enddate"),  // some end date
+    dateRange = [];           // array to hold the range 
+    var d  =    new Date(startDate);
+    d.setDate(d.getDate());
+    startDate = moment(d).format('YYYY-MM-DD HH:mm');
+    var d  =   new Date(endDate);
+	d.setDate(d.getDate());
+    endDate = moment(d).format('YYYY-MM-DD HH:mm');
+	var d  = 	new Date(startDate);
+	d.setDate(d.getDate()+1);
+	startDate1 = moment(d).format('YYYY-MM-DD HH:mm');
+
+	$('#datetimepicker1').datetimepicker({
+		minDate:startDate,
+		defaultDate: startDate});
+	 
+	$('#datetimepicker2').datetimepicker({
+		maxDate:endDate,
+		minDate:startDate});
+		
+	document.getElementById("logtime_lbl").innerHTML = "<b>" + localStorage.getItem("startdate")+" to "+localStorage.getItem("enddate") + "</b>";
+	displayUsageDetails();
+	<!-- document.getElementById("defaultOpen").disabled = true; -->
+	<!-- document.getElementById("Btn_dc").disabled = true; -->
+	<!-- document.getElementById("Btn_bp").disabled = true; -->
+}
+
+// function to display usage and failure details in Usage vs Failure tab
+function displayUsageDetails()
+{
+	getObservation();
+	$("#Rollview").empty();
+	$.get(file, function(data) 
+	 {
+		$("#tbl_usage").empty();
+		//$('table tr').not(':nth-child(1)').remove();
+		var build = '<table id="tbl_usage" class="tablesorter">\n';
+		var rows = data.split("\n");
+		var isRole = false;
+		var i = true;
+		rows.forEach( function getvalues(thisRow) 
+		{
+			if(thisRow != "" && rows.length > 2)
+			{
+			var columns = thisRow.split(",");
+			if (columns[0] == "Service Call"){
+				build +=" <thead> <tr>" ;
+				for(var i=0;i<columns.length;i++){
+					if(columns[i] == "Service Call")
+					{
+					build += "<th>Service Call/Method</th>\n"; 
+					}
+					else{
+					build += "<th>" + columns[i] + "</th>\n"; 
+					}
+				}		
+				build +="</tr></thead>\n <tbody> ";
+				i = false;
+			}
+			else{
+				
+				build += "<tr><td><a href='javascript:serviceCallUsage(\""+columns[0]+"\");' style='text-decoration: underline;'>" + columns[0] +"</a></td>"
+				
+				for(var i=1;i<columns.length;i++){
+					build += "<td>" + columns[i] + "</td>"; 
+				}
+				build += "</tr>\n";
+			
+			}
+		}})
+		build += "</tbody></table>";
+		$('#tbl_usage').tablesorter();
+		//$('#tbl_usage').DataTable().order([0, 'asc']);
+		$('#Rollview').append(build);	
+	 });			
+}
+
+//funtion to retrieve the data for particular Service Call
+function serviceCallUsage(serviceCall)
+{
+	//window.location.href = "IMP005_drilldown.html?serviceCall="+serviceCall+"&user="+localStorage.getItem('username')+"&logname="+localStorage.getItem("reportname").toLowerCase();
+	window.location.href = "IMP005_drilldown.html?serviceCall="+serviceCall;
+}
+
+
+</script>
+</body>
+</html>

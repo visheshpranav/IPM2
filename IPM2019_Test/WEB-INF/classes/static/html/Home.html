@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>IPM</title>
+
+    <!-- Custom CSS -->
+    <link href="../styles/landing-page.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../styles/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+	<!--<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">-->
+	<!-- Bootstrap Core JavaScript -->
+    <script src="../JScript/jquery.min.js"></script>
+	<!-- jQuery -->
+    <script src="../JScript/jquery.js"></script>
+	<script src="../JScript/Home.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../JScript/bootstrap.min.js"></script>
+	
+<style>
+
+@font-face {
+font-family: 'AccentureRotis';
+src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+}
+
+body {
+	margin: 0;
+	font-family: AccentureRotis,Arial,sans-serif;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #212529;
+	text-align: left;
+	background-color: #fff;
+}
+.p-2 {
+    padding: .5rem!important;
+}
+@media (min-width: 768px)
+.container {
+    max-width: 720px;
+}
+@media (min-width: 576px)
+.container {
+    max-width: 540px;
+}
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+		.bar {
+			height: 40px;
+			border-left: 3px solid #000000;
+		}
+		.p-1 {
+    padding: .25rem!important;
+}
+		.mt-2, .my-2 {
+    margin-top: .5rem!important;
+}
+		.header-logo
+		{
+			width: 120px;
+			font-size: 1rem;
+		}
+		.ttp-title {
+			font-family: "Patua One", cursive;
+			vertical-align: middle;
+			flex-grow: 1;
+			align-items: center;
+			margin: 0;
+		}
+		.pat-text {
+			font-size: 0.7rem;
+			padding-left: 5px;			
+		}
+		.ml-auto, .mx-auto {
+			margin-left: auto!important;
+		}
+		.mr-auto, .mx-auto {
+			margin-right: auto!important;
+		}
+		.m-0 {
+			margin: 0!important;
+		}
+		
+.accLogo {
+  float: right;
+  margin-right: 0px;
+  width: 140px;
+}
+
+.TTLMHeader {
+  background: #000;
+  float: left;
+  width: 100%;
+  display:block;
+}
+
+.TTLMHeader h2 {
+    color: #fff;
+    width: 60%;
+    float: left;
+    margin: 5px 10px 5px 10px;
+    font-size: 26px;
+    font-weight: normal;
+  display:block;
+}
+
+.TTLMHeader p {
+    color: wheat;
+    float: left;
+    width: 60%;
+    margin: 0px 10px 0px 15px;
+    font-size: 12px;
+  display:block;
+}
+
+#Img_logo {
+  cursor: pointer;
+  width: 5%;
+  margin-top: 5px;
+  margin-left: 5px;
+  float: left;
+}
+</style>
+<!-- Bootstrap Core CSS -->
+<link href="../styles/bootstrap.min.css" rel="stylesheet">
+
+<script type="text/javascript">
+
+
+    $(window).load(function(){
+      
+// popover demo
+$("[data-toggle=popover]")
+.popover({html:true,
+container: "body",
+content: "<b>Version : </b>IPM5.1 \r\n<br/> <b>Product ID: </b>US 10073763 \n<br/> © 2019 Accenture Technology Consulting. All rights reserved "})
+    });
+	
+	function getJSessionId(){
+		var jsId = document.cookie.match(/JSESSIONID=[^;]+/);
+		if(jsId != null) {
+			if (jsId instanceof Array)
+				jsId = jsId[0].substring(11);
+			else
+				jsId = jsId.substring(11);
+		}
+		//alert(jsId);
+	}
+
+</script>
+
+</head>
+
+<body onload="getJSessionId()">
+	<!--<div id="top1" class="TTLMHeader">
+		<img class="accLogo" src="../images/AccentureLogo.png">
+		<h2>Touchless Testing Platform</h2>
+		<p>An Intelligent testing platform for the new IT</p>			
+	</div>-->
+	<nav class="navbar navbar-light align-items-center" style="margin-bottom: 0px; min-height:10%;">
+        <div class="container p-2" style="display: flex; margin-left: 10px; width: 99%;">
+            <a href="#" class="pr-2">
+                <img src="../images/logo.jpg" alt="" class="d-inlink-block mt-1 align-top header-logo" style="margin-right: 5px;">
+            </a>
+            <span class="p-1 mt-2 bar"></span>
+            <!--<span class="h3 d-inline ttp-title mt-3" style="margin-top: 10px; font-weight:bold;font-family: AccentureRotis,Arial,sans-serif;">Touchless Testing Platform<p class="m-0 mx-auto pat-text"style="font-size: 11px;">Patent No: US 10073763</p></span>-->
+		<!-- 	<span class="h3 d-inline ttp-title mt-3" style="margin-top: 15px; font-weight:bold;font-family: AccentureRotis,Arial,sans-serif;">Cloud Reliability Assurance</span> -->
+            <!-- <span class="user-img">
+                <i class="fas fa-user-circle"></i>
+            </span> -->
+            <p style="font-size: 24px; font-weight: bold; margin: 10px;font-family: AccentureRotis,Arial,sans-serif;">Insightful Pattern Mining</p> 
+        </div>
+    </nav>
+
+    <!-- Header -->
+	<nav class="navbar navbar-inverse" style="position: inherit; margin-bottom: 0px;font-family: AccentureRotis,Arial,sans-serif;min-height:5%">
+  <div class="container-fluid">
+    <div class="navbar-header" style="width: 100%">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <!--<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>-->
+	  <li><a href="#" title="About" data-toggle="popover" data-placement="bottom" data-html="true" data-content="" data-trigger="hover" ><span class="glyphicon glyphicon-file"></span> About</a></li>
+    </ul>
+  </div>
+  </div>
+</nav>
+    <div class="intro-header" style="padding-bottom: 0px; padding-top: 0px; font-family: AccentureRotis,Arial,sans-serif;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="intro-message">
+                        <h1 style="font-family: AccentureRotis,Arial,sans-serif;">Insightful Pattern Mining</h1>
+                        <!--<h3>Log Analysis and Pattern Mining</h3>-->
+                        <hr class="intro-divider" style="margin-left: 100px">
+                    </div>
+				</div>
+	
+				<div class="container-login100" style="margin-top: -170px; margin-bottom: 200px; float: right; width: 300px; font-family: AccentureRotis,Arial,sans-serif;">
+					<div class="login100-form validate-form" method="post" style="text-align: center; padding-top: 20px; padding-bottom: 20px; background-color: #0000005e; border-radius: 10px; position: relative; color: black;">
+						<span class="login100-form-title" style="color: darkgrey; font-size: 24px; color: white; ">
+							Sign In
+						</span>
+
+						<div class="wrap-input100 validate-input" style="margin-bottom: 20px; margin-top: 20px; ">
+							<input class="input100" type="text" name="username" id="Txt_Username" placeholder="Username" style="border-radius: 10px;width: 150px; border: solid; border-width: thin; padding-left: 5px;">
+							<span class="focus-input100"></span>
+							<span class="symbol-input100" style="color: white;">
+								<i class="fa fa-user" aria-hidden="true"></i>
+							</span>
+						</div>
+
+						<div class="wrap-input100 validate-input" style="margin-bottom: 20px; margin-top: 20px;">
+							<input class="input100" type="password" name="pass" id="Txt_Password" placeholder="Password" style="border-radius: 10px;width: 150px;border: solid; border-width: thin; padding-left: 5px;" onkeydown="if (event.keyCode == 13)
+                        document.getElementById('Btn_Login').click()">
+							<span class="focus-input100"></span>
+							<span class="symbol-input100" style="color: white;">
+								<i class="fa fa-lock" aria-hidden="true"></i>
+							</span>
+						</div>
+
+						<div class="container-login100-form-btn">
+							<button class="login100-form-btn" id="Btn_Login" style="border-radius: 10px; border: solid; width: 80px; border-color: #000005; border-width: thin;font-weight: bold;" onclick="validate()">Login</button>
+						</div>
+						
+						<div class="wrap-input100 validate-input" style="margin-bottom: 20px; margin-top: 20px;">
+							<select id="slt_app" class="browser-default custom-select" style="border-radius: 10px;width: 150px;border: solid; border-width: thin; padding-left: 5px; background-color: grey;" disabled>
+							  <option selected>Select</option>
+							</select>
+						</div>
+
+						<div class="container-login100-form-btn">
+							<button class="login100-form-btn" style="border-radius: 10px; border: solid; width: 80px; border-color: #000005; font-weight: bold; border-width: thin;" onclick="movetoMainPage()">Proceed</button>
+						</div>
+						<br><br>
+					<!-- 	<div class="container-login100-form-btn">
+						<a style="border-radius: 10px; border: solid; width: 80px; border-color: #000005; font-weight: bold; border-width: thin;" onclick="movetoResetPage()">Reset password</a>
+						</div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+    <!-- Footer 
+    <footer style="padding: 0px;">
+        <div class="container">
+            <div class="row">
+                    <p class="copyright text-muted small">Copyright &copy; Accenture. All Rights Reserved</p>
+            </div>
+        </div>
+    </footer> -->
+
+</body>
+
+</html>

@@ -1,0 +1,437 @@
+<html>
+<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+<style>
+#header_div
+{
+float: left;
+margin-top: 20px;
+margin-left: 30px;
+}
+#lstBox1, #lstBox2 {
+	width: 200px;
+	height: 200px;
+	padding: 0;
+	margin-top: 10px;
+}
+#lstBox2{
+	margin-left: 40px;
+	float: left;
+}
+#btnAllRight {
+	width: 30px;
+    margin-left: 30px;
+	margin-top: 50px;
+}
+#btnRight,#btnLeft,#btnAllLeft {
+	width: 30px;
+    margin-left: 30px;
+	margin-top: 10px;
+}
+#CompareTest_lbl1,#CompareTest_lbl{
+	width: 150px;
+	height: 200px;
+	padding: 0;
+	font-weight: bold;
+}
+#CompareTest_lbl1{
+	margin-left: 40px;
+}
+
+.btn {
+    background: #428bca;
+    border: 2px solid #428bca;
+    border-radius: 2px;
+    color: white;
+    cursor: pointer;
+    width: 130px;
+    height: 35px;
+   	line-height: 30px;
+}
+
+.btn_compare {
+	-moz-box-shadow: 0px 0px 0px 2px #9fb4f2;
+	-webkit-box-shadow: 0px 0px 0px 2px #9fb4f2;
+	box-shadow: 0px 0px 0px 2px #9fb4f2;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #7892c2), color-stop(1, #476e9e));
+	background:-moz-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:-webkit-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:-o-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:-ms-linear-gradient(top, #7892c2 5%, #476e9e 100%);
+	background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#7892c2', endColorstr='#476e9e',GradientType=0);
+	background-color:#7892c2;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #4e6096;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:16px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #283966;
+	margin-left: -310px; margin-top: 290px;
+}
+
+#Tbl_Compare {
+  border: 1px solid #1C6EA4;
+  width: 75%;
+  text-align: left;
+  border-collapse: collapse;
+  border-radius: 10px;
+}
+#Tbl_Compare td, #Tbl_Compare th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+#Tbl_Compare th {
+  text-align: center;
+}
+#Tbl_Compare tbody td {
+  font-size: 14px;
+}
+#Tbl_Compare tr:nth-child(even) {
+  background: #f2f2f2;
+}
+
+</style>
+<script type="text/javascript" src="../JScript/jquery-2.1.1.min.js"></script>
+<script src="../JScript/Lapam.js"></script>
+<body onload="getExistingLognameSAP()">
+<div>
+	<div id="header_div" style="margin-left: 200px;">
+		<label id="CompareTest_lbl">List of Build: </label></br>
+		<select multiple="multiple" id='lstBox1' ></select>
+	</div>
+	<div id="header_div"><!--class="subject-info-arrows text-center"-->
+		<input type='button' id='btnAllRight' value='>>' class="btn btn-default" /><br />
+		<input type='button' id='btnRight' value='>' class="btn btn-default" /><br />
+		<input type='button' id='btnLeft' value='<' class="btn btn-default" /><br />
+		<input type='button' id='btnAllLeft' value='<<' class="btn btn-default" />
+	</div>
+	<div id="header_div">
+	  <label id="CompareTest_lbl1">Selected Builds: </label></br>
+	  <select multiple="multiple" id='lstBox2' ></select>
+	</div>
+
+	<input type="button" value="Compare" id ="compare_SAP" class="btn_compare" onclick="compare_testSAP();"><br/>
+	<table align='left' style="margin-left: 100px; margin-top: 20px;" cellspacing=2 cellpadding=5 id="Tbl_Compare" border=1></table>
+</div>
+
+<script>
+	$(function() {
+		$('#btnRight').click(function(e) {
+			var selectedOpts = $('#lstBox1 option:selected');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox2').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnAllRight').click(function(e) {
+			var selectedOpts = $('#lstBox1 option');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox2').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnLeft').click(function(e) {
+			var selectedOpts = $('#lstBox2 option:selected');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox1').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+		$('#btnAllLeft').click(function(e) {
+			var selectedOpts = $('#lstBox2 option');
+			if(selectedOpts.length == 0) {
+				alert("Nothing to move.");
+				e.preventDefault();
+			}
+			$('#lstBox1').append($(selectedOpts).clone());
+			$(selectedOpts).remove();
+			e.preventDefault();
+		});
+	});
+
+var rep_list = new Array();
+
+
+	getObservation();
+function getExistingLognameSAP()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();	
+	var prj_name = localStorage.getItem("Project");
+	var user_id = localStorage.getItem("ipm_UserId");
+	fd.append("prj_name",prj_name);
+	fd.append("user_id",user_id);
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var outputVal = this.responseText.trim();
+			var output_mat = outputVal.match(/\[\]/g);
+			if(outputVal != "" && output_mat != "[]")
+			{
+				var project_name_arr = this.responseText.split("'");
+				for (var prj_i=1; prj_i<project_name_arr.length ; prj_i=prj_i+2) {
+					var opt = document.createElement("option");
+					opt.text = project_name_arr[prj_i];
+					rep_list.push(project_name_arr[prj_i+1].split(')')[0].replace(', ','') + " _ "+ project_name_arr[prj_i]);
+					document.getElementById("lstBox1").options.add(opt);
+				} 
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getSAPLogName.py",true);
+     xhttp.send(fd);
+	/*var opt = document.createElement("option");
+	opt.text = "2.6.1035";
+	document.getElementById("lstBox1").options.add(opt);
+	var opt1 = document.createElement("option");
+	opt1.text = "2.6.1135";
+	document.getElementById("lstBox1").options.add(opt1);*/
+}
+
+function compare_testSAP()
+{
+	/*var tableHeaderRowCount = 0;
+	var table = document.getElementById("Tbl_Compare");
+	var rowCount = table.rows.length;
+	for (var x=tableHeaderRowCount; x < rowCount; x++)
+	{
+		if(table.rows.length > 0)
+		{
+			table.deleteRow(tableHeaderRowCount);
+		}
+	}
+	var str = "Tcode,Build 2.6.1035,Build 2.6.1135\n['MB52,1.6,2.6', 'ME23N,10.3,8.3', 'ME21N,3.17,0.87', 'VF03,8.92,8.92', 'AS03,25.9,21.9', 'VBO3,20.8,24.8', 'VBOF,0.25,0.29', 'FBZ0,104.88,64.88', 'FBL5N,11.84,11.84', 'KEDR,8.07,8.07', 'VA32,3.59,3.59', 'FB03,2.0,2.0', 'ME2M,12.96,0.96', 'MM03,3.26,3.26', 'VK11,2.32,4.32''VA01,11.2,8.2', 'VA03,0.22,0.22', 'IB11,60.51,6.81', 'MIRO,42.02,42.02', 'IHC2,0.63,0.63']";
+	var Compare_values = str.split("\n");
+	var header_row = Compare_values[0].split(",");
+	var header = table.createTHead();
+	var hdr_row = header.insertRow(0);
+	for (var hdr_i = 0; hdr_i < 3; hdr_i = hdr_i + 1)
+	{
+		var Col_val = hdr_row.insertCell(hdr_i);
+		Col_val.innerHTML = header_row[hdr_i].toString();
+		Col_val.style.backgroundColor = "#023e72";
+		Col_val.style.textAlign="center";
+		Col_val.style.fontWeight="bold";
+		Col_val.style.fontSize="18px";
+		Col_val.style.color="white";
+		if(hdr_i < 2)
+		{
+			Col_val.rowSpan = 2;
+		}
+		if(hdr_i == 1)
+		{
+			Col_val.innerHTML = "Response Time (ms)-2.6.1035";
+		}
+		if(hdr_i == 2)
+		{
+			Col_val.colSpan = header_row.length - 2;
+			Col_val.innerHTML = "Response Time (ms)";
+		}
+	}
+	var hdr_row1 = header.insertRow(1);
+	for (var hdr_i = 0; hdr_i < header_row.length-2; hdr_i = hdr_i + 1)
+	{
+		var row_col_val = hdr_row1.insertCell(hdr_i);
+		row_col_val.innerHTML = header_row[hdr_i + 2].toString();
+		row_col_val.style.backgroundColor = "#023e72";
+		row_col_val.style.textAlign="center";
+		row_col_val.style.fontWeight="bold";
+		row_col_val.style.fontSize="18px";
+		row_col_val.style.color="white";
+	}
+	var Compare_row = Compare_values[1].split("'");
+	var row_count = 2;
+	for (var comp_i = 1; comp_i < Compare_row.length - 1; comp_i = comp_i + 2)
+	{
+		var dataVal = Compare_row[comp_i].split(",");
+		var row = table.insertRow(row_count);
+		for (var col_i = 0; col_i < dataVal.length; col_i = col_i + 1)
+		{
+			var Col_val = row.insertCell(col_i);
+			Col_val.innerHTML = dataVal[col_i].toString();
+			if(col_i>0)
+			{
+				Col_val.style.textAlign="center";
+				if(col_i>1)
+				{
+					if(Number(dataVal[1]) < Number(dataVal[col_i]))
+					{
+						Col_val.style.backgroundColor = "#ff0000";
+					}
+					else
+					{
+						Col_val.style.backgroundColor = "#008000";
+					}
+				}
+			}
+		}
+		row_count++;
+	}
+	parent.document.getElementById('top').style.display = 'none';
+
+		function call_RCA() {*/
+	
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	var x = document.getElementById("lstBox2"); 
+	var log_List = new Array();
+	var prj_List = new Array();
+	var log_val = "";
+	var proj_val = "";
+	for (i = 0; i < x.length; i++) { 
+		log_List.push(x.options[i].text);
+		if(log_val != "")
+		{
+			log_val = log_val + ";" + x.options[i].text
+		}
+		else
+		{
+			log_val = x.options[i].text
+		}
+		
+		for (j = 0; j < rep_list.length; j++) { 
+			if(x.options[i].text == rep_list[j].split(" _ ")[1])
+			{
+				if(proj_val != "")
+				{
+					proj_val = proj_val + ";" + rep_list[j].split(" _ ")[0]
+				}
+				else
+				{
+					proj_val = rep_list[j].split(" _ ")[0]
+				}
+				prj_List.push(rep_list[j].split(" _ ")[0])
+				break;
+			}
+		}
+	}
+	
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("rep_id",proj_val);
+	fd.append("report_name",log_val);
+	fd.append("function_name","SAPCompareFiles");
+	fd.append("app_name","empty");
+	fd.append("uploaded_filename","empty");
+	fd.append("mode","OFL");
+	fd.append("Imp_id","empty");
+	fd.append("observation","empty");
+	fd.append("imp_name","empty");
+	fd.append("start_date","empty");
+	fd.append("end_date","empty");
+	fd.append("search_key","empty");
+	
+	if(x.length > 0)
+	{
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var tableHeaderRowCount = 0;         
+            var table = document.getElementById("Tbl_Compare");
+            var rowCount = table.rows.length;
+            for (var x=tableHeaderRowCount; x < rowCount; x++) 
+            {
+                if(table.rows.length > 0)
+                {
+                    table.deleteRow(tableHeaderRowCount);
+                }              
+            }             
+            var str = this.responseText;
+            var Compare_values = str.split("\n");
+			var header_row = Compare_values[0].split(",");
+			var header = table.createTHead();			
+			var hdr_row = header.insertRow(0);
+			for (var hdr_i = 0; hdr_i < 3; hdr_i = hdr_i + 1)
+            {
+				var Col_val = hdr_row.insertCell(hdr_i);
+				Col_val.innerHTML = header_row[hdr_i].toString();
+				Col_val.style.backgroundColor = "#023e72";
+				Col_val.style.textAlign="center";
+				Col_val.style.fontWeight="bold";
+				Col_val.style.fontSize="18px";
+				Col_val.style.color="white";
+				if(hdr_i < 2)
+				{
+					Col_val.rowSpan = 2;
+				}
+				if(hdr_i == 1)
+				{
+					Col_val.innerHTML = "Expected Response Time (Seconds)";
+				}
+				if(hdr_i == 2)
+				{
+					Col_val.colSpan = header_row.length - 2;
+					Col_val.innerHTML = "Average Response Time (Seconds)";
+				}
+			}
+			var hdr_row1 = header.insertRow(1);
+            for (var hdr_i = 0; hdr_i < header_row.length-2; hdr_i = hdr_i + 1)
+            {
+				var row_col_val = hdr_row1.insertCell(hdr_i);
+				row_col_val.innerHTML = header_row[hdr_i + 2].toString();
+				row_col_val.style.backgroundColor = "#023e72";
+				row_col_val.style.textAlign="center";
+				row_col_val.style.fontWeight="bold";
+				row_col_val.style.fontSize="18px";
+				row_col_val.style.color="white";
+            }
+			var Compare_row = Compare_values[1].split("'");
+            var row_count = 2;
+            for (var comp_i = 1; comp_i < Compare_row.length - 1; comp_i = comp_i + 2)
+            {
+				var dataVal = Compare_row[comp_i].split(",");
+                var row = table.insertRow(row_count);
+				for (var col_i = 0; col_i < dataVal.length; col_i = col_i + 1)
+				{
+					var Col_val = row.insertCell(col_i);
+					if(col_i == 0)
+					{
+						dataVal[col_i] = dataVal[col_i].replace('<','&lt;').replace('>','&gt;');
+					}					
+					Col_val.innerHTML = dataVal[col_i].toString();
+					if(col_i>0)
+					{
+						Col_val.style.textAlign="center";
+						if(col_i>1)
+						{
+							if(Number(dataVal[1]) < Number(dataVal[col_i]))
+							{
+								Col_val.style.backgroundColor = "#ff0000";
+							}
+							else
+							{
+								Col_val.style.backgroundColor = "#008000";
+							}
+						}
+					}
+				}
+                row_count++;
+            }
+			parent.document.getElementById('top').style.display = 'none';
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/Decrypt_PyFile.py",true);
+     xhttp.send(fd);
+	 }
+	 else{
+		alert("Kindly select the logs to compare.")
+	 }	
+	
+	
+}
+
+
+
+	</script>
+</html>

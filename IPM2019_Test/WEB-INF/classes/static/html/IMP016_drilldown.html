@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+body { font: 12px Arial;}
+
+path { 
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+</style>
+<body>
+<button onclick="goBack()" style="float: right; margin-right: 20px;">Back</button>
+<!-- load the d3.js library -->    
+<script src="../JScript/d3.v3.min.js"></script>
+
+<script>
+
+function goBack(){
+	window.location.href = "IMP016.html";
+}
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 20, bottom: 30, left: 50},
+    width = 600 - margin.left - margin.right,
+    height = 350 - margin.top - margin.bottom;
+
+// Parse the date / time
+var parseDate = d3.time.format("%Y-%m-%dT%H:%M").parse;
+
+var formatTime = d3.time.format("%Y-%m-%d %H:%M");
+
+// Set the ranges
+var x = d3.time.scale().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+// Define the axes
+var xAxis = d3.svg.axis().scale(x)
+    .orient("bottom").ticks(5);
+
+var yAxis = d3.svg.axis().scale(y)
+    .orient("left").ticks(5);
+
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+	var tip = d3.select('body')
+      .append('div')
+      .attr('class', 'tip')
+      .html('')
+      .style('border', '1px solid steelblue')
+      .style('padding', '5px')
+      .style('position', 'absolute')
+      .style('display', 'none')
+      .on('mouseover', function(d, i) {
+        tip.transition().duration(0);
+      })
+      .on('mouseout', function(d, i) {
+        tip.style('display', 'none');
+      });
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x(d.id); })
+    .y(function(d) { return y(d.value); });
+    
+// Adds the svg canvas
+var svg = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.tsv("online/SAP/" + localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id") + "/IMP016.tsv", function(error, data) {
+    data.forEach(function(d) {
+	
+		d.tcodes = escape(d.tcodes).replace("%3C","&lt").replace("%3E","&gt").replace("%20"," ").replace("%20"," ").replace("%3D","=").replace("%28","(").replace("%29",")");
+        d.id = parseDate(d.id);
+        d.value = +d.value;
+		
+		if(d.tcodes===localStorage.getItem('tcode'))
+		{
+			console.log("Match")
+		}
+		
+    });
+
+    // Scale the range of the data
+    x.domain(d3.extent(data, function(d) { return d.id; }));
+    y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+    // Add the valueline path.
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", valueline(data.filter(function(d) { return d.tcodes===localStorage.getItem('tcode') })));
+
+    // Add the scatterplot
+    svg.selectAll("dot")
+        .data(data)
+      .enter().append("circle").filter(function(d) { return d.tcodes===localStorage.getItem('tcode') })
+        .attr("r", 3.5)
+        .attr("cx", function(d) { return x(d.id); })
+        .attr("cy", function(d) { return y(d.value); })
+		.on('mouseover', function(d, i) {
+			tip.transition().duration(0);
+			tip.style('top', y(d.value) - 5 + 'px');
+			tip.style('left', x(d.id) + 'px');
+			tip.style('display', 'block');
+			tip.html("<b>Time:</b> "+formatTime(d.id) + "</br><b>Count:</b> " + d.value); 
+		  })
+		.on('mouseout', function(d, i) {
+			tip.transition()
+			.delay(500)
+			.style('display', 'none');
+		  });
+	
+	//circles are selected again to add the mouseover functions
+	
+     /*svg.selectAll("circle")
+            .on("mouseover", function(d) { 
+            div.transition()        
+               .duration(200)       
+               .style("opacity", .9); 
+			
+				alert(d3.event.pageX);
+				alert(d3.event.pageY);
+            div.html(formatTime(d.id) + "<br/> Value - " + d.value) 
+               .style("left", (d3.event.pageX - 20) + "px")
+               .style("top", (d3.event.pageY + 6) + "px");
+              //selects the horizontal dashed line in the group
+            d3.select(this.nextElementSibling).transition()       
+                .duration(200)      
+                .style("opacity", .9);
+            //selects the vertical dashed line in the group
+            d3.select(this.nextElementSibling.nextElementSibling).transition()        
+                .duration(200)      
+                .style("opacity", .9);    
+            })  
+                
+      .on("mouseout", function(d) {       
+            div.transition()        
+               .duration(500)       
+               .style("opacity", 0);
+ 
+                  d3.select(this.nextElementSibling).transition()       
+                .duration(500)      
+                .style("opacity", 0);
+ 
+                  d3.select(this.nextElementSibling.nextElementSibling).transition()        
+                .duration(500)      
+                .style("opacity", 0); 
+        });*/
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+		
+	//http://www.d3noob.org/2012/12/adding-axis-labels-to-d3js-graph.html
+svg.append("text")      // text label for the x-axis
+        .attr("x", width / 2 )
+        .attr("y",  height + margin.bottom)
+        .style("text-anchor", "middle")
+        .text("Time duration");
+ 
+svg.append("text")      // text label for the y-axis
+        .attr("y",20 - margin.left)
+        .attr("x",50 - (height / 2))
+        .attr("transform", "rotate(-90)")
+        .style("text-anchor", "end")
+        .style("font-size", "16px")
+        .text("Count");
+ 
+//http://www.d3noob.org/2013/01/adding-title-to-your-d3js-graph.html
+svg.append("text")      // text label for chart Title
+        .attr("x", width / 2 )
+        .attr("y", 0 - (margin.top/2))
+        .style("text-anchor", "middle")
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline") 
+        .text(localStorage.getItem('tcode'));
+
+});
+
+  // it's invisible and its position/contents are defined during mouseover
+	  var tooltip = d3.select("#vis-container").append("div")
+		  .attr("class", "tooltip")
+		  .style("opacity", 0);
+
+
+	  // tooltip mouseover event handler
+	  var tipMouseover = function(d) {
+		  var html  = "Tcode: " + d.id + "<br/>" +"<span style='color:blue;'>" + d.value + "</span><br/>";
+
+		  tooltip.html(html)
+			  .style("left", (d3.event.pageX + 15) + "px")
+			  .style("top", (d3.event.pageY - 28) + "px")
+			.transition()
+			  .duration(200) // ms
+			  .style("opacity", .9) // started as 0!
+
+	  };
+	  // tooltip mouseout event handler
+	  var tipMouseout = function(d) {
+		  tooltip.transition()
+			  .duration(300) // ms
+			  .style("opacity", 0); // don't care about position!
+	  };
+
+</script>
+</body>

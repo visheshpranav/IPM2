@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../styles/bootstrap.min.css">
+<script src="../JScript/jquery.min.js"></script>
+<script src="../JScript/bootstrap.min.js"></script>
+<!-- <script src="../JScript/d3.v4.min.js"></script> -->
+<script src="../JScript/d3.v3.min.js"></script>
+<script src="../JScript/Lapam.js"></script>
+<style>
+
+@font-face {
+	font-family: 'AccentureRotis';
+	src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+	
+	body {
+		font-family: AccentureRotis;
+	 }
+	 
+.content {
+  margin: 0 auto;
+  background: white;
+}
+.drop-butt {
+  margin: 0 auto;
+  background: white;
+  width: 100%
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: AccentureRotis;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+/* Float four columns side by side */
+.column {
+  float: left;
+  width: 33.33%;
+  height: 15%;
+  padding: 0 10px;
+}
+/* Remove extra left and right margins, due to padding */
+.row {margin: 0 -5px;}
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+/* Responsive columns */
+@media screen and (max-width: 600px) {
+  .column {
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+  }
+}
+/* Style the counter cards */
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 14px;
+  margin: 8px;
+  text-align: center;
+  background-color: #f1f1f1;
+  display: grid;
+  grid-template-areas:
+    'header arrow arrow'
+    'main arrow arrow';
+  grid-gap: 10px;
+  background-color: #f1f1f1;
+  padding: 0px;
+}
+.item1 { grid-area: header; }
+.item2 { grid-area: main;}
+.item3 { grid-area: arrow;}
+.item3 img {
+    width: 55px;
+    height: 200px
+}
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'header arrow'
+    'main arrow';
+  grid-gap: 10px;
+  background-color: #f1f1f1;
+  padding: 0px;
+}
+.grid-container > div {
+  background-color: rgba(255, 255, 255);
+  text-align: center;
+  padding: 0px 0;
+  font-size: 20px;
+}
+h1 {
+  font-size: 0.80em;
+  font-weight: bold;
+}
+h2 {
+  font-size: 0.70em;
+}
+.bar { fill: orange; }
+.btn {
+	width: 250px;
+	margin: 10px;
+}
+
+.btn .caret {
+    margin-left: 0;
+    margin-top: 8px;
+    float: right;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 250px;
+    padding: 5px 0;
+    margin: -8px 10px 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<style>
+.bar {
+	fill: #5f89ad;
+}
+
+.axis {
+	font-size: 10px;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	display: none;
+}
+
+.label {
+	font-size: 10px;
+}
+</style>
+</head>
+<body onload="getBuild()">
+<div class="content">
+<div class="drop-butt">
+	<div class="row"> 
+		<div class="column">
+			<div class="dropdown">
+			<button id="b1-btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Build1
+			<span class="caret"></span></button>
+			<ul id="b1-ul" class="dropdown-menu">
+			</ul>
+			</div>
+		</div>
+		<div class="column">
+			<div class="dropdown">
+			<button id="b2-btn"class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Build2
+			<span id="b2-span" class="caret"></span></button>
+			<ul id="b2-ul" class="dropdown-menu">
+			</ul>
+			</div>
+		</div>
+		<div class="column">
+			<div class="dropdown">
+			<button id="ws-btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" disabled="true">Workstream
+			<span class="caret"></span></button>
+			<ul id="ws-ul" class="dropdown-menu">
+			</ul>
+			</div>
+			<a id="dd_val" onclick="view_dd()" style="margin-left: 20px; text-decoration: underline; " disabled="true">Click to view details</a>
+		</div>		
+		<div class="column">
+			
+		</div>
+	</div>
+</div>		
+<div class="row">
+	<div class="column">
+		<div class="card">
+				<div class="item1" style="background-color: #f1f1f1">
+					<h1>Wait Time</h1>
+					<h2>Comparing Avg. Wait Time between builds</h2>
+				</div>
+				<div id="img1" class="item3" style="display:none">
+					<img id="i1" width="50" height="70" />
+				</div>
+				<div id="hozGraph1" class="item2" style="display:none"></div>
+		</div>
+	</div>
+	<div class="column">
+		<div class="card">
+				<div class="item1" style="background-color: #f1f1f1">
+					<h1>CPU Time</h1>
+					<h2>Comparing Avg. CPU Time between builds</h2>
+				</div>
+				<div id="img2" class="item3" style="display:none">
+					<img id="i2" width="50" height="70" />
+				</div>
+				<div id="hozGraph2" class="item2" style="display:none"></div>
+		</div>
+	</div>
+	<div class="column">
+		<div class="card">
+				<div class="item1" style="background-color: #f1f1f1">
+					<h1>DB Time</h1>
+					<h2>Comparing Avg. DB Time between builds</h2>
+				</div>
+				<div id="img3" class="item3" style="display:none">
+					<img id="i3" width="50" height="70" />
+				</div>
+				<div id="hozGraph3" class="item2" style="display:none"></div>
+		</div>
+	</div>
+</div>
+	<div class="row">
+	<div class="column">
+		<div class="card">
+				<div class="item1" style="background-color: #f1f1f1">
+					<h1>Processing Time</h1>
+					<h2>Comparing Avg. Processing Time between builds</h2>
+				</div>
+				<div id="img4" class="item3" style="display:none">
+					<img id="i4" width="50" height="70" />
+				</div>
+				<div id="hozGraph4" class="item2" style="display:none"></div>
+		</div>
+	</div>
+	<div class="column">
+		<div class="card">
+				<div class="item1" style="background-color: #f1f1f1">
+					<h1>GUI Time</h1>
+					<h2>Comparing Avg. GUI Time between builds</h2>
+				</div>
+				<div id="img5" class="item3" style="display:none">
+					<img id="i5" width="50" height="70" />
+				</div>
+				<div id="hozGraph5" class="item2" style="display:none"></div>
+		</div>
+	</div>
+	<div class="column">
+		<div class="card">
+				<div class="item1" style="background-color: #f1f1f1">
+					<h1>Response Time</h1>
+					<h2>Comparing Avg. Response Time between builds</h2>
+				</div>
+				<div id="img6" class="item3" style="display:none">
+					<img id="i6" width="50" height="70" />
+				</div>
+				<div id="hozGraph6" class="item2" style="display:none"></div>
+		</div>
+	</div>
+</div>
+</div>
+<script>
+var b1_val=""
+var b2_val=""
+var ws_val=""
+document.getElementById("dd_val").disabled = "true";					
+document.getElementById("dd_val").style.color = "grey";
+document.getElementById("dd_val").style.cursor = "not-allowed";
+$("a").removeAttr('href');
+
+function view_dd()
+{
+localStorage.setItem("ws_dd",ws_val)
+if(ws_val != "")
+{
+window.location.href = "IMP028_drilldown.html?b1_val="+b1_val+"&b2_val="+b2_val+"&ws_val="+ws_val;
+}
+}
+function getBuild()
+{
+	getObservation();
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	var user_id = localStorage.getItem("ipm_UserId");
+	fd.append("user_id",user_id);
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) 
+		{
+			console.log(this.responseText.trim())
+			var outputVal = this.responseText.trim();
+			out_slice=outputVal.slice(1,-1).split("), ");
+			
+			parts=[]
+			for (var i = 0; i < out_slice.length; i++){
+				val=out_slice[i].split(", ")[0].split("(")[1]
+				parts.push(val.slice(1, -1))
+			}
+			
+			console.log(parts)
+				
+			
+			<!-- for val in out_slice: -->
+			
+			var ul = document.getElementById("b1-ul");
+
+			for (var i = 0; i < parts.length; i++) {
+				var name = parts[i];
+				var li = document.createElement('li');
+				var a = document.createElement('a');
+				a.setAttribute("id", "b1-"+i.toString());
+				a.appendChild(document.createTextNode(name));
+				li.appendChild(a);
+				ul.appendChild(li);
+			}
+			
+			var ul = document.getElementById("b2-ul");
+
+			for (var i = 0; i < parts.length; i++) {
+				var name = parts[i];
+				var li = document.createElement('li');
+				var a = document.createElement('a');
+				a.setAttribute("id", "b2-"+i.toString());
+				a.appendChild(document.createTextNode(name));
+				li.appendChild(a);
+				ul.appendChild(li);
+			}
+			
+		}
+		
+		
+		$('#b1-ul a').click(function(){
+			console.log($(this).text());
+			<!-- var b1_value=$(this).text(); -->
+			b1_val=$(this).text();
+			id=$(this).attr("id").split("-")[1];
+			console.log(id)
+			$('#b2-'+id).remove();
+			document.getElementById("b1-btn").innerHTML = b1_val;
+			if (b1_val!="" && b2_val!="" && ws_val!=""){
+				sendBuild(b1_val, b2_val, ws_val);
+			}
+				
+			
+		});
+		$('#b2-ul a').click(function(){
+			console.log($(this).text());
+			<!-- var b1_value=$(this).text(); -->
+			b2_val=$(this).text();
+			id=$(this).attr("id").split("-")[1];
+			$('#b1-'+id).remove();
+			document.getElementById("b2-btn").innerHTML = b2_val;
+			if (b1_val!="" && b2_val!=""){
+				getWS(b1_val, b2_val)
+			}
+		});
+		
+     };
+     xhttp.open("POST", "../cgi-bin/getBuild.py",true);
+     xhttp.send(fd);
+	  
+}
+
+</script>
+<script>
+		function getWS(b1_val, b2_val)
+		{
+			document.getElementById("ws-btn").disabled = false;
+			console.log("getWS()")
+			var xhttp = new XMLHttpRequest();
+			var fd = new FormData();
+			
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200)
+				{
+					var wsVal = this.responseText.trim();
+					console.log(wsVal)
+					
+					ws_slice=wsVal.split("'")
+					console.log("WS_Slice:", typeof ws_slice)
+					
+					ws_list=[]
+					for (var i = 1; i < ws_slice.length; i=i+2){
+						val=ws_slice[i]
+						ws_list.push(val.slice(1, -1))
+					}
+					
+					var ul = document.getElementById("ws-ul");
+					$('#ws-ul').empty();
+					console.log(ws_list)
+					for (var i = 1; i < ws_slice.length; i=i+2) {
+						var name = ws_slice[i];
+						var li = document.createElement('li');
+						var a = document.createElement('a');
+				
+						a.appendChild(document.createTextNode(name));
+						li.appendChild(a);
+						ul.appendChild(li);
+					}
+				};
+				
+				$('#ws-ul a').click(function(){
+				console.log($(this).text());
+				<!-- var b1_value=$(this).text(); -->
+				ws_val=$(this).text()
+				console.log("VALLLL",ws_val)
+				document.getElementById("ws-btn").innerHTML = ws_val;
+				sendBuild(b1_val, b2_val, ws_val);
+				for (i = 1; i < 7; i++) {
+					document.getElementById("img"+i).style.display = "block";
+					document.getElementById("hozGraph"+i).style.display = "block";
+				}
+				
+				sendBuild(b1_val, b2_val, ws_val);
+		});
+			 };
+			
+			fd.append("build1",b1_val);
+			fd.append("build2",b2_val);
+            var user_id = localStorage.getItem("ipm_UserId");
+            fd.append("user_id",user_id);
+			xhttp.open("POST", "../cgi-bin/get_ws.py",true);
+			xhttp.send(fd);
+		}
+		function sendBuild(b1_val, b2_val,ws_val)
+		{
+			console.log("sendBuild():",b1_val, b2_val, ws_val)
+			var xhttp = new XMLHttpRequest();
+			var fd = new FormData();
+            var user_id = localStorage.getItem("ipm_UserId");
+            fd.append("user_id",user_id);
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200)
+				{
+					var outputVal = this.responseText.trim();
+					parts=eval(outputVal);
+					console.log(outputVal);
+					for (i = 0; i < 6; i++) {
+						graphD3(parts[0][i], parts[1][i], i+1, b1_val, b2_val)
+					}
+					document.getElementById("dd_val").disabled = "false";					
+					document.getElementById("dd_val").style.color = "blue";
+					document.getElementById("dd_val").style.cursor = "pointer";
+				};
+			 };
+			
+			fd.append("build1",b1_val);
+			fd.append("build2",b2_val);
+			fd.append("workstream",ws_val);
+			xhttp.open("POST", "../cgi-bin/getBuildComparisonValue.py",true);
+			xhttp.send(fd);
+		}
+</script>
+<script>
+function graphD3(v1, v2, gnum, b1_val, b2_val){
+	
+	console.log(("i"+gnum))
+	
+	if(v1===0 || v2===0){
+        document.getElementById("i"+gnum).src = "../images/grey-arrow.jpg";
+    }
+    else if(v1>v2){
+        document.getElementById("i"+gnum).src = "../images/green-arrow.jpg";
+    }
+    else if(v1<v2){
+        document.getElementById("i"+gnum).src = "../images/red-arrow.jpg";
+    }
+    else if(v1===v2){
+        document.getElementById("i"+gnum).src = "../images/grey-arrow.jpg";
+    }
+	
+	console.log(v1, v2, gnum);
+	var data = [{"name":b1_val,"value":v1},{"name":b2_val,"value":v2}];
+	
+	
+	var margin = {
+            top: 20,
+            right: 60,
+            bottom: 20,
+            left: 80
+        };
+
+        var width = 200 - margin.left - margin.right,
+            height = 100 - margin.top - margin.bottom;
+			
+		
+		d3.select("#svg"+gnum).remove();
+		
+		
+        var svg = d3.select("#hozGraph"+gnum).append("svg")
+			.attr("id","svg"+gnum)
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var x = d3.scale.linear()
+            .range([0, width])
+            .domain([0, d3.max(data, function (d) {
+                return d.value;
+            })]);
+
+        var y = d3.scale.ordinal()
+            .rangeRoundBands([height, 0], .1)
+            .domain(data.map(function (d) {
+                return d.name;
+            }));
+
+        //make y axis to show bar names
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            //no tick marks
+            .tickSize(0)
+            .orient("left");
+
+        var gy = svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+
+        var bars = svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("g")
+
+        //append rects
+        bars.append("rect")
+            .attr("class", "bar")
+            .attr("y", function (d) {
+                return y(d.name);
+            })
+            .attr("height", y.rangeBand())
+            .attr("x", 0)
+            .attr("width", function (d) {
+                return x(d.value);
+            });
+
+        <!-- //add a value label to the right of each bar
+        bars.append("text")
+            .attr("class", "label")
+            //y position of the label is halfway down the bar
+            .attr("y", function (d) {
+                return y(d.name) + y.rangeBand() / 2 + 4;
+            })
+            //x position is 3 pixels to the right of the bar
+            .attr("x", function (d) {
+                return x(d.value) + 3;
+            })
+            .text(function (d) {
+				if (d.value.toString() == "NA")
+				{
+					return d.value.toString();
+				}
+				else				
+				{
+					return d.value.toString()+" sec";
+					}
+            });
+}
+</script>
+</body>
+</html>

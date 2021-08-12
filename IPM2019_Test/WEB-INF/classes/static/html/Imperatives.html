@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>IPM</title>
+    <link rel="stylesheet" href="../styles/rightpanel.css">
+ 
+	    <link rel="stylesheet" href="../styles/font-awesome/css/all.css">
+		<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="../styles/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../styles/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="../styles/bootstrap-datetimepicker-standalone.css">
+    <script src="../JScript/jquery.min.1.12.4.js"></script>
+    <script src="../JScript/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../JScript/moment.min.js"></script>
+    <script type="text/javascript" src="../JScript/bootstrap-datetimepicker.min.js"></script>
+    <link href="../styles/Imperatives.css" rel="stylesheet">
+	<style>
+	@font-face {
+		font-family: 'AccentureRotis';
+		src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}	
+	
+	body {
+	font-family: AccentureRotis,Arial,sans-serif;
+	}
+	</style>
+</head>
+
+<body onload="getImperativesList()">
+    <div class="alert alert-info" style="padding: 5px; margin-bottom: 0px; display: none;">
+        <strong>Info!</strong> There is no online activity for this Project.
+    </div>
+    <div class="topnav" style="font-family: AccentureRotis,Arial,sans-serif;">
+        <a class="active" href="#" id="Hdr_imperative"></a>
+        <div class="topnav-right">
+        
+        </div>
+    </div>
+   
+	<script type="text/javascript">
+	   //alert(localStorage.getItem("online_tp"));
+		if(localStorage.getItem("online_tp") == "false")
+		{
+			$("#rbn_current").attr('checked', 'checked');
+		}
+		else{
+			$("#rbn_custom").attr('checked', 'checked');
+		}
+	</script>
+        <!--<div style="width: 300px;">
+            <div class="custom-control custom-radio">
+                <input type="radio" id="rbn_current" name="dateradio" value="1" onchange="handleChange1();" style="margin-bottom: 10px;" /> Current date
+                <br/>
+                <input type="radio" id="rbn_custom" name="dateradio" value="2" onchange="handleChange1();" style=" margin-bottom: 10px;" /> Custom date
+            </div>			
+			<script type="text/javascript">
+				
+			</script>
+          -->
+    </div>
+    
+    <div id="Div_Imp_list" style="width: 80%; height: 85%; float: left; background-color: #cac7c77d; position: absolute; border-radius: 10px;  margin: 5px; -webkit-box-shadow: 8px 9px 6px 0px rgba(0,0,0,0.4); box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.4);"></div>
+    <div id="Div_Imp_list_img" style="width: 16%; float: left; height: 610px; border-radius: 10px; margin: 5px; background-position: center; background-size: contain; position: absolute; background-repeat: no-repeat;"></div>
+	<div id="Div_Imperative_sidenav" class="sidenav" style="float: right; position: sticky;"></div>
+    <textarea rows="4" cols="50" id="Lbl_observation" maxlength="1000" style="float: left; margin-left: 10px;margin-right: 10px; margin-top: 2px; width: 48%; height: 2%; margin-bottom: 0px; resize: none; border-radius: 5px; box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.4);" disabled readonly> </textarea>
+    <textarea rows="4" cols="50" id="TA_Obs" maxlength="500" style="float: left;width: 48%; height: 2%; margin-left:10px; resize: none; border-radius: 5px; box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.4);"></textarea>
+	<label id="Lbl_char" style="float: right; font-weight: normal; margin-right: 20px;"> (Max 500 characters) </label>
+	<br/>
+	<br/>
+    <div style="width: 100%; float: right;">
+		<button type="submit" value="Save" id="Btn_save" class="btn btn-primary" onclick="saveObservation()" style="width: 100px; margin-right: 2%; margin-top: 5px; margin-bottom: 5px; float: right; border-radius: 20px;">Save</button>
+    </div>
+
+    <script src="../JScript/d3.v4.min.js"></script>
+    <script src="../JScript/Lapam.js"></script>
+    <script type="text/javascript">
+        //$(window).load(function() {
+		$('[data-toggle=popover]').popover({
+			html: true,
+			content: function() {
+
+				return $('#popover_content_wrapper').html();
+			}
+		});
+        //});
+		
+		var lastSelected;
+		$(document).on('click', '[name="dateradio"]', function () {
+			lastSelected = $(this).val();
+			if (lastSelected != "1") {							
+				localStorage.setItem("online_tp", "true");
+				$("#start_datepicker").removeAttr("disabled");
+				$("#end_datepicker").removeAttr("disabled");
+				$("#Btn_search").removeAttr("disabled");
+				$("#Btn_search").css("cursor", "pointer");
+			}
+			else{	
+				localStorage.setItem("online_tp", "false");
+				$("#start_datepicker").attr("disabled", "disabled");
+				$("#end_datepicker").attr("disabled", "disabled");
+				$("#Btn_search").attr("disabled", "disabled");
+				$("#Btn_search").css("cursor", "not-allowed");
+				$('#daterange_onl').popover('hide');
+			}
+			
+		});
+				
+        $('body').on('click', function(e) {
+            $('[data-toggle=popover]').each(function() {
+                // hide any open popovers when the anywhere else in the body is clicked
+                if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                    $(this).popover('hide');
+                }
+            });
+        });
+		
+		//$(document).ready(function(){
+			$('input:radio[name="dateradio"]').change(function(){
+				if($('#rbn_current').prop('checked')){
+					alert('Option 1 is checked!');
+					localStorage.setItem("online_tp", "false");
+					$("#start_datepicker").attr("disabled", "disabled");
+					$("#end_datepicker").attr("disabled", "disabled");
+					$("#Btn_search").attr("disabled", "disabled");
+					$("#Btn_search").css("cursor", "not-allowed");
+					$('#daterange_onl').popover('hide');
+				}else{
+					alert('Option 1 is unchecked!');
+					localStorage.setItem("online_tp", "true");
+					$("#start_datepicker").removeAttr("disabled");
+					$("#end_datepicker").removeAttr("disabled");
+					$("#Btn_search").removeAttr("disabled");
+					$("#Btn_search").css("cursor", "pointer");
+				}
+			});
+		//});
+
+        function handleChange1() {
+            if ($("input:radio[name=dateradio]:checked").val() == '1') {
+                localStorage.setItem("online_tp", "false");
+                $("#start_datepicker").attr("disabled", "disabled");
+                $("#end_datepicker").attr("disabled", "disabled");
+                $("#Btn_search").attr("disabled", "disabled");
+                $("#Btn_search").css("cursor", "not-allowed");
+                $('#daterange_onl').popover('hide');
+            } else {
+                localStorage.setItem("online_tp", "true");
+                $("#start_datepicker").removeAttr("disabled");
+                $("#end_datepicker").removeAttr("disabled");
+                $("#Btn_search").removeAttr("disabled");
+                $("#Btn_search").css("cursor", "pointer");
+            }
+        }
+
+        function pullDataFromES() {
+            if ($('#start_datepicker').val() != "" && $('#end_datepicker').val() != "") {
+                $('#daterange_onl').popover('hide');
+                document.getElementById("daterange_onl").innerHTML = $('#start_datepicker').val() + ' - ' + $('#end_datepicker').val() + '  <i class="fa fa-calendar" aria-hidden="true" style="color: white; float: right; margin-left: 5px; margin-right: 5px;"></i>';
+                var xhttp = new XMLHttpRequest();
+                var fd = new FormData();
+                fd.append("userid", localStorage.getItem("ipm_UserId"));
+                var sdate = moment($('#start_datepicker').val()).format('YYYY-MM-DDTHH:mm:ss');
+                var edate = moment($('#end_datepicker').val()).format('YYYY-MM-DDTHH:mm:ss');
+                sessionStorage.setItem("TP_startdate", sdate);
+                sessionStorage.setItem("TP_enddate", edate);
+
+                fd.append("rep_id", "empty");
+                fd.append("report_name", "empty");
+                fd.append("function_name", "pullDataFromES");
+                fd.append("app_name", localStorage.getItem("ipm_appname"));
+                fd.append("uploaded_filename", "empty");
+                fd.append("mode", "empty");
+                fd.append("Imp_id", "empty");
+                fd.append("observation", "empty");
+                fd.append("imp_name", "empty");
+                fd.append("start_date", sdate);
+                fd.append("end_date", edate);
+                fd.append("search_key", "empty");
+
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response_txt = this.responseText.split("\n");
+                        //alert(response_txt);
+                    }
+                };
+                xhttp.open("POST", "../cgi-bin/Decrypt_PyFile.py", true);
+                xhttp.send(fd);
+            } else {
+                alert("Please select date range");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+/*****  DEFAULTS ******/
+
+
+
+.vz-weighted_tree-viz circle {
+    fill:#777;
+    fill-opacity:.5;
+	r:6;
+}
+
+
+.vz-weighted_tree-viz text {
+    fill:#777;
+	transform: rotate(40deg);
+	
+}
+
+.vz-weighted_tree-viz path {
+    stroke:#777;
+    stroke-opacity:.5;
+	stroke-width: 6 !important;
+}
+
+/******** FIRE **********/
+
+
+.vz-skin-fire .vz-radial_progress-track {
+    fill-opacity: .1;
+}
+
+
+/******** NEON **********/
+
+.vz-skin-tree {
+
+}
+
+
+/******** TEST CONTAINER **********/
+
+svg.vz-weighted_tree-viz {
+    fill:none;    
+	font-family: AccentureRotis,Arial,sans-serif;
+    pointer-events:visible;
+}
+
+div.radial_container {
+    float:left;
+    position: relative;
+    top: 45%;
+    transform: translateY(-50%);
+}
+
+#viz_container {
+    border-radius:6px;
+}
+

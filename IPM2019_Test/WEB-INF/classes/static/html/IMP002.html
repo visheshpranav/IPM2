@@ -1,0 +1,204 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+	<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+    <script src="../JScript/d3.v3.min.js"></script>
+	<script src="../JScript/RadarChart.js"></script>
+	<script src="../JScript/Lapam.js"></script>
+	<link rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css">
+	<style>
+	
+	@font-face {
+	font-family: 'AccentureRotis';
+	src: url('../styles/rotsan.woff') format('woff'); /* Modern Browsers */
+	}
+
+
+		body {
+		  overflow: hidden;
+		  font-family: AccentureRotis;
+		  margin: 0;
+		  font-size: 14px;
+		
+		}
+
+		#chart {
+		  position: absolute;
+		  top: 30px;
+		  left: 100px;
+		}
+	</style>
+  </head>
+  <body onload = "readTextFile();">
+    <div id="body">
+		<label id="StatusMode_lbl" style="float: left; margin-left: 10px; width: 100%; margin-bottom: 0px;"></label>
+		<div id="chart"></div>
+		<a href="javascript:clickservicecall();" id ="Download_dc" style="margin-left: 10px; margin-top: 5px; float: left; text-decoration: underline; cursor: pointer;font-family: AccentureRotis;font-size: 12px;" >Service Calls Drilldown</a>
+
+    </div>
+	<script>
+		//var report_folder = "1_1_twa_dec3_22"
+		
+		var report_folder = localStorage.getItem("ipm_UserId") +"_"+localStorage.getItem("rep_id");
+		<!-- var serviceCall_key = []; -->
+		<!-- var value_arr = []; -->
+		<!-- var level = 0; -->
+		<!-- var mycfg; -->
+		<!-- var level_change = 0; -->
+		<!-- var w = 450, h = 450; -->
+		//readTextFile();
+		
+		var file = "";	
+		var current_date= new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+		if(sessionStorage.getItem("isOnline") =="true")
+		{
+			document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: green;\"></i> ";
+			document.getElementById("StatusMode_lbl").style.color = "green";
+			//file = "online\\"+localStorage.getItem("ipm_appname").toLowerCase()+"\\imp002_twa_060319.json";
+			var file_name = localStorage.getItem("ipm_appname") + "_" + sessionStorage.getItem("Imperative_name");
+			if(localStorage.getItem("online_tp") == "false"){
+				file = "online\\"+file_name+"_ONL_"+current_date+".json";
+			}
+			else{
+				file = "online\\"+file_name+"_TP_"+current_date+".json";
+			}
+		}
+		else{
+			document.getElementById("StatusMode_lbl").innerHTML = "<i class=\"fa fa-circle\" style=\"color: #7194b2;\"></i> ";
+			document.getElementById("StatusMode_lbl").style.color = "#7194b2";	
+			var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname").toLowerCase() + "_" + sessionStorage.getItem("Imperative_name");
+			file = "Reports\\"+report_folder+"\\"+file_name+".json";
+		}
+		
+		function readTextFile() {
+		getObservation();
+		sessionStorage.setItem("isDrilldown", "false");
+		var serviceCall_key = [];
+		var value_arr = [];
+		var level = 0;
+		var mycfg;
+		var level_change = 0;
+		var w = 420, h = 420;
+			var rawFile = new XMLHttpRequest();
+			rawFile.overrideMimeType("application/json");
+			rawFile.open("GET", file, true);
+			rawFile.setRequestHeader('cache-control', 'no-cache, must-revalidate, post-check=0, pre-check=0');
+			rawFile.setRequestHeader('cache-control', 'max-age=0');
+			rawFile.setRequestHeader('expires', '0');
+			rawFile.setRequestHeader('pragma', 'no-cache');
+			rawFile.onreadystatechange = function() {
+				if (rawFile.readyState === 4 && rawFile.status == "200") {
+					
+				var getval1 = rawFile.responseText;
+				var get_json = JSON.parse(getval1);
+				for (var j=0; j < get_json[0].length; j=j+1){
+					value_arr.push(Number(get_json[0][j]['value']));
+					serviceCall_key.push(get_json[0][j]['axis']);
+				}
+				level_change = Math.max.apply(null,value_arr);
+				console.log(Number(level_change));
+				if (Number(level_change) > 6){
+					level = 6;
+				}
+				else{
+					level = Number(level_change);
+				}
+				mycfg = {
+				  w: w,
+				  h: h,
+				  maxValue: 0.2,
+				  levels: Number(level),
+				  ExtraWidthX: 300
+				}
+					localStorage.setItem("serviceCallKeys",serviceCall_key);			
+					localStorage.setItem("serviceCall_selectedItem",serviceCall_key[0]);
+					var colorscale = d3.scale.category10();
+
+		//Legend titles
+		var legend_name = "";
+		if(sessionStorage.getItem("isOnline") =="true")
+		{	
+			legend_name = localStorage.getItem("ipm_appname");
+		}
+		else{
+			legend_name = localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("reportname");
+		}
+		var LegendOptions = [legend_name];
+		//var LegendOptions = ["twa_dec3_22".toLowerCase()];
+		//var test_folder = "1_1_nov21_2"
+
+		//Call function to draw the Radar chart
+		//Will expect that data is in %'s
+		d3.json(file, function(data) {
+			//if (error) throw error;
+			//usage:
+			RadarChart.draw("#chart", data, mycfg);
+			console.log("level:"+level);
+
+		////////////////////////////////////////////
+		/////////// Initiate legend ////////////////
+		////////////////////////////////////////////
+
+		var svg = d3.select('#body')
+			.selectAll('svg')
+			.append('svg')
+			.attr("width", w+220)
+			.attr("height", h)
+
+		//Create the title for the legend
+		var text = svg.append("text")
+			.attr("class", "title")
+			.attr('transform', 'translate(90,0)')
+			.attr("x", w - 75)
+			.attr("y", 10)
+			.attr("font-size", "11px")
+			.attr("fill", "#404040");
+
+		//Initiate Legend
+		var legend = svg.append("g")
+			.attr("class", "legend")
+			.attr("height", 100)
+			.attr("width", 200)
+			.attr('transform', 'translate(90,20)')
+			;
+			//Create colour squares
+			legend.selectAll('rect')
+			  .data(LegendOptions)
+			  .enter()
+			  .append("rect")
+			  .attr("x", w - 65)
+			  .attr("y", function(d, i){ return i * 17;})
+			  .attr("width", 10)
+			  .attr("height", 10)
+			  .style("fill", function(d, i){ return colorscale(i);})
+			  ;
+			//Create text next to squares
+			legend.selectAll('text')
+			  .data(LegendOptions)
+			  .enter()
+			  .append("text")
+			  .attr("x", w - 52)
+			  .attr("y", function(d, i){ return i * 17 + 9;})
+			  .attr("font-size", "11px")
+			  .attr("fill", "#737373")
+			  .text(function(d) { return d; })
+			  ;
+		});
+				}
+			}
+			rawFile.send(null);
+		}
+		
+		function clickservicecall()
+		{
+			//parent.ifm_content.src = "DC_drilldown.html";	
+			window.location.href = "IMP002_drilldown.html";
+		}
+		
+		
+	</script>
+
+  </body>
+</html>

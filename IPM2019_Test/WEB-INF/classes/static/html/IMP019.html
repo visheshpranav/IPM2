@@ -1,0 +1,194 @@
+<html>
+  <head>
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">		
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+    <style>
+      rect.bordered {
+        stroke: #E6E6E6;
+        stroke-width:2px;
+      }
+
+      text.mono {
+        font-size: 9pt;
+        font-family: Consolas, courier;
+        fill: #aaa;
+      }
+
+      text.axis-workweek {
+        fill: #000;
+      }
+
+      text.axis-worktime {
+        fill: #000;
+      }
+    </style>
+    <script src="../JScript/d3.v3.js"></script>
+	<script src="../JScript/d3.v3.min.js"></script>
+  </head>
+  <body onload="init()">
+  <div style="margin-left: 265px; font-family: verdana;  font-size: 14px;">
+  <input type="radio" id="tcode" name="behavior" value="tcode" onchange="callgraph()" checked>
+  <label for="tcode" style="font-family: Consolas, courier;">Tcode</label>
+  <input type="radio" id="Users" name="behavior" onchange="callgraph()" value="Users">
+  <label for="Users" style="font-family: Consolas, courier;">Users</label>
+</div>
+    <div id="chart" style="margin-left: 100px; overflow:auto; width:700px; height:580px;"></div>
+    <script type="text/javascript">
+	
+	function callgraph()
+	{
+		document.getElementById("chart").innerHTML = "";
+		init()
+	}
+	
+	function init()
+	{
+		var file = "";
+		if(document.getElementById('tcode').checked)
+		{
+			file = "heatmap_tcode.txt";
+		}
+		else
+		{
+			file = "heatmap_users.txt";
+		}
+		
+		var rawFile = new XMLHttpRequest();
+		rawFile.open("GET", file, false);
+		rawFile.onreadystatechange = function ()
+		{
+			if(rawFile.readyState === 4)
+			{
+				if(rawFile.status === 200 || rawFile.status == 0)
+				{
+					var allText = rawFile.responseText;
+					var ext_response_arr = allText.toString().split("[");
+					heatmap(ext_response_arr);
+				}
+			}
+		}
+		rawFile.send(null);
+	}
+	
+	function heatmap(responsearr)
+	{
+		var days_value = responsearr[1].split("]");
+		var time_value = responsearr[2].split("]");
+        var margin = { top: 80, right: 0, bottom: 100, left: 170 },
+          width = 760 - margin.left - margin.right,
+          height = 1400 - margin.top - margin.bottom,
+          gridSize = Math.floor(width / 36),
+          legendElementWidth = gridSize,
+          buckets = 9,
+          colors = ["#ffffe9","#edf8b1","#c7e9b4","#7fcdbb","#2E8B57","#FFC0CB","#87CEEB","#FF7F50","#4169E1"], // alternatively colorbrewer.YlGnBu[9]
+          days = ["ME21N", "RSBTCRTE", "RSEOUT00", "ZCYMMU0009", "SDBILLDL", "ZCYSDR0025", "ZSDE0016", "ZSDE0004", "ZCYSDR0006", "ZCYSDR0024"],
+          times = ["11:20", "11:22", "11:24", "11:26","11:28", "11:30", "11:32", "11:34", "11:36", "11:38", "11:40"];
+		  days = JSON.parse("[" + days_value[0] + "]"),
+		  times = JSON.parse("[" + time_value[0] + "]");
+		  
+		  var datasets = [];
+			if(document.getElementById('tcode').checked)
+			{
+				datasets = ["heatmap_tcode.tsv"];
+			}
+			else
+			{
+				datasets = ["heatmap_users.tsv"];
+			}
+          
+
+      var svg = d3.select("#chart").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var dayLabels = svg.selectAll(".dayLabel")
+          .data(days)
+          .enter().append("text")
+            .text(function (d) { return d; })
+            .attr("x", 0)
+            .attr("y", function (d, i) { return i * gridSize; })
+            .style("text-anchor", "end")
+            .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
+            .attr("class", function (d, i) { return ((i >= 0 && i <= 4) ? "dayLabel mono axis axis-workweek" : "dayLabel mono axis axis-workweek"); });
+
+      var timeLabels = svg.selectAll(".timeLabel")
+          .data(times)
+          .enter().append("text")
+            .text(function(d) { return d; })
+            .attr("x", 0)
+            .attr("y", function (d, i) { return i * gridSize; })
+            .style("text-anchor", "left")
+            .attr("transform", "translate("+gridSize/2 + ",-6) rotate (-90)")
+            .attr("class", function(d, i) { return ((i >= 7 && i <= 16) ? "timeLabel mono axis axis-worktime" : "timeLabel mono axis axis-worktime"); });
+
+      var heatmapChart = function(tsvFile) {
+        d3.tsv(tsvFile,
+        function(d) {
+          return {
+            day: +d.day,
+            hour: +d.hour,
+            value: +d.value
+          };
+        },
+        function(error, data) {
+          var colorScale = d3.scale.quantile()
+              .domain([0, buckets - 1, d3.max(data, function (d) { return d.value; })])
+              .range(colors);
+
+          var cards = svg.selectAll(".hour")
+              .data(data, function(d) {return d.day+':'+d.hour;});
+
+          cards.append("title");
+
+          cards.enter().append("rect")
+              .attr("x", function(d) { return (d.hour - 1) * gridSize; })
+              .attr("y", function(d) { return (d.day - 1) * gridSize; })
+              .attr("rx", 4)
+              .attr("ry", 4)
+              .attr("class", "hour bordered")
+              .attr("width", gridSize)
+              .attr("height", gridSize)
+              .style("fill", colors[0]);
+
+          cards.transition().duration(1000)
+              .style("fill", function(d) { return colorScale(d.value); });
+
+          cards.select("title").text(function(d) { return d.value; });
+
+          cards.exit().remove();
+
+          var legend = svg.selectAll(".legend")
+              .data([0].concat(colorScale.quantiles()), function(d) { return d; });
+
+          legend.enter().append("g")
+              .attr("class", "legend");
+
+          legend.append("rect")
+            .attr("x", function(d, i) { return (32* i); })
+            .attr("y", -75)
+            .attr("width", legendElementWidth)
+            .attr("height", gridSize / 2)
+            .style("fill", function(d, i) { return colors[i]; });
+
+          legend.append("text")
+            .attr("class", "mono")
+            .text(function(d) { return ">" + Math.round(d); })
+            .attr("x", function(d, i) { return (31* i); })
+            .attr("y",-55);
+
+          legend.exit().remove();
+
+        });
+      };
+
+      heatmapChart(datasets[0]);
+	  }
+    </script>
+  </body>
+</html>

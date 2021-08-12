@@ -1,0 +1,2666 @@
+/*************** LAPAM Page **********************/
+var Output_StringPath = "";
+var startdateval ="";
+var field_data = [];
+var fieldval = "";
+var usagepattern_chk = false, datacomb_chk = false, failureanal_chk = false, businesstran_chk = false;
+var uploaded_filepath =""
+var testalready_exists = /TAP 0/g;
+var sapfile_chk = /FUP 0/;
+
+//function to bind user name
+function bindUserDetail()
+{
+	document.getElementById("logged_user").innerHTML = "<span class='glyphicon glyphicon-user'></span> " + localStorage.getItem("ipm_username");
+	document.getElementById("logged_app").innerHTML = "<span class='glyphicon glyphicon-briefcase'></span> " + localStorage.getItem("ipm_appname");
+	document.getElementById("log_report").style.display = "none";
+	document.getElementById("fg_online").className = "off_ball";	
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById("mine2").innerHTML = "Reports <span class='caret'></span>";
+		document.getElementById("mine_report_li2").innerHTML = "View Report";
+		document.getElementById("mine_report_li").innerHTML = "Delete Report";
+		document.getElementById("addpat").style.display = "block";
+		document.getElementById("delpat").style.display = "block";
+		document.getElementById("osptime").style.display = "block";
+		document.getElementById("createpat").style.display = "block";
+		document.getElementById("mine3").style.display = "block";
+		document.getElementById("mine4").style.display = "block";
+		document.getElementById("viewtem").style.display = "block";
+		document.getElementById("deletem").style.display = "block";
+		document.getElementById("enhpat").style.display = "block";
+		document.getElementById("Btn_MatchPatt").style.display = "none";
+	}
+	else{
+		document.getElementById("mine2").innerHTML = "Mine <span class='caret'></span>";
+		document.getElementById("mine_report_li").innerHTML = "Online";
+		document.getElementById("mine_report_li2").innerHTML = "Reports";
+		document.getElementById("mine_report_li4").style.display = "none";
+		document.getElementById("mine_report_li6").style.display = "none";
+		document.getElementById("addpat").style.display = "none";
+		document.getElementById("delpat").style.display = "none";
+		document.getElementById("osptime").style.display = "none";
+		document.getElementById("createpat").style.display = "none";
+		document.getElementById("mine3").style.display = "none";
+		document.getElementById("mine4").style.display = "none";
+		document.getElementById("viewtem").style.display = "none";
+		document.getElementById("deletem").style.display = "none";
+		document.getElementById("enhpat").style.display = "none";
+		document.getElementById("Btn_MatchPatt").style.display = "block";
+		$(".loader").hide();
+	}
+}
+
+//function to validate report name field
+// function created as part of story ST05
+function isValidreportname()
+{ 
+	var reportname_regex = /^[a-zA-Z0-9]{1}[0-9a-zA-Z_-]*$/;	
+	var count_val = sessionStorage.getItem("LogType").split("\n");
+	if(document.getElementById("Txt_reportname").value.trim() == "")
+	{
+		alert("Please enter 'Report Name'");
+		return false;
+	}
+	else if(!document.getElementById("Txt_reportname").value.trim().match(reportname_regex))
+	{
+		alert("Please enter valid Report name");
+		return false;
+	}	
+	else if(count_val.length > 0)
+	{
+		var failcount = 0;
+		for (var file_i = 0; file_i < count_val.length; file_i++) {			
+			var file_id = "Dlg_SMfile_" + file_i
+			if(document.getElementById(file_id).value == "")
+			{
+				failcount++; 
+			}
+			else{
+				if (document.getElementById(file_id).value.lastIndexOf(".") > 0) {
+					fileExtension = document.getElementById(file_id).value.substring(document.getElementById(file_id).value.lastIndexOf(".") + 1, document.getElementById(file_id).value.length);
+					
+					if (fileExtension.toLowerCase() == "csv" || fileExtension.toLowerCase() == "xls" || fileExtension.toLowerCase() == "xlsx" || fileExtension.toLowerCase() == "zip" ||fileExtension.toLowerCase() == "log" ||fileExtension.toLowerCase() == "txt" ||fileExtension.toLowerCase() == "xml"||fileExtension.toLowerCase() == "001") {
+						return true;
+					}
+					else {
+						alert("Kindly select a valid file for upload");
+						return false;
+					}
+				}
+			}
+		}
+		if(failcount == count_val.length)
+		{
+			alert("Kindly upload a file to proceed further");
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+	else
+	{
+		return true;
+	}
+}
+
+
+function generatereports()
+{
+if(document.getElementById('merge').checked)	
+		{	
+			document.getElementById('slt_view32').style.display = 'block';
+			document.getElementById('lab4').style.display = 'block';
+			var xhttp = new XMLHttpRequest();
+			var fd = new FormData();
+		
+			fd.append("user_name",localStorage.getItem("ipm_username"));
+			xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+			
+			var outputVal = this.responseText.trim();
+			if(outputVal != "")
+			{
+				var test_drp = document.getElementById("slt_view32");	
+				var test_length = test_drp.options.length;
+				for (i = 0; i < test_length; i++) {
+				  test_drp.options[0] = null;
+				}
+				var project_name_arr = this.responseText.split("\n");
+				for (var prj_i=1; prj_i<project_name_arr.length-1 ; prj_i=prj_i+1)
+				{					
+					var option = document.createElement("option");
+					option.text = project_name_arr[prj_i].split(",")[1];
+						test_drp.add(option, test_drp[0]);
+				} 
+				
+				
+			
+			}
+			else{
+				alert("Kindly analyze a log file to view this page");
+				document.getElementById("Btn_exist_proceed").disabled = true;
+				
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getLogNameForUser.py",true);
+     xhttp.send(fd);
+				
+		}	
+		else	
+		{	
+			document.getElementById('slt_view32').value="";
+			document.getElementById('slt_view32').style.display = 'none';
+			document.getElementById('lab4').style.display = 'none';
+		}				
+}
+
+// function to fetch report details
+// function created as part of story ST06
+function getExistingReportname()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	fd.append("prj_id",localStorage.getItem("ipm_appname"));	
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var outputVal = this.responseText.trim();
+			var output_mat = outputVal.match(/\[\]/g);
+			if(outputVal != "" && output_mat != "[]")
+			{
+				var test_drp = document.getElementById("Drp_View_reportname");	
+				var test_length = test_drp.options.length;
+				for (i = 0; i < test_length; i++) {
+				  test_drp.options[0] = null;
+				}
+				var project_name_arr = this.responseText.split("'");
+				for (var prj_i=1; prj_i<project_name_arr.length ; prj_i=prj_i+2) {					
+					var option = document.createdElement("option");
+					option.text = project_name_arr[prj_i];
+					test_drp.add(option, test_drp[0]);
+				} 
+			}
+			else{
+				alert("Kindly analyze a log file to view this page");
+				document.getElementById("Btn_exist_proceed").disabled = true;
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getReportName.py",true);
+     xhttp.send(fd);
+}
+
+// function to call on Home click
+// function created as part of story ST04
+function Logout()
+{
+	parent.window.location.href = "Home.html";
+	localStorage.setItem("ipm_username","");
+	localStorage.setItem("ipm_UserId","");
+	localStorage.setItem("ipm_appname","");
+	localStorage.setItem("rep_id","");	
+	localStorage.setItem("reportname","");	
+}
+
+
+var delay = ( function() {
+				var timer = 0;
+				return function(callback, ms) {
+				clearTimeout (timer);
+				timer = setTimeout(callback, ms);
+				};
+				})();
+ 
+//function for uploading files
+//function created as part of ST007
+var logtypee = [];
+var digfiles = [];
+function upload_files(){
+	if(isValidreportname())
+	{	
+		if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+		{
+		showLoader();
+		}
+		document.getElementById('top').style.display = 'block';
+		var xhttp = new XMLHttpRequest();	
+		var fd = new FormData();		
+		var log_type=[];
+		var log_type2=[];
+		var log_files=[];
+		var reportname = document.getElementById('Txt_reportname').value;
+		localStorage.setItem("reportname",reportname);
+		fd.append("Txt_reportname",reportname);
+		fd.append("username",localStorage.getItem("ipm_username"));
+		fd.append("userid",localStorage.getItem("ipm_UserId"));
+		//var uploadedFile_len = document.getElementById("Dlg_filename").files.length;
+		var count_val = sessionStorage.getItem("LogType").split("\n");
+		
+		xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if(this.responseText.trim().toString() != "TAP 0, Report name already exists" && this.responseText.trim().toString() != "FUP 0,Please Upload The Valid File")
+			{
+				if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+				{
+				document.getElementById('top').style.display = 'none';
+				localStorage.setItem("uploaded_StringPath",this.responseText.toString().trim());
+				document.getElementById('Txt_reportname').disabled = true;
+				document.getElementById('Btn_upload').className = 'btn btn-light';
+				document.getElementById('Btn_MatchPatt').className = 'btn btn-primary';
+				document.getElementById("Btn_MatchPatt").style.cursor = "pointer";
+				document.getElementById('Btn_MatchPatt').disabled = false;
+				document.getElementById('Btn_upload').disabled = true;
+				document.getElementById("Btn_upload").style.cursor = "not-allowed";
+				//document.getElementById('Dlg_filename').disabled = true;
+				document.getElementById("Btn_MatchPatt").focus();
+				document.getElementById("log_report").style.display = "block";
+				document.getElementById("log_report").innerHTML = "<span class='glyphicon glyphicon-file'></span> " + document.getElementById('Txt_reportname').value;
+				PatternMapping();
+				if (localStorage.getItem("logtype_filename").split("-")[0] == "STAD")	
+					{parse_sap()}
+				}
+				else
+				{
+				alert("Log Uploaded Successfully - Proceed to Pattern Match");
+				document.getElementById('top').style.display = 'none';
+				localStorage.setItem("uploaded_StringPath",this.responseText.toString().trim());
+				document.getElementById('Txt_reportname').disabled = true;
+				document.getElementById('Btn_upload').className = 'btn btn-light';
+				document.getElementById('Btn_MatchPatt').className = 'btn btn-primary';
+				document.getElementById("Btn_MatchPatt").style.cursor = "pointer";
+				document.getElementById('Btn_MatchPatt').disabled = false;
+				document.getElementById('Btn_upload').disabled = true;
+				document.getElementById("Btn_upload").style.cursor = "not-allowed";
+				//document.getElementById('Dlg_filename').disabled = true;
+				document.getElementById("Btn_MatchPatt").focus();
+				document.getElementById("log_report").style.display = "block";
+				document.getElementById("log_report").innerHTML = "<span class='glyphicon glyphicon-file'></span> " + document.getElementById('Txt_reportname').value;
+				//PatternMapping();
+				if (localStorage.getItem("logtype_filename").split("-")[0] == "STAD")	
+					{parse_sap()}
+				}
+				
+			}
+			else if(this.responseText.trim().toString() === "FUP 0,Please Upload The Valid File")
+			{
+				console.log(this.responseText.trim().toString());
+				alert("Please upload valid zip file");
+				if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+				{
+				hideLoader();
+				}
+				document.getElementById('top').style.display = 'none';
+				document.getElementById("Txt_reportname").focus();
+				document.getElementById('Txt_reportname').disabled = false;
+				document.getElementById('Btn_upload').className = 'btn btn-primary';
+				document.getElementById('Btn_MatchPatt').className = 'btn btn-light';
+				document.getElementById("Btn_MatchPatt").style.cursor = "not-allowed";
+				document.getElementById("Btn_upload").style.cursor = "pointer";
+				document.getElementById('Btn_MatchPatt').disabled = true;
+				document.getElementById('Btn_upload').disabled = false;
+				
+			}
+			else
+			{
+				alert("Reportname already exists");
+				if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+				{
+				hideLoader();
+				}
+				document.getElementById('top').style.display = 'none';
+				document.getElementById("Txt_reportname").focus();
+				document.getElementById('Txt_reportname').disabled = false;
+				document.getElementById('Btn_upload').className = 'btn btn-primary';
+				document.getElementById('Btn_MatchPatt').className = 'btn btn-light';
+				document.getElementById("Btn_MatchPatt").style.cursor = "not-allowed";
+				document.getElementById("Btn_upload").style.cursor = "pointer";
+				document.getElementById('Btn_MatchPatt').disabled = true;
+				document.getElementById('Btn_upload').disabled = false;
+			}
+		}
+		else if (this.readyState == 4 && this.status == 208) {
+			alert("Fail to upload");
+			if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+			{
+			hideLoader();
+			}
+			document.getElementById('top').style.display = 'none';
+			document.getElementById("Txt_reportname").focus();
+			document.getElementById('Txt_reportname').disabled = false;
+			document.getElementById('Btn_upload').className = 'btn btn-primary';
+			document.getElementById('Btn_MatchPatt').className = 'btn btn-light';
+			document.getElementById("Btn_MatchPatt").style.cursor = "not-allowed";
+			document.getElementById("Btn_upload").style.cursor = "pointer";			
+			document.getElementById('Btn_MatchPatt').disabled = true;		
+			document.getElementById('Btn_upload').disabled = false;
+			//document.getElementById('Dlg_filename').disabled = false;
+		}
+		};
+		if(localStorage.getItem("ipm_appname") == "BOT")
+		{			
+			fd.append("NFR",document.getElementById('Dlg_SMfile_1').value);
+			fd.append("Dlg_jsonfilename", document.getElementById("SMfile_1").files[0]);
+			fd.append("Dlg_filename", document.getElementById("Dlg_SMfile_0").files[0]);	
+			log_type.push("STAD-merged_output.csv");	
+			log_type.push("NFR-NFR.csv");				
+			fd.append("Log_type", log_type);
+			localStorage.setItem("logtype_filename",log_type);
+			xhttp.open("POST", "../cgi-bin/genNFR.py?user="+localStorage.getItem('username')+"&logname="+reportname+"", true);
+		}
+		else{
+			if(localStorage.getItem("ipm_appname") == "P002")
+			{
+				for (var file_i = 0; file_i < count_val.length; file_i++) {
+					var file_id = "Dlg_SMfile_" + file_i
+					if(document.getElementById(file_id).value != "")
+					{
+						log_type.push(count_val[file_i].trim() + "-" + document.getElementById(file_id).files[0].name);
+						fd.append("Dlg_filename", document.getElementById(file_id).files[0]);
+					}
+				}
+				fd.append("Log_type", log_type);
+				localStorage.setItem("logtype_filename",log_type);
+				xhttp.open("POST", "../cgi-bin/upload.py?user="+localStorage.getItem('username')+"&logname="+reportname+"", true);
+			}
+			else{
+				/*console.log('Murex');
+				if(document.getElementById("Dlg_SMfile_1").value != "" && document.getElementById("Dlg_SMfile_2").value == "")
+				{
+					alert("Kindly upload DeliverableMXML files to proceed further");
+					document.getElementById('top').style.display = 'none';
+				}
+				else
+				{	*/		
+					for (var file_i = 0; file_i < count_val.length; file_i++) {
+						var file_id = "Dlg_SMfile_" + file_i
+						if(document.getElementById(file_id).value != "")
+						{
+							if(document.getElementById(file_id).files.length>1)
+							{
+							for (k=0; k<document.getElementById(file_id).files.length; k++)
+							{
+								
+								log_type2.push(count_val[file_i].trim() + "-" + document.getElementById(file_id).files[k].name);
+								//console.log(document.getElementById(file_id).files[k]);
+								//digfiles.push(document.getElementById(file_id).files[k]);
+								//fd.append("Dlg_filename"+"_"+k, document.getElementById(file_id).files[k]);
+								//fd.append("Dlg_filename", document.getElementById(file_id).files[k]);
+								//digfiles.push(document.getElementById(file_id).files[k]);
+								//digfiles.push(document.getElementById(file_id).files.item(k));
+								
+							}
+							
+							var uploadedFile_len =  document.getElementById(file_id).files.length;;
+							for (var file_i = 0; file_i < uploadedFile_len; file_i++) {
+							//console.log(document.getElementById(file_id).files[file_i].name);	
+							fd.append("Dlg_filename", document.getElementById(file_id).files[file_i]);
+							}
+							
+							//fd.append("Dlg_filename", document.getElementById(file_id).files);
+							log_type = log_type2;
+							/*var fileInput = document.getElementById(file_id);
+							var files = fileInput.files;
+							var file;
+							for (var i = 0; i < files.length; i++) {
+
+							file = files.item(i);
+  
+							file = files[i];
+
+							digfiles.push(file);
+							}*/
+							//fd.append("Dlg_filename", document.getElementById(file_id).files[0]);
+							//fd.append("Dlg_filename", document.getElementById(file_id).files[1]);
+							//console.log(digfiles);
+							//fd.append("Dlg_filename", digfiles);
+							//fd.append("Dlg_filename", document.getElementById(file_id).files);
+		
+							}
+							else
+							{
+							log_type.push(count_val[file_i].trim() + "-" + document.getElementById(file_id).files[0].name);
+							//alert(log_type);
+							//log_files.push();
+							console.log(document.getElementById(file_id).files[0]);
+							fd.append("Dlg_filename", document.getElementById(file_id).files[0]);
+							//alert(log_files);
+							}
+						}
+					}
+					fd.append("Log_type", log_type);
+					localStorage.setItem("logtype_filename",log_type);
+					xhttp.open("POST", "../cgi-bin/upload.py?user="+localStorage.getItem('username')+"&logname="+reportname+"", true);
+				//}
+			}
+		}
+	
+		
+		
+		xhttp.send(fd);
+	}
+}
+
+	
+function parse_sap()	
+{   	
+    //if(document.getElementById('chk_serverMet').checked)	
+    //{	
+        //parent.document.getElementById('top').style.display = 'block';	
+        var xhttp = new XMLHttpRequest();	
+        var fd = new FormData();	
+        fd.append("Txt_testname",document.getElementById('Txt_reportname').value);	
+        fd.append("userid",localStorage.getItem("ipm_UserId"));	
+			
+		if(document.getElementById('format_chx').checked)	
+		{	
+			localStorage.setItem("isStdFormat","German")	
+				
+		}	
+		else	
+		{	
+			localStorage.setItem("isStdFormat","")	
+		}		
+			
+		if(localStorage.getItem("ipm_appname") == "BOT")
+		{
+			fd.append("Stad_dir","merged_output.csv");
+			fd.append("NFR_dir","NFR.csv");	
+			fd.append("file_format","");	
+		}
+		else{			
+			fd.append("Stad_dir",document.getElementById("Dlg_SMfile_0").files[0].name);
+			fd.append("NFR_dir",document.getElementById("Dlg_SMfile_1").files[0].name);	
+			fd.append("file_format",localStorage.getItem("isStdFormat"));	
+		}
+        
+        fd.append("Server_dir","");	
+        fd.append("prjid",localStorage.getItem("rep_id"));
+		
+		//fd.append("file_format","German");	
+        xhttp.onreadystatechange = function() {      	
+            if (this.readyState == 4 && this.status == 200) {	
+                	
+            }	
+        };	
+        xhttp.open("POST", "../cgi-bin/parse_SAP.py", true);	
+        xhttp.send(fd);	
+    /*}	
+    else	
+    {	
+        alert("Please upload Servermetrics file to view");	
+    }*/	
+}
+
+// function on click 'Pattern Match'
+function PatternMapping()
+{	
+var namee = [];
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+	showLoader();
+	}
+	var g= document.getElementById('slt_view32').value.trim();
+	document.getElementById('top').style.display = 'block';
+	var reportname = document.getElementById('Txt_reportname').value;
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	var isNoMatch = false;
+	var isTrade = false;
+	localStorage.setItem("reportname",reportname);	
+	sessionStorage.setItem("isExisting", "false");
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("rep_id","empty");
+	fd.append("report_name",reportname);
+	fd.append("function_name","mapping");
+	fd.append("app_name",localStorage.getItem("ipm_appname"));
+	/*if(localStorage.getItem("ipm_appname") == "BOT")
+	{
+		fd.append("uploaded_filename","STAD-merged_output.csv");		
+	}
+	else{
+		fd.append("uploaded_filename",localStorage.getItem("logtype_filename"));
+	}*/
+	fd.append("uploaded_filename",localStorage.getItem("logtype_filename"));
+	fd.append("mode","OFL");
+	fd.append("Imp_id","empty");
+	fd.append("observation","empty");
+	fd.append("imp_name","empty");
+	fd.append("start_date","empty");
+	fd.append("end_date","empty");
+	fd.append("search_key","empty");	
+	
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {				
+			document.getElementById('top').style.display = 'none';
+			//alert(this.responseText.toString());
+			document.getElementById('Txt_reportname').disabled = false;
+			document.getElementById('Btn_upload').className = 'btn btn-primary';
+			document.getElementById('Btn_MatchPatt').className = 'btn btn-light';
+			document.getElementById("Btn_MatchPatt").style.cursor = "not-allowed";
+			document.getElementById("Btn_upload").style.cursor = "pointer";
+			document.getElementById('Btn_MatchPatt').disabled = true;
+			document.getElementById('Btn_upload').disabled = false;
+			document.getElementById("Txt_reportname").focus();			
+			sessionStorage.setItem("Imperative_name", "");
+			sessionStorage.setItem("Imperative_Id", "");
+			console.log(this.responseText.toString());
+			if(this.responseText.toString() != "")
+			{
+				var response_list = this.responseText.toString().split("\n");
+				var rep_id = "";
+				for (var rep_i=1; rep_i<response_list.length-1 ; rep_i=rep_i+1)
+				{
+					if(response_list[rep_i].toString().trim().split(" - ")[0] == "Rep_id")
+					{
+						rep_id = response_list[rep_i].toString().trim().split(" - ")[1];
+					}
+					if(response_list[rep_i].toString().trim() == "No Patterns got match")
+					{
+						isNoMatch = true;
+					}
+				}
+				var imp_string = response_list[response_list.length - 2];
+				localStorage.setItem("rep_id",rep_id);	
+				localStorage.setItem("WorkstreamName","All Workstreams");
+				if(imp_string == "")
+				{
+					alert("No Patterns are matched, kindly contact administrator")
+					return false;
+				}
+			}	
+			console.log(imp_string);
+			if(!isNoMatch)
+			{		
+				if(localStorage.getItem("ipm_appname").toLowerCase() != "murex")
+				{
+				
+					alert("Pattern Mined from the Log - Proceed to Imperative Views");
+				
+				}
+				
+				/*
+				var fso  = new ActiveXObject("Scripting.FileSystemObject");
+				var filename = "C:/LAPAM2019/DataLake/Cache/"+localStorage.getItem("ipm_UserId") +"/"+localStorage.getItem("reportname")+"/TradeInsertion";
+				var http = new XMLHttpRequest();
+				http.open('HEAD', filename, false);
+				http.send();
+				if (http.status === 200){
+				isTrade = true;
+				if (!fso.FolderExists(filename)) {
+					isTrade = true;
+					}
+				*/
+				if(localStorage.getItem("ipm_appname").toLowerCase() == "murex")
+				{
+					
+					
+					var source_file;
+					if(document.getElementById("Dlg_SMfile_0").files.length > 0 && document.getElementById("Dlg_SMfile_1").files.length > 0 && document.getElementById("Dlg_SMfile_2").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_0").value;
+						var src2 = document.getElementById("Dlg_SMfile_1").value;
+						var src3 = document.getElementById("Dlg_SMfile_2").value;
+						source_file = src1.substr(12)+"/"+src2.substr(12)+"/"+src3.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_0").files.length > 0 && document.getElementById("Dlg_SMfile_1").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_0").value;
+						var src2 = document.getElementById("Dlg_SMfile_1").value;
+						source_file = src1.substr(12)+"/"+src2.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_1").files.length > 0 && document.getElementById("Dlg_SMfile_2").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_1").value;
+						var src2 = document.getElementById("Dlg_SMfile_2").value;
+						source_file = src1.substr(12)+"/"+src2.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_0").files.length > 0 && document.getElementById("Dlg_SMfile_3").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_0").value;
+						var src2 = document.getElementById("Dlg_SMfile_3").value;
+						source_file = src1.substr(12)+"/"+src2.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_0").files.length > 0)
+					{
+						if (document.getElementById("Dlg_SMfile_0").files.length>1)
+						{
+							for(i=0;i<document.getElementById("Dlg_SMfile_0").files.length;i++)
+							{
+								namee.push(document.getElementById("Dlg_SMfile_0").files[i].name);
+							}
+							source_file = namee;
+							
+						}
+						else{
+							
+						var src1 = document.getElementById("Dlg_SMfile_0").value;
+						console.log(src1);
+						source_file = src1.substr(12);
+						//console.log(source_file);
+						}
+					}
+					else if(document.getElementById("Dlg_SMfile_1").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_1").value;
+						
+						source_file = src1.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_2").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_2").value;
+						source_file = src1.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_3").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_3").value;
+						source_file = src1.substr(12);
+					}
+					else if(document.getElementById("Dlg_SMfile_4").files.length > 0)
+					{
+						var src1 = document.getElementById("Dlg_SMfile_4").value;
+						source_file = src1.substr(12);
+					}
+
+					
+					var xhttp = new XMLHttpRequest();
+					var fd = new FormData();
+					//console.log(source_file);
+					fd.append("user_id",localStorage.getItem("ipm_UserId"));
+					fd.append("report_name",localStorage.getItem("reportname"));
+					fd.append("source_file",source_file);
+					xhttp.open("POST", "../cgi-bin/Source_File.py",true);
+					xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200)
+					{
+					
+					}			
+					};
+				xhttp.send(fd);
+				}
+
+				if(localStorage.getItem("ipm_appname").toLowerCase() == "murex")
+				{
+					if(imp_string == undefined)
+					{
+					imp_string = "['IMP042-DATAMART', 'IMP044-DATAMARTG']"
+					 		
+					}
+						
+					/*
+					if(imp_string == undefined)
+					{
+						var txtFile = new XMLHttpRequest();		
+						var fd = new FormData();
+						fd.append("user_id",localStorage.getItem("ipm_UserId"));
+						fd.append("reportname",localStorage.getItem("reportname"));	
+						txtFile.open("POST", "../cgi-bin/lapamcheck.py",true);
+						txtFile.onreadystatechange = function() {
+							if (this.readyState == 4 && this.status == 200)
+							{
+								allText = this.responseText;
+								console.log(allText);
+								if(allText)
+								{
+								isTrade = true;
+								}
+								
+							}
+						};
+						txtFile.send(fd);
+						
+						
+					}
+					
+					if(isTrade)
+					{
+						imp_string = "['IMP042-DATAMART']"
+					 		
+					}
+					else
+					{
+					imp_string = "['IMP035-TradeInsertion']"			
+					}
+					
+					if(imp_string == undefined)
+					{
+						imp_string = "['IMP035-TradeInsertion']"
+						
+						
+					}*/
+					
+					if(imp_string.includes("IMP042"))
+					{
+						var txtFile = new XMLHttpRequest();		
+						var fd = new FormData();
+						fd.append("user_id",localStorage.getItem("ipm_UserId"));
+						fd.append("Txt_reportname",reportname);	
+						fd.append("username",localStorage.getItem("ipm_appname"));
+						txtFile.open("POST", "../cgi-bin/upload8.py",true);
+						txtFile.onreadystatechange = function() {
+							if (this.readyState == 4 && this.status == 200)
+							{
+								allText = this.responseText;
+							}
+						};
+						txtFile.send(fd);
+						
+					}
+					
+					if(imp_string.includes("IMP035"))
+					{
+						var txtFile = new XMLHttpRequest();		
+						var fd = new FormData();
+						fd.append("user_id",localStorage.getItem("ipm_UserId"));
+						fd.append("report_name",reportname);	
+						fd.append("logtype",sessionStorage.getItem("LogType"));
+						fd.append("existing_report_name",g);
+						txtFile.open("POST", "../cgi-bin/murex_log_parsing.py",true);
+						txtFile.onreadystatechange = function() {
+							if (this.readyState == 4 && this.status == 200)
+							{
+								allText = this.responseText;
+								if(allText)
+									{
+										alert(allText);
+										var txtFile = new XMLHttpRequest();		
+										var fd = new FormData();
+										fd.append("report_name",reportname);
+										txtFile.open("POST", "../cgi-bin/deleterow2.py",true);
+										txtFile.onreadystatechange = function() {
+										if (this.readyState == 4 && this.status == 200)
+										{
+											alert("Please upload again with valid data");
+											location.reload();
+											return false;
+										}
+										};
+										txtFile.send(fd);
+									}
+								else						
+									{
+										load_imperatives(imp_string);				
+									}
+							}
+						};
+						txtFile.send(fd);
+					}
+					if(imp_string.includes("IMP036"))
+					{
+						callDel(reportname);
+						load_imperatives(imp_string);
+					}
+					if(imp_string.includes("IMP037"))
+					{
+						callOSP(reportname);
+						['IMP037-OSP (QUEUE ORDER)', 'IMP038-OSP (QUEUE MSG COUNT)']
+						//callOSP_queue(reportname);
+						load_imperatives("IMP037")
+					}
+					if(imp_string.includes("IMP038"))
+					{
+						imp_string="['IMP037-OSP (QUEUE ORDER)']"
+					}
+					load_imperatives(imp_string);
+					
+				}
+				//console.log(document.getElementById("Dlg_SMfile_01").value);
+					if(document.querySelector('#Dlg_SMfile_01:checked') !== null || document.querySelector('#Dlg_SMfile_11:checked') !== null || document.querySelector('#Dlg_SMfile_21:checked') !== null || document.querySelector('#Dlg_SMfile_31:checked') !== null || document.querySelector('#Dlg_SMfile_41:checked') !== null)
+					{
+						//console.log(document.querySelector('#Dlg_SMfile_01:checked'));
+						console.log("Report in progress")
+					}
+					else{
+				
+					alert("Pattern Mined from the Log - Proceed to Imperative Views");
+					}
+				hideLoader();
+			
+			}
+			else{
+				if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+				{
+				hideLoader();
+				}
+				alert("Pattern Mined from the Log - No Patterns are matched");
+			}
+		}
+		
+	};
+	xhttp.open("POST", "../cgi-bin/Decrypt_PyFile.py", true);
+	xhttp.send(fd);
+}
+
+
+
+//call OSP file
+function callOSP(reportname)
+{
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("report_name",reportname);	
+	fd.append("logtype",sessionStorage.getItem("LogType"));
+	txtFile.open("POST", "../cgi-bin/murex_osp_log.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+		{
+			allText = this.responseText;	
+			//loadData("../html/Reports/"+filename+".csv");
+			
+		}			
+	};
+	txtFile.send(fd);
+}
+
+//call Deliverable MXML file
+function callDel(reportname)
+{
+	var g= document.getElementById('slt_view32').value.trim();
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("report_name",reportname);	
+	fd.append("logtype",sessionStorage.getItem("LogType"));
+	fd.append("existing_report_name",g);
+	txtFile.open("POST", "../cgi-bin/murex_dev_log.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+		{
+			allText = this.responseText;			
+		}			
+	};
+	txtFile.send(fd);
+}
+
+//call Delivery MXML file
+function callOSP_queue(reportname)
+{
+	var txtFile = new XMLHttpRequest();		
+	var fd = new FormData();
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("report_name",reportname);	
+	fd.append("logtype",sessionStorage.getItem("LogType"));
+	txtFile.open("POST", "../cgi-bin/OSP_QueueCount.py",true);
+	txtFile.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200)
+		{
+			allText = this.responseText;	
+			//loadData("../html/Reports/"+filename+".csv");
+		}			
+	};
+	txtFile.send(fd);
+}
+
+// function to load imperatives
+function load_imperatives(imp_string)
+{	
+    //console.log(imp_string);
+	localStorage.setItem("Imp_List",imp_string);	
+	sessionStorage.setItem("isExisting", "false");
+	sessionStorage.setItem("isOnline", "false");
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "block";	
+	document.getElementById("div_imp_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px; position:absolute;"  data="Imperatives.html" ></object>';
+	
+}
+
+// function to call on 'Get started'
+function getStarted()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	document.getElementById('top').style.display = 'block';	
+	document.getElementById("log_report").innerHTML = "";
+	fd.append("app_name",localStorage.getItem("ipm_appname"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById('top').style.display = 'none';
+			var outputVal = this.responseText.trim();
+			sessionStorage.setItem("LogType", outputVal);
+			if(outputVal != "")
+			{		
+				add_fields(outputVal);
+				document.getElementById("Div_HomeHeader").style.display = "none";
+				document.getElementById("Div_NewQual").style.display = "block";	
+				document.getElementById("Div_ViewQual").style.display = "none";
+				document.getElementById("div_imp_page").style.display = "none";
+				document.getElementById("Txt_reportname").value = "";
+				document.getElementById("Txt_reportname").disabled = false;			
+				document.getElementById("Txt_reportname").focus();
+				document.getElementById('Btn_upload').className = 'btn btn-primary';
+				document.getElementById('Btn_MatchPatt').className = 'btn btn-light';
+				document.getElementById("Btn_MatchPatt").style.cursor = "not-allowed";
+				document.getElementById("Btn_upload").style.cursor = "pointer";
+				document.getElementById('Btn_MatchPatt').disabled = true;
+				document.getElementById('Btn_upload').disabled = false;
+				document.getElementById("div_online_page").style.display = "none";	
+				document.getElementById("fg_online").className = "off_ball";	
+			}
+			else{
+				alert("Kindly analyze a log file to view this page");
+				document.getElementById("Btn_exist_proceed").disabled = true;
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getLogType.py",true);
+     xhttp.send(fd);
+	//document.getElementById("StatusMode_lbl").innerHTML = "OFFLINE";
+	//document.getElementById("togBtn").checked = false;
+}
+
+function getaddpat()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Addpat.html" ></object>';
+	
+}
+
+function getdelpat()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="delpat.html" ></object>';
+	
+}
+
+function getenhancepat()
+
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="enhanpat.html" ></object>';
+	
+}
+
+function getosptime()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Osptime.html" ></object>';
+	
+}
+
+
+function getcpat()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="createpat.html" ></object>';	
+	
+}
+
+function getviewtem()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="viewtem.html" ></object>';	
+	
+}
+
+function getdeletem()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="deletem.html" ></object>';	
+	
+}
+
+function showLoader()
+{
+    $(".loader").fadeIn("slow");
+
+	
+	
+}
+function hideLoader()
+{
+    $(".loader").fadeOut("slow");
+	
+}
+
+
+//function to add a dynamic input and browse file
+function add_fields(outputVal){
+	
+	$('#Div_Addditional').empty();
+	var e = document.getElementById('slt_count');
+	var count_val = outputVal.split("\n");
+	if(localStorage.getItem("ipm_appname") == "BOT")
+	{
+		document.getElementById("fs_atr").style.display = "block";
+		var additional_inputfile = document.createElement('input');
+		var file_id = "Dlg_SMfile_0"
+		var lbl_id = "lbl0"
+		additional_inputfile.setAttribute("id", file_id); 
+		additional_inputfile.setAttribute("type", "file"); 
+		additional_inputfile.setAttribute("name", "file"); 
+		additional_inputfile.setAttribute("multiple","");
+		var adl_inputtextfile = document.createElement('select');
+		var additional_labelfile = document.createElement('label');	
+		additional_labelfile.setAttribute("id", lbl_id);
+		var additional_inputtextfile = document.createElement('input');
+		additional_inputtextfile.setAttribute("type", "text");
+		document.getElementById("Div_Addditional").appendChild(additional_labelfile);
+		document.getElementById("Div_Addditional").appendChild(additional_inputfile);
+		var new_line = document.createElement('br');
+		document.getElementById("Div_Addditional").appendChild(new_line);
+		var new_line1 = document.createElement('br');
+		document.getElementById("Div_Addditional").appendChild(new_line1);
+		document.getElementById(lbl_id).style.cssFloat = "left";
+		document.getElementById(lbl_id).style.width = "150px";
+		document.getElementById(file_id).style.marginLeft = "10px";
+		document.getElementById(file_id).style.cssFloat = "left"; 
+		document.getElementById(file_id).style.top = '10px';
+		document.getElementById(file_id).style.fontFamily = "AccentureRotis";
+		document.getElementById(lbl_id).innerHTML = "STAD Type *: ";
+		
+		document.getElementById("fs_atr").style.display = "block";
+		var additional_inputfile = document.createElement('input');
+		var file_id = "Dlg_SMfile_1"
+		var lbl_id = "lbl1"
+		additional_inputfile.setAttribute("id", file_id); 
+		additional_inputfile.setAttribute("type", "text"); 
+		additional_inputfile.setAttribute("name", "file"); 
+		var additional_labelfile = document.createElement('label');	
+		additional_labelfile.setAttribute("id", lbl_id);
+		document.getElementById("Div_Addditional").appendChild(additional_labelfile);
+		document.getElementById("Div_Addditional").appendChild(additional_inputfile);
+		var new_line = document.createElement('br');
+		document.getElementById("Div_Addditional").appendChild(new_line);
+		var new_line1 = document.createElement('br');
+		document.getElementById("Div_Addditional").appendChild(new_line1);
+		document.getElementById(lbl_id).style.cssFloat = "left";
+		document.getElementById(lbl_id).style.width = "150px";
+		document.getElementById(file_id).style.marginLeft = "10px";
+		document.getElementById(file_id).style.cssFloat = "left"; 
+		document.getElementById(file_id).style.top = '10px';
+		document.getElementById(file_id).style.fontFamily = "AccentureRotis";
+		document.getElementById(lbl_id).innerHTML = "NFR Value *: ";
+		
+		document.getElementById("fs_atr").style.display = "block";
+		var additional_inputfile = document.createElement('input');
+		var file_id = "SMfile_1"
+		var lbl_id = "lbl2"
+		additional_inputfile.setAttribute("id", file_id); 
+		additional_inputfile.setAttribute("type", "file"); 
+		additional_inputfile.setAttribute("name", "file");
+		//additional_inputfile.setAttribute("accept","application/json");
+		var adl_inputtextfile = document.createElement('select');
+		var additional_labelfile = document.createElement('label');	
+		additional_labelfile.setAttribute("id", lbl_id);
+		var additional_inputtextfile = document.createElement('input');
+		additional_inputtextfile.setAttribute("type", "text");
+		document.getElementById("Div_Addditional").appendChild(additional_labelfile);
+		document.getElementById("Div_Addditional").appendChild(additional_inputfile);
+		var new_line = document.createElement('br');
+		document.getElementById("Div_Addditional").appendChild(new_line);
+		var new_line1 = document.createElement('br');
+		document.getElementById("Div_Addditional").appendChild(new_line1);
+		document.getElementById(lbl_id).style.cssFloat = "left";
+		document.getElementById(lbl_id).style.width = "150px";
+		document.getElementById(file_id).style.marginLeft = "10px";
+		document.getElementById(file_id).style.cssFloat = "left"; 
+		document.getElementById(file_id).style.top = '10px';
+		document.getElementById(file_id).style.fontFamily = "AccentureRotis";
+		document.getElementById(lbl_id).innerHTML = "SMON File: ";
+		document.getElementById("merge").style.display = "none";
+		document.getElementById("lab2").style.display = "none";
+		
+		
+	}
+	else{
+		
+		for (var file_i = 0; file_i < count_val.length; file_i++) {
+			document.getElementById("fs_atr").style.display = "block";
+			var additional_inputfile = document.createElement('input');
+			var file_id = "Dlg_SMfile_" + file_i
+			var lbl_id = "lbl" + file_i
+			additional_inputfile.setAttribute("id", file_id); 
+			additional_inputfile.setAttribute("type", "file"); 
+			additional_inputfile.setAttribute("name", "file");
+			additional_inputfile.setAttribute("multiple","");
+			//additional_inputfile.setAttribute("onclick", "showLoader(),document.getElementById('"+file_id+"'+1).value=50");
+			//additional_inputfile.setAttribute("onchange", "hideLoader(),document.getElementById('"+file_id+"'+1).value=100");
+			var adl_inputtextfile = document.createElement('select');
+			var additional_labelfile = document.createElement('label');	
+			additional_labelfile.setAttribute("id", lbl_id);
+			var additional_inputtextfile = document.createElement('input');
+			additional_inputtextfile.setAttribute("type", "text");
+			document.getElementById("Div_Addditional").appendChild(additional_labelfile);
+			document.getElementById("Div_Addditional").appendChild(additional_inputfile);
+			if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+			{
+				var additional_inputbtnfile = document.createElement('a');
+				additional_inputbtnfile.setAttribute("style","text-decoration:underline; cursor: pointer;");
+				additional_inputbtnfile.setAttribute("onclick", "document.getElementById('"+file_id+"').value=null"); 
+				//additional_inputbtnfile.setAttribute("onclick", "getremove('"+file_id+"')");
+				additional_inputbtnfile.innerHTML = "Remove"; 
+				var additional_inputbtnfile2 = document.createElement('input');
+				/*var additional_inputbtnfile1 = document.createElement('progress');
+				var j= 1;
+				additional_inputbtnfile1.setAttribute("id", file_id+1);
+				additional_inputbtnfile1.setAttribute("value", 0);
+				additional_inputbtnfile1.setAttribute("max", 100);
+				additional_inputbtnfile1.innerHTML = " ";
+				document.getElementById("Div_Addditional").appendChild(additional_inputbtnfile1);*/
+				j=1;
+				additional_inputbtnfile2.setAttribute("id", file_id+j);
+				additional_inputbtnfile2.setAttribute("type", "checkbox"); 
+				additional_inputbtnfile2.setAttribute("name", "checkbox");
+				additional_inputbtnfile2.setAttribute("onclick", "myFunction6('"+file_id+"')");
+				document.getElementById("Div_Addditional").appendChild(additional_inputbtnfile2);
+				document.getElementById("Div_Addditional").appendChild(additional_inputbtnfile);
+				
+				if(count_val[file_i].toLowerCase().trim() == "tradeinsertion")
+				{
+					document.getElementById(lbl_id).innerHTML = "Trade Insertion : ";
+				}
+				else if(count_val[file_i].toLowerCase() == "deliverablemxml")
+				{
+					document.getElementById(lbl_id).innerHTML = "Deliverable MxML : ";
+				}
+				else{
+					document.getElementById(lbl_id).innerHTML = count_val[file_i] + ": ";
+				}
+				document.getElementById("merge").style.display = "block";
+				document.getElementById("lab2").style.display = "block";
+			}
+			else{
+				document.getElementById(lbl_id).innerHTML = count_val[file_i] + " Type: ";	
+				document.getElementById("merge").style.display = "none";
+				document.getElementById("lab2").style.display = "none";
+			}
+			var new_line = document.createElement('br');
+			document.getElementById("Div_Addditional").appendChild(new_line);
+			var new_line1 = document.createElement('br');
+			document.getElementById("Div_Addditional").appendChild(new_line1);
+			document.getElementById(lbl_id).style.cssFloat = "left";
+			document.getElementById(lbl_id).style.width = "150px";
+			document.getElementById(file_id).style.marginLeft = "10px";
+			document.getElementById(file_id).style.cssFloat = "left"; 
+			document.getElementById(file_id).style.top = '10px';
+			document.getElementById(file_id).style.fontFamily = "AccentureRotis";
+			
+			document.getElementById("format_chx").style.display = "none";
+			document.getElementById("upload_lbl").style.display = "none";
+		}
+	}	
+	/*var adl_inputbtn = document.createElement('input');
+	adl_inputbtn.setAttribute("id", "btn_upload"); 
+	adl_inputbtn.setAttribute("type", "button");
+	adl_inputbtn.setAttribute("value", "Upload");
+	adl_inputbtn.setAttribute("onclick", "upload_artifact()");
+	document.getElementById("Div_Addditional").appendChild(adl_inputbtn);
+	document.getElementById("btn_upload").style.top = '30px';
+	document.getElementById("btn_upload").style.marginLeft = '300px';
+	document.getElementById("btn_upload").style.marginBottom = '20px';*/
+}
+
+function getremove(k)
+{
+	document.getElementById(k).value=null;
+	l=k+1;
+	document.getElementById(l).value=null;
+	
+}
+
+
+function myFunction6(hi) {
+	
+	
+	
+ myVar = setInterval(function()
+  {
+	  t=hi+1;
+	  //console.log(t);
+	  if(document.getElementById("Txt_reportname").value == "")
+	  {
+		  window.clearInterval(myVar);
+		  alert("Reportname cannot be empty in this method, it should be filled first then click checkbox and choose file");
+		  
+		  document.getElementById(t).checked = false;
+		  return false;
+
+	  }
+	  file = document.getElementById(hi);
+	  if(file.files.length > 0 )
+	  {
+	  window.clearInterval(myVar);
+	  upload_files();
+
+	  }
+	  }, 3000);
+}
+
+
+// function to fetch reports on click on 'Mine'
+function getmine()
+{
+	document.getElementById("fg_online").className = "off_ball";	
+	//document.getElementById("StatusMode_lbl").innerHTML = "OFFLINE";
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "block";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "none";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	//document.getElementById("Dlg_filename").disabled = false;
+	//fetchReports();
+	fetchReports1();
+}
+/*
+function myfunction2(tableData) {
+	var opt= tableData.toString().replace(/[&\\\#+()$~%.'":?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+	optionValues.splice(0,0,"Reportname");
+	optionValues.splice(1,0,"Date Created");
+	
+  var data = optionValues;
+  
+  var perrow = 2,
+      html = "<table id=tableMain><caption><b> Click on the report you want to view: </b></caption><tr>";
+
+  for (var i=0; i<data.length; i++) {
+     html += `<td>${data[i]}</td>`;
+
+    var next = i+1;
+    if (next%perrow==0 && next!=data.length) {
+      html += "</tr><tr>";
+    }
+  }
+  html += "</tr></table>";
+ 	document.getElementById("container").innerHTML = html;
+	  let thetable = document.getElementById('tableMain').getElementsByTagName('tbody')[0];
+            for (let i = 0; i < thetable.rows.length; i++)
+                {
+                    thetable.rows[i].onclick = function()
+                    {
+                        TableRowClick(this);
+                    };
+                }                      
+
+            function TableRowClick(therow) {
+	            let msg = therow.cells[0].innerHTML;
+                msg2=msg.trim();
+				//alert("Report selected : "+msg2);
+				//var k= getConfirmation();
+				fetchViewDetails(msg2);
+				}
+	}
+	
+	
+	*/
+	
+	function getConfirmation() {
+               var retVal = confirm("Do you want to Proceed with Delete?");
+               if( retVal == true ) {
+                  
+                  return true;
+               } else {
+                  
+                  return false;
+               }
+            }
+
+
+function fetchReports1()
+{
+	var c = document.getElementById("typepat")
+	
+	//localStorage.setItem("ttype",c.value)
+	if(c.value != "Compare Reports" && c.value != "All" && c.value != "Gantall")
+	{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	fd.append("type",c.value);
+	xhttp.open("POST", "../cgi-bin/Viewreports2.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			//console.log(allText);
+			var optionValues1 = allText.split("\n");
+			optionValues1.reverse();
+			
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			//optionValues.shift();
+			optionValues.pop();
+			//console.log(optionValues);
+			document.getElementById("container").style.display = "block";
+			//document.getElementById("sub").style.display = "block";
+			//myfunction2(optionValues);
+			myfunction(optionValues);
+			}			
+			};
+	xhttp.send(fd);
+	}
+	else if(c.value == "All")
+	{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	fd.append("type",c.value);
+	xhttp.open("POST", "../cgi-bin/Viewreports_old.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			//console.log(allText);
+			var optionValues1 = allText.split("\n");
+			optionValues1.reverse();
+			
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			//optionValues.shift();
+			optionValues.pop();
+			//console.log(optionValues);
+			document.getElementById("container").style.display = "block";
+			//document.getElementById("sub").style.display = "block";
+			//myfunction2(optionValues);
+			myfunction(optionValues);
+			}			
+			};
+	xhttp.send(fd);
+	}
+	else if(c.value == "Gantall")
+	{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+		
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	fd.append("type",c.value);
+	xhttp.open("POST", "../cgi-bin/gantall.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			allText = this.responseText;
+			//alert(allText);
+			//console.log(allText);
+			var optionValues1 = allText.split("\n");
+			optionValues1.reverse();
+			
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			//optionValues.shift();
+			optionValues.pop();
+			//console.log(optionValues);
+			document.getElementById("container").style.display = "block";
+			//document.getElementById("sub").style.display = "block";
+			//myfunction2(optionValues);
+			myfunction(optionValues);
+			}			
+			};
+	xhttp.send(fd);
+	}
+	
+	else
+	{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+
+	xhttp.open("POST", "../cgi-bin/comparereportsdetails.py",true);
+	xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+			{
+			//allText = this.responseText;
+			//alert(allText);
+			//console.log(allText);
+			allText = this.responseText;
+			//console.log(allText);
+			var optionValues1 = allText.split("\n");
+			optionValues1.reverse();
+			//console.log(optionValues1);
+			var value = "";
+			optionValues = optionValues1.filter(function(item) {
+			return item !== value
+			})
+			//optionValues.shift();
+			//console.log(optionValues);
+			document.getElementById("container").style.display = "block";
+			//document.getElementById("sub").style.display = "block";
+			//myfunction2(optionValues);
+			myfunction2(optionValues);
+			}			
+			};
+	xhttp.send(fd);
+	}
+	
+}		
+		
+
+
+function myfunction(tableData) {
+	
+	var opt= tableData.toString().replace(/[&\\\#+()$~%'":*?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+	/*
+	optionValues.splice(0,0,"Report Name");
+	optionValues.splice(1,0,"Imperatives");
+	optionValues.splice(2,0,"Date Created");
+	optionValues.splice(3,0,"User Name");
+	optionValues.splice(4,0,"Source File");
+*/
+
+  var data = optionValues;
+  
+  var perrow = 5,
+      html = "<table id=tableMain class=HI><caption><b> Double click on the report name(second column) to view report.     Select report name using checkbox to delete: </b></caption><tr>";
+
+  for (var i=0; i<data.length; i++) {    
+	 
+	 if(i>=0)
+	 {
+	
+	 html += "<td><input type='checkbox' name='tbox' class='checkBoxClass' id=i></td>";
+	 html += `<td>${data[i]}</td>`;
+	 }
+
+    var next = i+1;
+    if (next%perrow==0 && next!=data.length) {
+	  
+      html += "</tr><tr>";
+	  
+    }
+  }
+  
+  html += "</tr></table>";
+ 
+ 
+ 
+ 	document.getElementById("container").innerHTML = html;
+	//deleteLastColumn();
+	$("tr").each(function() {
+    $(this).children("td:eq(2)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(3)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(4)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(5)").remove();
+	});
+	$(document).ready( function() {
+    $('#tableMain').DataTable( {
+		  "bAutoWidth": false,
+          'bSort': true,
+		  
+	    columns: [
+            { title: "Checkbox" },
+            { title: "Report name" },
+            { title: "Imperatives" },
+            { title: "Date Created" },
+			{ title: "User Name" },
+			{ title: "Source File" }
+        ],	  
+       'aoColumns': [
+             { sWidth: "1%", bSearchable: true, bSortable: false },
+             { sWidth: "12%", bSearchable: true, bSortable: true },
+             { sWidth: "1%", bSearchable: true, bSortable: false },
+			 { sWidth: "1%", bSearchable: true, bSortable: false },
+			 { sWidth: "1%", bSearchable: true, bSortable: false },
+			 { sWidth: "1%", bSearchable: true, bSortable: false }
+       ],
+ 
+       "paging":         true
+    } );
+	});
+
+	
+	//$('#tableMain').DataTable();
+let thetable = document.getElementById('tableMain').getElementsByTagName('tbody')[0];
+          for (let i = 0; i < thetable.rows.length; i++)
+                {         
+					$('#tableMain').on('click', 'td:nth-child(2)', function() {
+						//console.log($(this).closest('tr').find('td:nth-child(2)').text());
+					//fetchViewDetails($(this).closest('tr').find('td:nth-child(2)').text());
+					thetable.rows[i].onclick = function()
+                    {
+                        TableRowClick(this);
+                    };
+				});
+                   
+                }                      
+
+			                       
+
+            function TableRowClick(therow) {
+	            let msg = therow.cells[1].innerHTML;
+                msg2=msg.trim();
+				console.log(msg2);
+				//alert("Report selected : "+msg2);
+				//var k= getConfirmation();
+				if(msg2!="Gantall")
+				{
+				fetchViewDetails(msg2);
+				}
+				else{
+					getgant();
+				}
+				}
+
+
+
+			function showDetails(obj){
+			console.log($(this).find("td:first").text());
+			}
+
+         
+	}
+	
+	
+	
+	
+	
+
+function myfunction2(tableData) {
+	
+	var opt= tableData.toString().replace(/[&\\\#+()$~%.'":*?<>{}]/g, '');
+	opt2=opt.replace(/[\[\]']+/g,'');
+	var optionValues = opt2.split(',');
+	/*
+	optionValues.splice(0,0,"Report Name");
+	optionValues.splice(1,0,"Imperatives");
+	optionValues.splice(2,0,"Base Reports");
+	optionValues.splice(3,0,"Compare Reports");
+	optionValues.splice(4,0,"Date Created");
+	optionValues.splice(5,0,"User Name");*/
+
+  var data = optionValues;
+  
+  var perrow = 6,
+      html = "<table id=tableMain class=HI><caption><b> Double click on the report name(second column) to view report.     Select report name using checkbox to delete: </b></caption><tr>";
+  
+  
+  for (var i=0; i<data.length; i++) {    
+	 
+	 if(i>=0)
+	 {
+	
+	 
+	 html += "<td><input type='checkbox' name='tbox' class='checkBoxClass' id=i></td>";
+	 html += `<td>${data[i]}</td>`;
+	 
+	 
+     }
+	
+    var next = i+1;
+    if (next%perrow==0 && next!=data.length) {
+	  
+      html += "</tr><tr>";
+	  
+    }
+  }
+  
+  html += "</tr></table>";
+ 
+ 
+ 
+ 	document.getElementById("container").innerHTML = html;
+	//deleteLastColumn();
+	$("tr").each(function() {
+    $(this).children("td:eq(2)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(3)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(4)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(5)").remove();
+	});
+	$("tr").each(function() {
+    $(this).children("td:eq(6)").remove();
+	});
+	$(document).ready( function() {
+    $('#tableMain').DataTable( {
+		  "bAutoWidth": false,
+          'bSort': false,
+	   columns: [
+            { title: "Checkbox" },
+            { title: "Report name" },
+            { title: "Imperatives" },
+            { title: "Base Report" },
+            { title: "Compare Report" },
+            { title: "Date Created" },
+			{ title: "User Name" }
+        ],
+       'aoColumns': [
+             { sWidth: "1%", bSearchable: true, bSortable: false },
+             { sWidth: "12%", bSearchable: true, bSortable: false },
+             { sWidth: "1%", bSearchable: true, bSortable: false },
+			 { sWidth: "1%", bSearchable: true, bSortable: false },
+             { sWidth: "12%", bSearchable: true, bSortable: false },
+             { sWidth: "1%", bSearchable: true, bSortable: false },
+			 { sWidth: "1%", bSearchable: true, bSortable: false }
+       ],
+	   
+ 
+       "paging":         true
+    } );
+	});
+
+	
+	//$('#tableMain').DataTable();
+let thetable = document.getElementById('tableMain').getElementsByTagName('tbody')[0];
+          for (let i = 0; i < thetable.rows.length; i++)
+                {         
+					$('#tableMain').on('click', 'td:nth-child(2)', function() {
+						//console.log($(this).closest('tr').find('td:nth-child(2)').text());
+					//fetchViewDetails($(this).closest('tr').find('td:nth-child(2)').text());
+					thetable.rows[i].onclick = function()
+                    {
+                        TableRowClick(this);
+                    };
+				});
+                   
+                }                      
+
+			                       
+
+            function TableRowClick(therow) {
+	            let msg = therow.cells[1].innerHTML;
+                msg2=msg.trim();
+				console.log(msg2);
+				//alert("Report selected : "+msg2);
+				//var k= getConfirmation();
+				fetchViewDetails(msg2);
+				}
+
+
+
+			function showDetails(obj){
+			console.log($(this).find("td:first").text());
+			}
+
+         
+	}
+	
+	
+	
+	
+
+	
+	function deleteLastColumn() {
+    $('#tableMain tr').find('th:last-child, td:last-child').remove()
+}
+	
+	var jsonObj = [];
+	
+	function deletefromview() {
+		
+		
+		
+	if (!$(i).is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+	}
+		
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(1).text().trim()));
+	
+	}
+	});
+
+	console.log(jsonObj);
+
+if(getConfirmation())
+{
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("logtype",document.getElementById("typepat").value.trim());
+fd.append("reportlist",JSON.stringify(jsonObj));
+txtFile.open("POST", "../cgi-bin/Delete_view_reports.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		alert(allText);
+		location.reload();
+		}			
+	};
+	txtFile.send(fd);
+		
+		
+}
+else{
+location.reload();
+return false;
+}		
+		
+	}
+	
+	
+	
+	
+	
+	$(".submit-row").click(function () {
+	
+	
+
+	if (!$(i).is(':checked')) {
+
+	alert("Select atleast one report to proceed further");
+    return false;
+}
+
+ 
+	
+	
+	$("table > tbody > tr").each(function () {
+  var $tr = $(this);
+  if ($tr.find(".checkBoxClass").is(":checked")) {
+    var $td = $tr.find("td");
+	jsonObj.push(($td.eq(0).text().trim()));
+	
+  }
+});
+
+console.log(jsonObj);
+var txtFile = new XMLHttpRequest();		
+var fd = new FormData();
+fd.append("user_id",localStorage.getItem("ipm_UserId"));
+fd.append("logtype",localStorage.getItem("ttype"));
+fd.append("reportlist",JSON.stringify(jsonObj));
+txtFile.open("POST", "../cgi-bin/update_reports.py",true);
+txtFile.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200)
+		{
+		allText = this.responseText;
+		alert("Changes updated on existing reports");
+		location.reload();
+		}			
+	};
+	txtFile.send(fd);
+
+});
+
+
+ 
+ 
+// function to fetch report details
+function fetchReports()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	document.getElementById('top').style.display = 'block';	
+	fd.append("user_name",localStorage.getItem("ipm_username"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById('top').style.display = 'none';
+			var outputVal = this.responseText.trim();
+			if(outputVal != "")
+			{
+				var test_drp = document.getElementById("slt_view");	
+				var test_length = test_drp.options.length;
+				for (i = 0; i < test_length; i++) {
+				  test_drp.options[0] = null;
+				}
+				var project_name_arr = this.responseText.split("\n");
+				for (var prj_i=1; prj_i<project_name_arr.length-1 ; prj_i=prj_i+1)
+				{					
+					var option = document.createElement("option");
+					option.text = project_name_arr[prj_i].split(",")[1];
+						test_drp.add(option, test_drp[0]);
+				} 
+			}
+			else{
+				alert("Kindly analyze a log file to view this page");
+				document.getElementById("Btn_exist_proceed").disabled = true;
+			}
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getLogNameForUser.py",true);
+     xhttp.send(fd);
+}
+
+// function to get online data from elasticsearch
+function getOnlineData()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="DeleteReports.html" ></object>';
+	}
+	else{
+		document.getElementById("fg_online").className = "ball";
+		//document.getElementById("Dlg_filename").disabled = false;
+		fetchOnlineImp();
+	}
+}
+
+function getcomdata()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Comparereports.html" ></object>';
+	}
+	else{
+		document.getElementById("fg_online").className = "ball";
+		//document.getElementById("Dlg_filename").disabled = false;
+		fetchOnlineImp();
+	}
+}
+
+function getmodrep()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="ModifyPatternER.html" ></object>';
+	}
+	else{
+		document.getElementById("fg_online").className = "ball";
+		//document.getElementById("Dlg_filename").disabled = false;
+		fetchOnlineImp();
+	}
+}
+
+
+
+function getmodrep2()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Viewreports.html" ></object>';
+	}
+	else{
+		document.getElementById("fg_online").className = "ball";
+		//document.getElementById("Dlg_filename").disabled = false;
+		fetchOnlineImp();
+	}
+}
+
+function getgant()
+{
+	document.getElementById("Div_HomeHeader").style.display = "none";
+	document.getElementById("Div_NewQual").style.display = "none";
+	document.getElementById("Div_ViewQual").style.display = "none";
+	document.getElementById("div_imp_page").style.display = "none";	
+	document.getElementById("div_online_page").style.display = "block";	
+	document.getElementById("Txt_reportname").value = "";
+	document.getElementById("Txt_reportname").disabled = false;
+	//document.getElementById("Dlg_filename").value = "";
+	document.getElementById('Btn_upload').disabled = false;
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById("div_online_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Gantall.html" ></object>';
+	}
+	else{
+		document.getElementById("fg_online").className = "ball";
+		//document.getElementById("Dlg_filename").disabled = false;
+		fetchOnlineImp();
+	}
+}
+
+// function to fetch online report details
+function fetchOnlineImp()
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();	
+	sessionStorage.setItem("isOnline", "true");
+	document.getElementById('top').style.display = 'block';
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	fd.append("appname",localStorage.getItem("ipm_appname"));
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById('top').style.display = 'none';							
+			document.getElementById("Div_NewQual").style.display = "none";
+			document.getElementById("Div_ViewQual").style.display = "none";
+			document.getElementById("div_imp_page").style.display = "block";	
+			document.getElementById("div_imp_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Imperatives.html" ></object>';
+			//document.getElementById("log_report").innerHTML = "<span class='glyphicon glyphicon-file'></span> ONLINE";
+			document.getElementById("log_report").innerHTML = "";
+			localStorage.setItem("Imp_List",this.responseText.toString());
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/onlineGetImperative.py",true);
+     xhttp.send(fd);
+}
+
+// function to fetch list of imperatives for the report
+function fetchViewDetails(e)
+{
+	var xhttp = new XMLHttpRequest();
+	var fd = new FormData();
+	sessionStorage.setItem("isExisting", "true");
+	sessionStorage.setItem("Imperative_name", "");
+	sessionStorage.setItem("Imperative_Id", "");
+	sessionStorage.setItem("isOnline", "false");
+	fd.append("user_id",localStorage.getItem("ipm_UserId"));
+	//var e = document.getElementById('slt_view');
+	//var report_name = e.options[e.selectedIndex].text;
+	var report_name = e;
+	fd.append("report_name",report_name);	
+	localStorage.setItem("reportname",report_name);
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var response_txt = this.responseText.split("\n");
+			$( "#div_imperatives" ).empty();
+			var rep_id = response_txt[0].split("REP_ID - ")[1].toString().trim();
+			localStorage.setItem("WorkstreamName","All Workstreams");
+			localStorage.setItem("rep_id",rep_id);							
+			document.getElementById("Div_NewQual").style.display = "none";
+			document.getElementById("Div_ViewQual").style.display = "none";
+			document.getElementById("log_report").style.display = "block";
+			document.getElementById("log_report").innerHTML = "<span class='glyphicon glyphicon-file'></span> " + report_name;
+			document.getElementById("div_imp_page").style.display = "block";	
+			document.getElementById("div_imp_page").innerHTML = '<object type="text/html" style = "width:100%; height:700px;" data="Imperatives.html" ></object>';
+			localStorage.setItem("Imp_List",this.responseText.toString());
+		}
+     };
+     xhttp.open("POST", "../cgi-bin/getImperativesForReports.py",true);
+     xhttp.send(fd);
+}
+
+// function to get list of imperatives 
+function getImperativesList()
+{
+
+	var imp_list = localStorage.getItem("Imp_List").split('\n');
+	console.log(imp_list);
+	if(imp_list.includes("[IMP038 - OSP (QUEUE MSG COUNT)]"))
+	{
+	imp_list.pop();
+	}
+	console.log(imp_list);
+	for (var i=1; i<imp_list.length; i++)
+	{
+	if(imp_list[i].split(' - ')[0].trim().toUpperCase() === "IMP001" || imp_list[i].split(' - ')[0].trim().toUpperCase() === "IMP015" )
+	{
+		document.getElementById('Div_Imp_list').style.height = "610px";
+		document.getElementById('Div_Imp_list').style.setProperty('position', 'relative', 'important');
+		document.getElementById("Div_Imp_list_img").style.setProperty('position', 'relative', 'important');
+		document.getElementById("Div_Imperative_sidenav").style.setProperty('position', 'relative', 'important');
+
+	}
+	}
+	var top_val = 20;
+	sessionStorage.setItem("isForensic", "false");
+	localStorage.setItem("online_tp", "false");
+	localStorage.setItem("Selectedtime", "");
+	if(sessionStorage.getItem("isOnline") =="true")
+	{
+		$('#daterange_onl').show();
+	}
+	else{
+		$('#daterange_onl').hide();
+	}
+	
+	if(sessionStorage.getItem("isExisting") =="true" || sessionStorage.getItem("isOnline") =="true")
+	{		
+		var imp_list = localStorage.getItem("Imp_List").split('\n');
+		var link_data = "";
+		for (var imp_i=1; imp_i<imp_list.length-1; imp_i = imp_i+1)
+		{ 
+			if(imp_list[imp_i].split(' - ')[0].trim().toUpperCase() != "IMP007")
+			{
+				if(imp_list[imp_i].split(' - ')[0].trim().toUpperCase() == "IMP016" || imp_list[imp_i].split(' - ')[0].trim().toUpperCase() == "IMP017" || imp_list[imp_i].split(' - ')[0].trim().toUpperCase() == "IMP018" || imp_list[imp_i].split(' - ')[0].trim().toUpperCase() == "IMP019" || imp_list[imp_i].split(' - ')[0].trim().toUpperCase() == "IMP020")
+				{
+					$('#download_btn').hide();
+				}
+				else{
+					$('#download_btn').show();
+				}
+				
+				top_val = top_val + 40;
+				var link_color = imp_list[imp_i].split(' - ')[0]+'_bgcolor';
+				var i_class = "fa "+imp_list[imp_i].split(' - ')[0]+" fa-fw fa-3x";
+				link_data += '<a href="#" style="top: '+top_val+'px;" class="'+link_color+'" onclick="callImperatives(\''+imp_list[imp_i].split(' - ')[1].trim().toUpperCase()+'\', \''+imp_list[imp_i].split(' - ')[0].trim()+'\')"><i class="'+i_class+'" aria-hidden="true" style="font-size:20px"></i> '+imp_list[imp_i].split(' - ')[1]+'</a><br/>';
+				//document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="'+imp_list[imp_i].split(' - ')[0].trim()+'.html" ></object>'; 
+				if(sessionStorage.getItem("isOnline") =="true" && imp_list[imp_i].split(' - ')[0].trim().toUpperCase() == "IMP004")
+				{
+					document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="Anomaly.html" ></object>'; 
+				}
+				else{
+					document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="'+imp_list[imp_i].split(' - ')[0].trim()+'.html" ></object>'; 
+				}
+				document.getElementById('Hdr_imperative').innerHTML = imp_list[imp_i].split(' - ')[1].trim().toUpperCase();
+				sessionStorage.setItem("Imperative_Id", imp_list[imp_i].split(' - ')[0].trim());
+				document.getElementById('Div_Imp_list_img').style.backgroundImage =  "url('../images/"+imp_list[imp_i].split(' - ')[0].trim()+".png')";
+				sessionStorage.setItem("Imperative_name", imp_list[imp_i].split(' - ')[1].trim().toLowerCase());
+			}
+			else{
+				if(sessionStorage.getItem("isOnline") =="false")
+				{
+					top_val = top_val + 40;
+					var link_color = imp_list[imp_i].split(' - ')[0]+'_bgcolor';
+					var i_class = "fa "+imp_list[imp_i].split(' - ')[0]+" fa-fw fa-3x";
+					link_data += '<a href="#" style="top: '+top_val+'px;" class="'+link_color+'" onclick="callImperatives(\''+imp_list[imp_i].split(' - ')[1].trim().toUpperCase()+'\', \''+imp_list[imp_i].split(' - ')[0].trim()+'\')"><i class="'+i_class+'" style="font-size:20px"></i> '+imp_list[imp_i].split(' - ')[1]+'</a><br/>';
+					document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="'+imp_list[imp_i].split(' - ')[0].trim().toUpperCase()+'.html" ></object>'; 
+					document.getElementById('Hdr_imperative').innerHTML = imp_list[imp_i].split(' - ')[1].trim().toUpperCase();
+					sessionStorage.setItem("Imperative_Id", imp_list[imp_i].split(' - ')[0].trim());
+					document.getElementById('Div_Imp_list_img').style.backgroundImage =  "url('../images/"+imp_list[imp_i].split(' - ')[0].trim()+".png')";
+					sessionStorage.setItem("Imperative_name", imp_list[imp_i].split(' - ')[1].trim().toLowerCase());
+				}
+			}
+		}
+		document.getElementById('Div_Imperative_sidenav').innerHTML = link_data;
+	}
+	else{
+		var imp_list = localStorage.getItem("Imp_List").split('\'');
+		var link_data = "";
+		for (var imp_i=1; imp_i<imp_list.length; imp_i = imp_i+2)
+		{ 
+			top_val = top_val + 40;
+			var link_color = imp_list[imp_i].split('-')[0]+'_bgcolor';
+			var i_class = "fa "+imp_list[imp_i].split('-')[0]+" fa-fw fa-3x";
+			link_data += '<a href="#" style="top: '+top_val+'px;" class="'+link_color+'" onclick="callImperatives(\''+imp_list[imp_i].split('-')[1].trim().toUpperCase()+'\', \''+imp_list[imp_i].split('-')[0]+'\')"><i class="'+i_class+'" style="font-size:20px"></i> '+imp_list[imp_i].split('-')[1]+'</a><br/>';
+			document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="'+imp_list[imp_i].split('-')[0].trim().toUpperCase()+'.html" ></object>'; 
+			document.getElementById('Hdr_imperative').innerHTML = imp_list[imp_i].split('-')[1].trim().toUpperCase();
+			sessionStorage.setItem("Imperative_Id", imp_list[imp_i].split('-')[0].trim());
+			document.getElementById('Div_Imp_list_img').style.backgroundImage =  "url('../images/"+imp_list[imp_i].split('-')[0].trim()+".png')";
+			sessionStorage.setItem("Imperative_name", imp_list[imp_i].split('-')[1].trim().toLowerCase());
+		}
+		document.getElementById('Div_Imperative_sidenav').innerHTML = link_data;
+	}
+	var istradeevents = false;
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById('Lbl_observation').style.display = "none";
+		document.getElementById('TA_Obs').style.display = "none";
+		
+		document.getElementById('Div_Imp_list').style.width = "100%";
+		document.getElementById('Div_Imp_list').style.height = "95%";
+		document.getElementById('Div_Imp_list_img').style.display = "none";
+		document.getElementById('Lbl_char').style.display = "none";
+		document.getElementById('Btn_save').style.display = "none";
+		for (var i=1; i<imp_list.length; i++)
+		{
+		if(imp_list[i].split(' - ')[0].trim().toUpperCase() === "IMP035")
+		{
+		callImperatives('Trade Events', 'IMP035');
+		istradeevents = true;
+		break;
+		}
+		else if(imp_list[i].split('-')[0].trim().toUpperCase() === "IMP035")
+		{
+		callImperatives('Trade Events', 'IMP035');
+		istradeevents = true;
+		break;
+		}
+		/*else if(imp_list[i].split('-')[0].trim().toUpperCase() === "IMP037")
+		{
+		callImperatives('OSP', 'IMP037');
+		istradeevents = true;
+		break;
+		}
+		else if(imp_list[i].split('-')[0].trim().toUpperCase() === "IMP037")
+		{
+		callImperatives('OSP', 'IMP037');
+		istradeevents = true;
+		break;
+		}*/
+		
+		}
+		/*if(!istradeevents)
+		{
+		callImperatives('DELIVERABLE WORKFLOW', 'IMP036');
+		}*/
+		
+	}
+	
+}
+
+// display imperatives
+function callImperatives(Imp_val, Imp_id)
+{
+	if(Imp_id == "IMP038")
+	{
+		Imp_id = "IMP037";
+		
+	}
+	if(localStorage.getItem("ipm_appname").toLowerCase() === "murex")
+	{
+		document.getElementById('Lbl_observation').style.display = "none";
+		document.getElementById('TA_Obs').style.display = "none";
+		
+		document.getElementById('Div_Imp_list').style.width = "100%";
+		document.getElementById('Div_Imp_list').style.height = "95%";
+		document.getElementById('Div_Imp_list_img').style.display = "none";
+		document.getElementById('Lbl_char').style.display = "none";
+		document.getElementById('Btn_save').style.display = "none";
+	}
+	else
+	{
+		document.getElementById('Lbl_observation').style.display = "block";
+		document.getElementById('TA_Obs').style.display = "block";
+		
+		document.getElementById('Lbl_char').style.display = "block";
+		document.getElementById('Btn_save').style.display = "block";
+		document.getElementById('Div_Imp_list_img').style.backgroundImage =  "url('../images/"+sessionStorage.getItem("Imperative_Id")+".png')";
+	}
+		
+	sessionStorage.setItem("Imperative_name", Imp_val.toLowerCase());
+	sessionStorage.setItem("Imperative_Id", Imp_id);	
+	sessionStorage.setItem("isForensic", "false");
+   /*  document.getElementById("TA_Obs").style.display = "block";
+    document.getElementById("Lbl_observation").style.display = "block"; */
+	
+	if(sessionStorage.getItem("isOnline") =="true" && Imp_id == "IMP004")
+	{
+		document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="Anomaly.html" ></object>'; 
+	}
+	else{
+		document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="'+Imp_id+'.html" ></object>';
+	}	 
+	document.getElementById('Hdr_imperative').innerHTML = Imp_val.toUpperCase();
+}
+
+function callImperatives2(Imp_val, Imp_id)
+{
+document.getElementById('Div_Imp_list').innerHTML = '<object type="text/html" style = "width:100%; height:100%" data="'+Imp_id+'.html" ></object>';
+}
+
+// get Observation details for the corresponding imperatives
+function getObservation()
+{
+			
+	parent.document.getElementById("Lbl_observation").innerHTML = "";
+	parent.document.getElementById("TA_Obs").value = "";
+	//document.getElementById('Div_Imp_list_img').style.backgroundImage =  "url('../images/"+sessionStorage.getItem("Imperative_name")+".png')";
+	if(sessionStorage.getItem("isForensic") =="true" || sessionStorage.getItem("isOnline") =="true")
+	{		
+		parent.document.getElementById("TA_Obs").style.display = "none";
+		parent.document.getElementById("Lbl_observation").style.display = "none";
+		parent.document.getElementById("Lbl_char").style.display = "none";
+		if(sessionStorage.getItem("isOnline") =="true")
+		{
+			parent.document.getElementById("Btn_save").style.display = "none";
+		}
+		else{
+			parent.document.getElementById("Btn_save").style.display = "block";
+		}
+	}
+	else{
+		parent.document.getElementById("TA_Obs").style.display = "block";
+		parent.document.getElementById("Lbl_observation").style.display = "block";
+		parent.document.getElementById("Btn_save").style.display = "block";		
+		parent.document.getElementById("Lbl_char").style.display = "block";
+	}
+	//if(sessionStorage.getItem("isExisting") =="true")
+	//{
+		var xhttp = new XMLHttpRequest();
+		var fd = new FormData();
+		sessionStorage.setItem("isExisting", "true");
+		fd.append("user_id",localStorage.getItem("ipm_UserId"));
+		fd.append("rep_id",localStorage.getItem("rep_id"));
+		fd.append("Imperative_Id",sessionStorage.getItem("Imperative_Id"));
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {				
+				var recommend_str = "";
+				var obs_str = "";
+				if(this.responseText.toString() != "")
+				{
+					var res_text = this.responseText;
+					res_text = res_text.replace("(\"","(\'");
+					res_text = res_text.replace("%\",","%\',");
+					var response_arr = res_text.split("\'");
+					console.log(response_arr);
+					console.log(response_arr[1]);
+					if(response_arr[1] != "")
+					{
+						var obs_response_txt = response_arr[1].split("\\n");
+						for (var obs_j=0; obs_j<obs_response_txt.length; obs_j=obs_j+1)
+						{ 
+							if(obs_str != "")
+							{
+								obs_str = obs_str + "\n" + obs_response_txt[obs_j];
+							}
+							else{
+								obs_str = obs_response_txt[obs_j];
+							}
+						}
+						parent.document.getElementById("Lbl_observation").innerHTML = obs_str;		
+					}
+					if(response_arr[3] != "")
+					{
+						console.log(response_arr);
+						console.log(response_arr[3]);
+						var response_txt = response_arr[3].split("\\n");
+						console.log(response_txt);
+						for (var obs_i=0; obs_i<response_txt.length; obs_i=obs_i+1)
+						{ 
+							if(recommend_str != "")
+							{
+								recommend_str = recommend_str + "\n" + response_txt[obs_i];
+							}
+							else{
+								recommend_str = response_txt[obs_i];
+							}
+						}				
+						parent.document.getElementById("TA_Obs").value = recommend_str;
+					}
+				}				
+			}
+		 };
+		 xhttp.open("POST", "../cgi-bin/getObservations.py",true);
+		 xhttp.send(fd);
+	//}
+}
+
+// function - save the observations for the corresponding imperatives
+function saveObservation()
+{
+	
+		
+	if(sessionStorage.getItem("isForensic") =="false")
+	{	
+		var xhttp = new XMLHttpRequest();	
+		var fd = new FormData();
+		sessionStorage.setItem("isExisting", "true");
+		fd.append("user_id",localStorage.getItem("ipm_UserId"));
+		fd.append("rep_id",localStorage.getItem("rep_id"));
+		fd.append("Imperative_Id",sessionStorage.getItem("Imperative_Id"));
+		fd.append("Observation",document.getElementById("TA_Obs").value);
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var response_txt = this.responseText.split("\n");	
+				alert("Observation updated.");
+			}
+		 };
+		 xhttp.open("POST", "../cgi-bin/saveObservations.py",true);
+		 xhttp.send(fd);
+	}
+	else{
+		var xhttp = new XMLHttpRequest();	
+		var fd = new FormData();
+		sessionStorage.setItem("isExisting", "true");
+		fd.append("user_id",localStorage.getItem("ipm_UserId"));
+		fd.append("rep_id",localStorage.getItem("rep_id"));		
+		fd.append("description",document.getElementById("Div_Imp_list").childNodes[0].contentDocument.body.childNodes[1].value);
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var response_txt = this.responseText.split("\n");	
+				alert("Summary report updated.");
+			}
+		 };
+		 xhttp.open("POST", "../cgi-bin/saveForensicData.py",true);
+		 xhttp.send(fd);
+	}
+}
+
+function getForensicData()
+{
+	
+	sessionStorage.setItem("isForensic", "true");
+	parent.document.getElementById("TA_Obs").style.display = "none";
+	parent.document.getElementById("Lbl_observation").style.display = "none";
+	parent.document.getElementById("Lbl_char").style.display = "none";
+	if(sessionStorage.getItem("isExisting") =="true")
+	{
+		var xhttp = new XMLHttpRequest();
+		var fd = new FormData();
+		sessionStorage.setItem("isExisting", "true");
+		fd.append("user_id",localStorage.getItem("ipm_UserId"));
+		fd.append("rep_id",localStorage.getItem("rep_id"));
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var response_txt = this.responseText.split("\n");
+				var foren_str = "";
+				for (var obs_i=0; obs_i<response_txt.length-1; obs_i=obs_i+1)
+				{ 
+					if(foren_str != "")
+					{
+						foren_str = foren_str + "\n" + response_txt[obs_i];
+					}
+					else{
+						foren_str = response_txt[obs_i];
+					}
+				}
+				document.getElementById("TA_FR").value = foren_str;				
+			}
+		 };
+		 xhttp.open("POST", "../cgi-bin/getForensicData.py",true);
+		 xhttp.send(fd);
+	}
+}
+
+// function to download files on click 'Download' button
+function clickDownload(){
+	var filename = "";
+	var Imp_val = sessionStorage.getItem("Imperative_Id");
+	var report_folder = localStorage.getItem("ipm_UserId") + "_" + localStorage.getItem("rep_id");
+	var file_name = localStorage.getItem("ipm_appname") + "_" + localStorage.getItem("reportname") + "_" + sessionStorage.getItem("Imperative_name");
+	var online_file_name = localStorage.getItem("ipm_appname") + "_" + sessionStorage.getItem("Imperative_name");
+	var current_date= new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+	if(Imp_val == "IMP001")
+	{
+		if(sessionStorage.getItem("isOnline") =="true")
+		{			
+			if(localStorage.getItem("online_tp") == "false"){
+				filename = "online\\"+online_file_name+"_ONL_"+current_date+".csv";
+			}
+			else{
+				filename = "online\\"+online_file_name+"_TP_"+current_date+".csv";
+			}
+		}
+		else {
+		filename = "Reports\\" + report_folder + "\\"+file_name+".csv";
+		}
+	}
+	else if(Imp_val == "IMP002" || Imp_val == "IMP005")
+	{
+		if(sessionStorage.getItem("isDrilldown") == "true")
+		{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_ONL_"+localStorage.getItem("serviceCall_selectedItem")+"_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_TP_"+localStorage.getItem("serviceCall_selectedItem")+"_"+current_date+".csv";
+				}
+			}
+			else{
+				filename = "Reports\\" + report_folder + "\\"+file_name+"_"+localStorage.getItem("serviceCall_selectedItem")+".csv";
+			}
+		}
+		else
+		{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{			
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_ONL_All_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_TP_All_"+current_date+".csv";
+				}
+			}
+			else {
+				filename = "Reports\\" + report_folder + "\\"+file_name+".csv";
+			}
+		}
+	}
+	else if(Imp_val == "IMP003")
+	{
+		if(localStorage.getItem("ipm_appname").toLowerCase() == "twa")
+		{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{			
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_All_ONL_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_All_TP_"+current_date+".csv";
+				}
+			}
+			else {
+				filename = "Reports\\" + report_folder + "\\"+file_name+"_All.csv";
+			}
+		}
+		else{
+			filename = "Reports\\" + report_folder + "\\"+file_name+".csv";
+		}
+	}
+	else if(Imp_val == "IMP004")
+	{
+		if(sessionStorage.getItem("isOnline") =="true")
+		{			
+			if(localStorage.getItem("online_tp") == "false"){
+				filename = "online\\"+online_file_name+"_ONL_"+current_date+".csv";
+			}
+			else{
+				filename = "online\\"+online_file_name+"_TP_"+current_date+".csv";
+			}
+		}
+		else {
+			filename = "Reports\\" + report_folder + "\\"+file_name+".csv";
+		}
+	}
+	else if(Imp_val == "IMP006")
+	{
+		if(sessionStorage.getItem("isDrilldown") == "true")
+		{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{			
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_ONL_"+sessionStorage.getItem("failurename")+"_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_TP_"+sessionStorage.getItem("failurename")+"_"+current_date+".csv";
+				}
+			}
+			else {
+				filename = "Reports\\" + report_folder + "\\"+file_name+"_"+sessionStorage.getItem("failurename")+".csv";
+			}
+		}
+		else{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{			
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_ONL_AllFailures_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_TP_AllFailures_"+current_date+".csv";
+				}
+			}
+			else {
+				filename = "Reports\\" + report_folder + "\\"+file_name+"_AllFailures.csv";
+			}
+		}
+	}
+	else if(Imp_val == "IMP007")
+	{
+		filename = "Reports\\" + report_folder + "\\"+report_folder+"_summaryreport.txt";
+	}
+	/*else if(Imp_val == "IMP016")
+	{
+		filename = "online\\SAP\\IMP016.csv";
+	}
+	else if(Imp_val == "IMP017")
+	{
+		filename = "online\\SAP\\IMP016.csv";
+	}
+	else if(Imp_val == "IMP018")
+	{
+		filename = "Reports\\" + report_folder + "\\"+report_folder+"_summaryreport.txt";
+	}
+	else if(Imp_val == "IMP019")
+	{
+		filename = "Reports\\" + report_folder + "\\"+report_folder+"_summaryreport.txt";
+	}
+	else if(Imp_val == "IMP020")
+	{
+		filename = "Reports\\" + report_folder + "\\"+report_folder+"_summaryreport.txt";
+	}*/
+	else if(Imp_val == "IMP008")
+	{
+		if(localStorage.getItem("imp_tab") == "Usage")
+		{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{			
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_ONL_"+localStorage.getItem("search_value")+"_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_TP_"+localStorage.getItem("search_value")+"_"+current_date+".csv";
+				}
+			}
+			else {
+				filename = "Reports\\" + report_folder + "\\"+file_name+"_"+localStorage.getItem("search_value")+".csv";
+			}
+		}
+		if(localStorage.getItem("imp_tab") == "DataCombination")
+		{
+			if(sessionStorage.getItem("isOnline") =="true")
+			{			
+				if(localStorage.getItem("online_tp") == "false"){
+					filename = "online\\"+online_file_name+"_ONL_"+ localStorage.getItem("serviceCall_selectedItem")+"_"+localStorage.getItem("search_value")+"_"+current_date+".csv";
+				}
+				else{
+					filename = "online\\"+online_file_name+"_TP_"+ localStorage.getItem("serviceCall_selectedItem")+"_"+localStorage.getItem("search_value")+"_"+current_date+".csv";
+				}
+			}
+			else {
+				filename = "Reports\\" + report_folder + "\\"+file_name+"_"+ localStorage.getItem("serviceCall_selectedItem")+"_"+localStorage.getItem("search_value")+".csv";
+			}
+		}
+	}		
+	else if(Imp_val == "IMP016" || Imp_val == "IMP017" || Imp_val == "IMP018" || Imp_val == "IMP019")	
+	{	
+		filename = "online\\SAP\\" + Imp_val + ".csv";	
+	}
+	if(fileExists(filename))
+	{
+		if(Imp_val == "IMP007")
+		{
+			file_name = report_folder+"_summaryreport.txt";
+			var element = document.createElement('a');
+			  element.setAttribute('href', filename);
+			  element.setAttribute('download', file_name);
+			  element.style.display = 'none';
+			  document.body.appendChild(element);
+			  element.click();
+			  document.body.removeChild(element);
+		}
+		else{
+			window.open(filename, '_blank');
+		}
+	}
+	else{
+		alert("File does not exists");
+	}
+}
+
+function fileExists(url) {
+    if(url){
+        var req = new XMLHttpRequest();
+        req.open('GET', url, false);
+        req.send();
+        return req.status==200;
+    } else {
+        return false;
+    }
+}
+
+/**** admin pages ****/
+function CallAdminpages(htmlpage)
+{
+	document.getElementById("div_adminpage").innerHTML='<object type="text/html" style = "width:100%; height:100%" data="'+htmlpage+'" ></object>'; 
+}
